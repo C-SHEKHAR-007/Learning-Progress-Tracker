@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import Library from './pages/Library';
 import Manage from './pages/Manage';
 import Player from './pages/Player';
+import Subjects from './pages/Subjects';
 import useItems from './hooks/useItems';
 
 function App() {
@@ -259,6 +260,16 @@ function App() {
                   onUpdateSubject={handleUpdateSubject}
                   onDeleteSubject={handleDeleteSubject}
                   onUpdateItem={handleUpdateItem}
+                  getItemsBySubject={getItemsBySubject}
+                />
+              } 
+            />
+            <Route 
+              path="/subjects" 
+              element={
+                <Subjects 
+                  items={items}
+                  subjects={subjects}
                   getItemsBySubject={getItemsBySubject}
                 />
               } 

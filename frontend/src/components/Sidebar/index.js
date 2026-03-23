@@ -8,7 +8,8 @@ import {
   ChevronLeft,
   ChevronRight,
   BookOpen,
-  Zap
+  Zap,
+  Folder
 } from 'lucide-react';
 import './styles.css';
 
@@ -24,6 +25,7 @@ const Sidebar = ({ stats }) => {
   const navItems = [
     { path: '/', icon: Home, label: 'Dashboard' },
     { path: '/library', icon: Library, label: 'Library' },
+    { path: '/subjects', icon: Folder, label: 'Subjects' },
     { path: '/manage', icon: Settings, label: 'Manage' },
   ];
 
