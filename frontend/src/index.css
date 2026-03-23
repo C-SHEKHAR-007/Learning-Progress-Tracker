@@ -146,21 +146,30 @@ body::before {
 
 .main-area {
   flex: 1;
-  margin-left: 280px;
+  margin-left: 240px;
   min-height: 100vh;
   transition: margin-left var(--transition-normal);
 }
 
+.main-area.sidebar-collapsed {
+  margin-left: 70px;
+}
+
 @media (max-width: 1024px) {
   .main-area {
-    margin-left: 80px;
+    margin-left: 70px;
+  }
+  
+  .main-area.sidebar-collapsed {
+    margin-left: 70px;
   }
 }
 
 @media (max-width: 768px) {
-  .main-area {
+  .main-area,
+  .main-area.sidebar-collapsed {
     margin-left: 0;
-    padding-bottom: 70px;
+    padding-bottom: 80px;
   }
 }
 
