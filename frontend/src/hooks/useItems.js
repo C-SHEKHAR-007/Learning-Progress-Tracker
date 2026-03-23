@@ -1,71 +1,71 @@
 import { useState, useCallback } from 'react';
-import { itemsApi, subjectsApi } from '../services/api';
+import { itemsApi, collectionsApi } from '../services/api';
 
 export const useItems = () => {
   const [items, setItems] = useState([]);
-  const [subjects, setSubjects] = useState([]);
+  const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // ==================== SUBJECTS ====================
+  // ==================== COLLECTIONS ====================
 
-  const fetchSubjects = useCallback(async () => {
+  const fetchCollections = useCallback(async () => {
     try {
-      const data = await subjectsApi.getAll();
-      setSubjects(data);
+      const data = await collectionsApi.getAll();
+      setCollections(data);
       return data;
     } catch (err) {
-      console.error('Error fetching subjects:', err);
+      console.error('Error fetching collections:', err);
       throw err;
     }
   }, []);
 
-  const createSubject = useCallback(async (name, color, icon) => {
+  const createCollection = useCallback(async (name, color, icon) => {
     try {
-      const subject = await subjectsApi.create(name, color, icon);
-      setSubjects(prev => [...prev, subject]);
-      return subject;
+      const collection = await collectionsApi.create(name, color, icon);
+      setCollections(prev => [...prev, collection]);
+      return collection;
     } catch (err) {
-      console.error('Error creating subject:', err);
+      console.error('Error creating collection:', err);
       throw err;
     }
   }, []);
 
-  const updateSubject = useCallback(async (id, updates) => {
+  const updateCollection = useCallback(async (id, updates) => {
     try {
-      const updated = await subjectsApi.update(id, updates);
-      setSubjects(prev => prev.map(s => s.id === id ? updated : s));
+      const updated = await collectionsApi.update(id, updates);
+      setCollections(prev => prev.map(c => c.id === id ? updated : c));
       return updated;
     } catch (err) {
-      console.error('Error updating subject:', err);
+      console.error('Error updating collection:', err);
       throw err;
     }
   }, []);
 
-  const deleteSubject = useCallback(async (id) => {
+  const deleteCollection = useCallback(async (id) => {
     try {
-      await subjectsApi.delete(id);
-      setSubjects(prev => prev.filter(s => s.id !== id));
-      // Update items that were in this subject
+      await collectionsApi.delete(id);
+      setCollections(prev => prev.filter(c => c.id !== id));
+      // Update items that were in this collection
       setItems(prev => prev.map(item => 
-        item.subject_id === id ? { ...item, subject_id: null, subject_name: null, subject_color: null } : item
+        item.collection_id === id ? { ...item, collection_id: null, collection_name: null, collection_color: null } : item
       ));
     } catch (err) {
-      console.error('Error deleting subject:', err);
+      console.error('Error deleting collection:', err);
       throw err;
     }
   }, []);
 
-  const reorderSubjects = useCallback(async (reorderedSubjects) => {
-    setSubjects(reorderedSubjects);
+  const reorderCollections = useCallback(async (reorderedCollections) => {
+    setCollections(reorderedCollections);
     try {
-      await subjectsApi.reorder(reorderedSubjects);
+      await collectionsApi.reorder(reorderedCollections);
     } catch (err) {
-      console.error('Error reordering subjects:', err);
-      await fetchSubjects();
+      console.error('Error reordering collections:', err);
+      await fetchCollections();
       throw err;
     }
-  }, [fetchSubjects]);
+  }, [fetchCollections]);
 
   // ==================== ITEMS ====================
 
@@ -83,11 +83,11 @@ export const useItems = () => {
     }
   }, []);
 
-  const addItems = useCallback(async (newItems, subjectId = null) => {
+  const addItems = useCallback(async (newItems, collectionId = null) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await itemsApi.create(newItems, subjectId);
+      const data = await itemsApi.create(newItems, collectionId);
       setItems(prev => [...prev, ...data.filter(
         item => !prev.find(p => p.file_id === item.file_id)
       )]);
@@ -101,25 +101,25 @@ export const useItems = () => {
     }
   }, []);
 
-  const updateItemSubject = useCallback(async (itemId, subjectId) => {
+  const updateItemCollection = useCallback(async (itemId, collectionId) => {
     try {
-      const updated = await itemsApi.updateSubject(itemId, subjectId);
-      // Find the subject to get its details
-      const subject = subjects.find(s => s.id === subjectId);
+      const updated = await itemsApi.updateCollection(itemId, collectionId);
+      // Find the collection to get its details
+      const collection = collections.find(c => c.id === collectionId);
       setItems(prev => prev.map(item => 
         item.id === itemId ? {
           ...updated,
-          subject_name: subject?.name || null,
-          subject_color: subject?.color || null,
-          subject_icon: subject?.icon || null
+          collection_name: collection?.name || null,
+          collection_color: collection?.color || null,
+          collection_icon: collection?.icon || null
         } : item
       ));
       return updated;
     } catch (err) {
-      console.error('Error updating item subject:', err);
+      console.error('Error updating item collection:', err);
       throw err;
     }
-  }, [subjects]);
+  }, [collections]);
 
   const updateProgress = useCallback(async (id, progress, lastPosition) => {
     try {
@@ -200,17 +200,17 @@ export const useItems = () => {
     }
   }, []);
 
-  // Group items by subject
-  const getItemsBySubject = useCallback(() => {
+  // Group items by collection
+  const getItemsByCollection = useCallback(() => {
     const grouped = {};
     
-    // Initialize with all subjects
-    subjects.forEach(subject => {
-      grouped[subject.id] = {
-        id: subject.id,
-        name: subject.name,
-        color: subject.color,
-        icon: subject.icon,
+    // Initialize with all collections
+    collections.forEach(collection => {
+      grouped[collection.id] = {
+        id: collection.id,
+        name: collection.name,
+        color: collection.color,
+        icon: collection.icon,
         items: []
       };
     });
@@ -226,8 +226,8 @@ export const useItems = () => {
     
     // Group items
     items.forEach(item => {
-      if (item.subject_id && grouped[item.subject_id]) {
-        grouped[item.subject_id].items.push(item);
+      if (item.collection_id && grouped[item.collection_id]) {
+        grouped[item.collection_id].items.push(item);
       } else {
         grouped['uncategorized'].items.push(item);
       }
@@ -238,22 +238,22 @@ export const useItems = () => {
       group.items.sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
     });
     
-    // Sort groups by subject order and filter empty uncategorized
-    const result = subjects.map(s => grouped[s.id]).filter(g => g && g.items.length > 0);
+    // Sort groups by collection order and filter empty uncategorized
+    const result = collections.map(c => grouped[c.id]).filter(g => g && g.items.length > 0);
     if (grouped['uncategorized'].items.length > 0) {
       result.push(grouped['uncategorized']);
     }
     
     return result;
-  }, [items, subjects]);
+  }, [items, collections]);
 
   return {
     items,
-    subjects,
+    collections,
     loading,
     error,
     fetchItems,
-    fetchSubjects,
+    fetchCollections,
     addItems,
     updateProgress,
     markCompleted,
@@ -261,12 +261,12 @@ export const useItems = () => {
     deleteItem,
     updateItem,
     deleteAllItems,
-    createSubject,
-    updateSubject,
-    deleteSubject,
-    reorderSubjects,
-    updateItemSubject,
-    getItemsBySubject,
+    createCollection,
+    updateCollection,
+    deleteCollection,
+    reorderCollections,
+    updateItemCollection,
+    getItemsByCollection,
   };
 };
 

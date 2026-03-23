@@ -19,9 +19,9 @@ const PRESET_COLORS = [
   '#3b82f6', '#6366f1'
 ];
 
-const SubjectManager = ({ subjects, onClose, onCreate, onUpdate, onDelete }) => {
-  const [newSubjectName, setNewSubjectName] = useState('');
-  const [newSubjectColor, setNewSubjectColor] = useState('#6366f1');
+const CollectionManager = ({ collections, onClose, onCreate, onUpdate, onDelete }) => {
+  const [newCollectionName, setNewCollectionName] = useState('');
+  const [newCollectionColor, setNewCollectionColor] = useState('#6366f1');
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
   const [editColor, setEditColor] = useState('');
@@ -29,13 +29,13 @@ const SubjectManager = ({ subjects, onClose, onCreate, onUpdate, onDelete }) => 
   const [isCreating, setIsCreating] = useState(false);
 
   const handleCreate = async () => {
-    if (!newSubjectName.trim()) return;
+    if (!newCollectionName.trim()) return;
     
     setIsCreating(true);
     try {
-      await onCreate(newSubjectName.trim(), newSubjectColor);
-      setNewSubjectName('');
-      setNewSubjectColor('#6366f1');
+      await onCreate(newCollectionName.trim(), newCollectionColor);
+      setNewCollectionName('');
+      setNewCollectionColor('#6366f1');
     } catch (error) {
       // Error handled in parent
     } finally {
@@ -43,10 +43,10 @@ const SubjectManager = ({ subjects, onClose, onCreate, onUpdate, onDelete }) => 
     }
   };
 
-  const handleStartEdit = (subject) => {
-    setEditingId(subject.id);
-    setEditName(subject.name);
-    setEditColor(subject.color);
+  const handleStartEdit = (collection) => {
+    setEditingId(collection.id);
+    setEditName(collection.name);
+    setEditColor(collection.color);
   };
 
   const handleSaveEdit = async (id) => {
@@ -61,7 +61,7 @@ const SubjectManager = ({ subjects, onClose, onCreate, onUpdate, onDelete }) => 
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Delete this subject? Items will be moved to Uncategorized.')) {
+    if (window.confirm('Delete this collection? Items will be moved to Uncategorized.')) {
       try {
         await onDelete(id);
       } catch (error) {
@@ -72,40 +72,40 @@ const SubjectManager = ({ subjects, onClose, onCreate, onUpdate, onDelete }) => 
 
   return (
     <motion.div
-      className="subject-manager-overlay"
+      className="collection-manager-overlay"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
     >
       <motion.div
-        className="subject-manager"
+        className="collection-manager"
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="subject-manager-header">
-          <div className="subject-manager-title">
+        <div className="collection-manager-header">
+          <div className="collection-manager-title">
             <Folder size={24} />
-            <h2>Manage Subjects</h2>
+            <h2>Manage Collections</h2>
           </div>
           <button className="close-btn" onClick={onClose}>
             <X size={20} />
           </button>
         </div>
 
-        {/* Create New Subject */}
-        <div className="create-subject-section">
+        {/* Create New Collection */}
+        <div className="create-collection-section">
           <h3>
             <Plus size={16} />
-            Create New Subject
+            Create New Collection
           </h3>
-          <div className="create-subject-form">
+          <div className="create-collection-form">
             <div className="color-picker-wrapper">
               <button
                 className="color-preview"
-                style={{ background: newSubjectColor }}
+                style={{ background: newCollectionColor }}
                 onClick={() => setShowColorPicker(showColorPicker === 'new' ? null : 'new')}
               >
                 <Palette size={16} />
@@ -115,10 +115,10 @@ const SubjectManager = ({ subjects, onClose, onCreate, onUpdate, onDelete }) => 
                   {PRESET_COLORS.map((color) => (
                     <button
                       key={color}
-                      className={`color-option ${newSubjectColor === color ? 'active' : ''}`}
+                      className={`color-option ${newCollectionColor === color ? 'active' : ''}`}
                       style={{ background: color }}
                       onClick={() => {
-                        setNewSubjectColor(color);
+                        setNewCollectionColor(color);
                         setShowColorPicker(null);
                       }}
                     />
@@ -128,10 +128,10 @@ const SubjectManager = ({ subjects, onClose, onCreate, onUpdate, onDelete }) => 
             </div>
             <input
               type="text"
-              className="subject-input"
-              placeholder="Subject name (e.g., Mathematics, JavaScript)"
-              value={newSubjectName}
-              onChange={(e) => setNewSubjectName(e.target.value)}
+              className="collection-input"
+              placeholder="Collection name (e.g., Mathematics, JavaScript)"
+              value={newCollectionName}
+              onChange={(e) => setNewCollectionName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
             />
             <motion.button
@@ -139,7 +139,7 @@ const SubjectManager = ({ subjects, onClose, onCreate, onUpdate, onDelete }) => 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleCreate}
-              disabled={!newSubjectName.trim() || isCreating}
+              disabled={!newCollectionName.trim() || isCreating}
             >
               <Plus size={18} />
               Add
@@ -147,36 +147,36 @@ const SubjectManager = ({ subjects, onClose, onCreate, onUpdate, onDelete }) => 
           </div>
         </div>
 
-        {/* Existing Subjects */}
-        <div className="subjects-list-section">
-          <h3>Your Subjects ({subjects.length})</h3>
-          <div className="subjects-list">
-            {subjects.length === 0 ? (
-              <div className="no-subjects">
+        {/* Existing Collections */}
+        <div className="collections-list-section">
+          <h3>Your Collections ({collections.length})</h3>
+          <div className="collections-list">
+            {collections.length === 0 ? (
+              <div className="no-collections">
                 <Folder size={32} />
-                <p>No subjects yet</p>
-                <span>Create subjects to organize your learning materials</span>
+                <p>No collections yet</p>
+                <span>Create collections to organize your learning materials</span>
               </div>
             ) : (
-              subjects.map((subject) => (
+              collections.map((collection) => (
                 <motion.div
-                  key={subject.id}
-                  className="subject-item"
+                  key={collection.id}
+                  className="collection-item"
                   layout
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                 >
-                  {editingId === subject.id ? (
+                  {editingId === collection.id ? (
                     <>
                       <div className="color-picker-wrapper">
                         <button
                           className="color-preview"
                           style={{ background: editColor }}
-                          onClick={() => setShowColorPicker(showColorPicker === subject.id ? null : subject.id)}
+                          onClick={() => setShowColorPicker(showColorPicker === collection.id ? null : collection.id)}
                         >
                           <Palette size={14} />
                         </button>
-                        {showColorPicker === subject.id && (
+                        {showColorPicker === collection.id && (
                           <div className="color-picker-dropdown">
                             {PRESET_COLORS.map((color) => (
                               <button
@@ -194,15 +194,15 @@ const SubjectManager = ({ subjects, onClose, onCreate, onUpdate, onDelete }) => 
                       </div>
                       <input
                         type="text"
-                        className="subject-edit-input"
+                        className="collection-edit-input"
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit(subject.id)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit(collection.id)}
                         autoFocus
                       />
                       <button
                         className="action-btn save"
-                        onClick={() => handleSaveEdit(subject.id)}
+                        onClick={() => handleSaveEdit(collection.id)}
                       >
                         <Check size={16} />
                       </button>
@@ -216,20 +216,20 @@ const SubjectManager = ({ subjects, onClose, onCreate, onUpdate, onDelete }) => 
                   ) : (
                     <>
                       <div
-                        className="subject-color-dot"
-                        style={{ background: subject.color }}
+                        className="collection-color-dot"
+                        style={{ background: collection.color }}
                       />
-                      <span className="subject-name">{subject.name}</span>
-                      <div className="subject-actions">
+                      <span className="collection-name">{collection.name}</span>
+                      <div className="collection-actions">
                         <button
                           className="action-btn edit"
-                          onClick={() => handleStartEdit(subject)}
+                          onClick={() => handleStartEdit(collection)}
                         >
                           <Edit2 size={14} />
                         </button>
                         <button
                           className="action-btn delete"
-                          onClick={() => handleDelete(subject.id)}
+                          onClick={() => handleDelete(collection.id)}
                         >
                           <Trash2 size={14} />
                         </button>
@@ -246,4 +246,4 @@ const SubjectManager = ({ subjects, onClose, onCreate, onUpdate, onDelete }) => 
   );
 };
 
-export default SubjectManager;
+export default CollectionManager;

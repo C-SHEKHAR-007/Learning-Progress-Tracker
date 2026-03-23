@@ -3,79 +3,79 @@ const fs = require('fs');
 const path = require('path');
 
 const itemController = {
-  // ==================== SUBJECTS ====================
+  // ==================== COLLECTIONS ====================
 
-  // Get all subjects
-  async getAllSubjects(req, res) {
+  // Get all collections
+  async getAllCollections(req, res) {
     try {
-      const subjects = await itemService.getAllSubjects();
-      res.json(subjects);
+      const collections = await itemService.getAllCollections();
+      res.json(collections);
     } catch (error) {
-      console.error('Error fetching subjects:', error);
+      console.error('Error fetching collections:', error);
       res.status(500).json({ error: error.message });
     }
   },
 
-  // Create a new subject
-  async createSubject(req, res) {
+  // Create a new collection
+  async createCollection(req, res) {
     try {
       const { name, color, icon } = req.body;
       if (!name) {
-        return res.status(400).json({ error: 'Subject name is required' });
+        return res.status(400).json({ error: 'Collection name is required' });
       }
-      const subject = await itemService.createSubject(name, color, icon);
-      res.status(201).json(subject);
+      const collection = await itemService.createCollection(name, color, icon);
+      res.status(201).json(collection);
     } catch (error) {
-      console.error('Error creating subject:', error);
+      console.error('Error creating collection:', error);
       if (error.code === '23505') { // Unique constraint violation
-        return res.status(400).json({ error: 'Subject already exists' });
+        return res.status(400).json({ error: 'Collection already exists' });
       }
       res.status(500).json({ error: error.message });
     }
   },
 
-  // Update subject
-  async updateSubject(req, res) {
+  // Update collection
+  async updateCollection(req, res) {
     try {
       const { id } = req.params;
       const { name, color, icon } = req.body;
-      const subject = await itemService.updateSubject(id, { name, color, icon });
-      if (!subject) {
-        return res.status(404).json({ error: 'Subject not found' });
+      const collection = await itemService.updateCollection(id, { name, color, icon });
+      if (!collection) {
+        return res.status(404).json({ error: 'Collection not found' });
       }
-      res.json(subject);
+      res.json(collection);
     } catch (error) {
-      console.error('Error updating subject:', error);
+      console.error('Error updating collection:', error);
       res.status(500).json({ error: error.message });
     }
   },
 
-  // Delete subject
-  async deleteSubject(req, res) {
+  // Delete collection
+  async deleteCollection(req, res) {
     try {
       const { id } = req.params;
-      const deleted = await itemService.deleteSubject(id);
+      const deleted = await itemService.deleteCollection(id);
       if (!deleted) {
-        return res.status(404).json({ error: 'Subject not found' });
+        return res.status(404).json({ error: 'Collection not found' });
       }
       res.json({ success: true });
     } catch (error) {
-      console.error('Error deleting subject:', error);
+      console.error('Error deleting collection:', error);
       res.status(500).json({ error: error.message });
     }
   },
 
-  // Reorder subjects
-  async reorderSubjects(req, res) {
+  // Reorder collections
+  async reorderCollections(req, res) {
     try {
-      const { subjects } = req.body;
-      if (!subjects || !Array.isArray(subjects)) {
-        return res.status(400).json({ error: 'Subjects array is required' });
+      const { collections } = req.body;
+      if (!collections || !Array.isArray(collections)) {
+        return res.status(400).json({ error: 'Collections array is required' });
       }
-      await itemService.reorderSubjects(subjects);
+      await itemService.reorderCollections(collections);
       res.json({ success: true });
     } catch (error) {
-      console.error('Error reordering subjects:', error);
+      console.error('Error reordering collections:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -85,11 +85,11 @@ const itemController = {
   // Create new items (batch upload)
   async createItems(req, res) {
     try {
-      const { items, subjectId } = req.body;
+      const { items, collectionId } = req.body;
       if (!items || !Array.isArray(items)) {
         return res.status(400).json({ error: 'Items array is required' });
       }
-      const createdItems = await itemService.createItems(items, subjectId);
+      const createdItems = await itemService.createItems(items, collectionId);
       res.status(201).json(createdItems);
     } catch (error) {
       console.error('Error creating items:', error);
@@ -108,14 +108,14 @@ const itemController = {
     }
   },
 
-  // Get items by subject
-  async getItemsBySubject(req, res) {
+  // Get items by collection
+  async getItemsByCollection(req, res) {
     try {
-      const { subjectId } = req.params;
-      const items = await itemService.getItemsBySubject(subjectId === 'null' ? null : subjectId);
+      const { collectionId } = req.params;
+      const items = await itemService.getItemsByCollection(collectionId === 'null' ? null : collectionId);
       res.json(items);
     } catch (error) {
-      console.error('Error fetching items by subject:', error);
+      console.error('Error fetching items by collection:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -135,18 +135,18 @@ const itemController = {
     }
   },
 
-  // Update item subject
-  async updateItemSubject(req, res) {
+  // Update item collection
+  async updateItemCollection(req, res) {
     try {
       const { id } = req.params;
-      const { subjectId } = req.body;
-      const item = await itemService.updateItemSubject(id, subjectId);
+      const { collectionId } = req.body;
+      const item = await itemService.updateItemCollection(id, collectionId);
       if (!item) {
         return res.status(404).json({ error: 'Item not found' });
       }
       res.json(item);
     } catch (error) {
-      console.error('Error updating item subject:', error);
+      console.error('Error updating item collection:', error);
       res.status(500).json({ error: error.message });
     }
   },

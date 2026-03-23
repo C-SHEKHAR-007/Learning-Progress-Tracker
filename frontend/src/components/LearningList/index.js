@@ -18,7 +18,7 @@ import {
 
 const LearningList = ({
   groupedItems,
-  subjects,
+  collections,
   selectedItem,
   onItemSelect,
   onReorder,
@@ -26,16 +26,16 @@ const LearningList = ({
   onMoveItem,
   loading
 }) => {
-  const [collapsedSubjects, setCollapsedSubjects] = useState(new Set());
+  const [collapsedCollections, setCollapsedCollections] = useState(new Set());
   const [moveMenuOpen, setMoveMenuOpen] = useState(null);
 
-  const toggleSubject = (subjectId) => {
-    setCollapsedSubjects(prev => {
+  const toggleCollection = (collectionId) => {
+    setCollapsedCollections(prev => {
       const next = new Set(prev);
-      if (next.has(subjectId)) {
-        next.delete(subjectId);
+      if (next.has(collectionId)) {
+        next.delete(collectionId);
       } else {
-        next.add(subjectId);
+        next.add(collectionId);
       }
       return next;
     });
@@ -60,8 +60,8 @@ const LearningList = ({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleMoveItem = (itemId, subjectId) => {
-    onMoveItem(itemId, subjectId);
+  const handleMoveItem = (itemId, collectionId) => {
+    onMoveItem(itemId, collectionId);
     setMoveMenuOpen(null);
   };
 
@@ -91,7 +91,7 @@ const LearningList = ({
     );
   }
 
-  // Flatten items for drag and drop while keeping subject groups for display
+  // Flatten items for drag and drop while keeping collection groups for display
   let globalIndex = 0;
 
   return (
@@ -108,19 +108,19 @@ const LearningList = ({
             }}
           >
             {groupedItems.map((group) => {
-              const isCollapsed = collapsedSubjects.has(group.subject.id || 'uncategorized');
-              const subjectKey = group.subject.id || 'uncategorized';
+              const isCollapsed = collapsedCollections.has(group.collection.id || 'uncategorized');
+              const collectionKey = group.collection.id || 'uncategorized';
               const completedCount = group.items.filter(i => i.is_completed).length;
               const progressPercent = group.items.length > 0 
                 ? Math.round((completedCount / group.items.length) * 100) 
                 : 0;
 
               return (
-                <div key={subjectKey} className="subject-group">
-                  {/* Subject Header */}
+                <div key={collectionKey} className="collection-group">
+                  {/* Collection Header */}
                   <motion.div
-                    className="subject-header"
-                    onClick={() => toggleSubject(subjectKey)}
+                    className="collection-header"
+                    onClick={() => toggleCollection(collectionKey)}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     style={{
@@ -132,7 +132,7 @@ const LearningList = ({
                       borderRadius: 'var(--radius-md)',
                       marginBottom: '0.5rem',
                       cursor: 'pointer',
-                      borderLeft: `3px solid ${group.subject.color}`,
+                      borderLeft: `3px solid ${group.collection.color}`,
                       transition: 'all 0.2s ease'
                     }}
                   >
@@ -144,9 +144,9 @@ const LearningList = ({
                     </motion.div>
                     
                     {isCollapsed ? (
-                      <Folder size={18} style={{ color: group.subject.color }} />
+                      <Folder size={18} style={{ color: group.collection.color }} />
                     ) : (
-                      <FolderOpen size={18} style={{ color: group.subject.color }} />
+                      <FolderOpen size={18} style={{ color: group.collection.color }} />
                     )}
                     
                     <span style={{ 
@@ -155,7 +155,7 @@ const LearningList = ({
                       color: 'var(--text-primary)',
                       fontSize: '0.9375rem'
                     }}>
-                      {group.subject.name}
+                      {group.collection.name}
                     </span>
                     
                     <span style={{ 
@@ -179,7 +179,7 @@ const LearningList = ({
                       <div style={{
                         width: `${progressPercent}%`,
                         height: '100%',
-                        background: group.subject.color,
+                        background: group.collection.color,
                         transition: 'width 0.3s ease'
                       }} />
                     </div>
@@ -269,7 +269,7 @@ const LearningList = ({
 
                               {/* Actions */}
                               <div className="item-actions" style={{ position: 'relative' }}>
-                                {/* Move to Subject Button */}
+                                {/* Move to Collection Button */}
                                 <motion.button
                                   className="item-action-btn"
                                   whileHover={{ scale: 1.1 }}
@@ -278,7 +278,7 @@ const LearningList = ({
                                     e.stopPropagation();
                                     setMoveMenuOpen(moveMenuOpen === item.id ? null : item.id);
                                   }}
-                                  title="Move to subject"
+                                  title="Move to collection"
                                 >
                                   <MoreVertical size={14} />
                                 </motion.button>
@@ -311,14 +311,14 @@ const LearningList = ({
                                       gap: '0.5rem'
                                     }}>
                                       <ArrowRight size={12} />
-                                      Move to subject
+                                      Move to collection
                                     </div>
                                     <button
                                       onClick={() => handleMoveItem(item.id, null)}
                                       style={{
                                         width: '100%',
                                         padding: '0.625rem 0.75rem',
-                                        background: item.subject_id === null ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+                                        background: item.collection_id === null ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
                                         border: 'none',
                                         color: 'var(--text-primary)',
                                         cursor: 'pointer',
@@ -332,14 +332,14 @@ const LearningList = ({
                                       <Folder size={14} style={{ opacity: 0.5 }} />
                                       Uncategorized
                                     </button>
-                                    {subjects.map((subject) => (
+                                    {collections.map((collection) => (
                                       <button
-                                        key={subject.id}
-                                        onClick={() => handleMoveItem(item.id, subject.id)}
+                                        key={collection.id}
+                                        onClick={() => handleMoveItem(item.id, collection.id)}
                                         style={{
                                           width: '100%',
                                           padding: '0.625rem 0.75rem',
-                                          background: item.subject_id === subject.id ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+                                          background: item.collection_id === collection.id ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
                                           border: 'none',
                                           color: 'var(--text-primary)',
                                           cursor: 'pointer',
@@ -354,9 +354,9 @@ const LearningList = ({
                                           width: '10px',
                                           height: '10px',
                                           borderRadius: '50%',
-                                          background: subject.color
+                                          background: collection.color
                                         }} />
-                                        {subject.name}
+                                        {collection.name}
                                       </button>
                                     ))}
                                   </div>

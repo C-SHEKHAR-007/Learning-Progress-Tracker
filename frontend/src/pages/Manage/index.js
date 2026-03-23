@@ -30,28 +30,28 @@ import './styles.css';
 
 const Manage = ({ 
   items = [], 
-  subjects = [], 
+  collections = [], 
   onFilesSelected, 
   onReorder, 
   onDelete,
   onBulkDelete,
   onMoveItem,
   onBulkMove,
-  onCreateSubject,
-  onUpdateSubject,
-  onDeleteSubject,
+  onCreateCollection,
+  onUpdateCollection,
+  onDeleteCollection,
   onUpdateItem,
-  getItemsBySubject
+  getItemsByCollection
 }) => {
   const [selectedItems, setSelectedItems] = useState(new Set());
-  const [expandedSubjects, setExpandedSubjects] = useState(new Set());
+  const [expandedCollections, setExpandedCollections] = useState(new Set());
   const [editingItem, setEditingItem] = useState(null);
-  const [editingSubject, setEditingSubject] = useState(null);
-  const [showSubjectModal, setShowSubjectModal] = useState(false);
-  const [newSubjectName, setNewSubjectName] = useState('');
-  const [newSubjectColor, setNewSubjectColor] = useState('#6366f1');
+  const [editingCollection, setEditingCollection] = useState(null);
+  const [showCollectionModal, setShowCollectionModal] = useState(false);
+  const [newCollectionName, setNewCollectionName] = useState('');
+  const [newCollectionColor, setNewCollectionColor] = useState('#6366f1');
   const [isDragging, setIsDragging] = useState(false);
-  const [uploadSubjectId, setUploadSubjectId] = useState(null);
+  const [uploadCollectionId, setUploadCollectionId] = useState(null);
   const [showMoveMenu, setShowMoveMenu] = useState(null);
   
   // Path confirmation state
@@ -64,14 +64,14 @@ const Manage = ({
   const multipleFileInputRef = useRef(null);
   const folderInputRef = useRef(null);
 
-  // Initialize expanded subjects when subjects load
+  // Initialize expanded collections when collections load
   React.useEffect(() => {
-    if (subjects.length > 0) {
-      setExpandedSubjects(new Set([...subjects.map(s => s.id), null])); // null for uncategorized
+    if (collections.length > 0) {
+      setExpandedCollections(new Set([...collections.map(s => s.id), null])); // null for uncategorized
     }
-  }, [subjects]);
+  }, [collections]);
 
-  const groupedItems = getItemsBySubject ? getItemsBySubject() : [];
+  const groupedItems = getItemsByCollection ? getItemsByCollection() : [];
 
   const presetColors = [
     '#6366f1', '#8b5cf6', '#ec4899', '#ef4444', '#f97316',
@@ -142,21 +142,21 @@ const Manage = ({
     });
 
     if (fileInfos.length > 0) {
-      onFilesSelected(fileInfos, uploadSubjectId);
+      onFilesSelected(fileInfos, uploadCollectionId);
     }
     
     setPendingFiles([]);
     setBasePath('');
     setShowPathConfirm(false);
-    setUploadSubjectId(null);
-  }, [pendingFiles, basePath, onFilesSelected, uploadSubjectId]);
+    setUploadCollectionId(null);
+  }, [pendingFiles, basePath, onFilesSelected, uploadCollectionId]);
 
   // Cancel path confirmation
   const handleCancelPath = useCallback(() => {
     setPendingFiles([]);
     setBasePath('');
     setShowPathConfirm(false);
-    setUploadSubjectId(null);
+    setUploadCollectionId(null);
   }, []);
 
   // Click handlers for different upload types
@@ -207,45 +207,45 @@ const Manage = ({
     }
   };
 
-  const handleBulkMove = async (subjectId) => {
-    await onBulkMove(Array.from(selectedItems), subjectId);
+  const handleBulkMove = async (collectionId) => {
+    await onBulkMove(Array.from(selectedItems), collectionId);
     setSelectedItems(new Set());
     setShowMoveMenu(null);
   };
 
-  // Subject handling
-  const toggleSubject = (subjectId) => {
-    setExpandedSubjects(prev => {
+  // Collection handling
+  const toggleCollection = (collectionId) => {
+    setExpandedCollections(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(subjectId)) {
-        newSet.delete(subjectId);
+      if (newSet.has(collectionId)) {
+        newSet.delete(collectionId);
       } else {
-        newSet.add(subjectId);
+        newSet.add(collectionId);
       }
       return newSet;
     });
   };
 
-  const handleCreateSubject = async () => {
-    if (!newSubjectName.trim()) return;
+  const handleCreateCollection = async () => {
+    if (!newCollectionName.trim()) return;
     try {
-      await onCreateSubject(newSubjectName.trim(), newSubjectColor);
-      setNewSubjectName('');
-      setNewSubjectColor('#6366f1');
-      setShowSubjectModal(false);
+      await onCreateCollection(newCollectionName.trim(), newCollectionColor);
+      setNewCollectionName('');
+      setNewCollectionColor('#6366f1');
+      setShowCollectionModal(false);
     } catch (error) {
       // Error handled by parent
     }
   };
 
-  const handleUpdateSubjectName = async (subject) => {
-    if (!editingSubject || editingSubject.name === subject.name) {
-      setEditingSubject(null);
+  const handleUpdateCollectionName = async (collection) => {
+    if (!editingCollection || editingCollection.name === collection.name) {
+      setEditingCollection(null);
       return;
     }
     try {
-      await onUpdateSubject(subject.id, { name: editingSubject.name });
-      setEditingSubject(null);
+      await onUpdateCollection(collection.id, { name: editingCollection.name });
+      setEditingCollection(null);
     } catch (error) {
       // Error handled by parent
     }
@@ -257,29 +257,29 @@ const Manage = ({
 
     const { source, destination, draggableId } = result;
     
-    // Handle reordering within same subject
+    // Handle reordering within same collection
     if (source.droppableId === destination.droppableId) {
-      const subjectId = source.droppableId === 'uncategorized' ? null : parseInt(source.droppableId.replace('subject-', ''));
-      // Get items for this subject and sort by order_index to match visual order
-      const subjectItems = items
-        .filter(i => i.subject_id === subjectId)
+      const collectionId = source.droppableId === 'uncategorized' ? null : parseInt(source.droppableId.replace('collection-', ''));
+      // Get items for this collection and sort by order_index to match visual order
+      const collectionItems = items
+        .filter(i => i.collection_id === collectionId)
         .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
-      const [removed] = subjectItems.splice(source.index, 1);
-      subjectItems.splice(destination.index, 0, removed);
+      const [removed] = collectionItems.splice(source.index, 1);
+      collectionItems.splice(destination.index, 0, removed);
       
-      const reorderedItems = subjectItems.map((item, index) => ({
+      const reorderedItems = collectionItems.map((item, index) => ({
         id: item.id,
         order_index: index
       }));
       
       await onReorder(reorderedItems);
     } else {
-      // Moving to different subject
+      // Moving to different collection
       const itemId = parseInt(draggableId.replace('item-', ''));
-      const newSubjectId = destination.droppableId === 'uncategorized' 
+      const newCollectionId = destination.droppableId === 'uncategorized' 
         ? null 
-        : parseInt(destination.droppableId.replace('subject-', ''));
-      await onMoveItem(itemId, newSubjectId);
+        : parseInt(destination.droppableId.replace('collection-', ''));
+      await onMoveItem(itemId, newCollectionId);
     }
   };
 
@@ -374,12 +374,12 @@ const Manage = ({
         <div className="upload-target">
           <label>Upload to:</label>
           <select 
-            value={uploadSubjectId || ''} 
-            onChange={(e) => setUploadSubjectId(e.target.value ? parseInt(e.target.value) : null)}
+            value={uploadCollectionId || ''} 
+            onChange={(e) => setUploadCollectionId(e.target.value ? parseInt(e.target.value) : null)}
           >
-            <option value="">No Subject</option>
-            {subjects.map(subject => (
-              <option key={subject.id} value={subject.id}>{subject.name}</option>
+            <option value="">No Collection</option>
+            {collections.map(collection => (
+              <option key={collection.id} value={collection.id}>{collection.name}</option>
             ))}
           </select>
         </div>
@@ -410,17 +410,17 @@ const Manage = ({
                 </button>
                 {showMoveMenu === 'bulk' && (
                   <div className="move-dropdown">
-                    <button onClick={() => handleBulkMove(null)}>No Subject</button>
-                    {subjects.map(subject => (
+                    <button onClick={() => handleBulkMove(null)}>No Collection</button>
+                    {collections.map(collection => (
                       <button 
-                        key={subject.id}
-                        onClick={() => handleBulkMove(subject.id)}
+                        key={collection.id}
+                        onClick={() => handleBulkMove(collection.id)}
                       >
                         <span 
                           className="color-dot"
-                          style={{ background: subject.color }} 
+                          style={{ background: collection.color }} 
                         />
-                        {subject.name}
+                        {collection.name}
                       </button>
                     ))}
                   </div>
@@ -437,10 +437,10 @@ const Manage = ({
           )}
           <button 
             className="toolbar-btn primary"
-            onClick={() => setShowSubjectModal(true)}
+            onClick={() => setShowCollectionModal(true)}
           >
             <FolderPlus size={18} />
-            New Subject
+            New Collection
           </button>
         </div>
       </div>
@@ -448,49 +448,49 @@ const Manage = ({
       {/* Content */}
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="manage-content">
-          {/* Subjects */}
+          {/* Collections */}
           {groupedItems.map(group => (
-            <div key={group.id || 'uncategorized'} className="subject-group">
+            <div key={group.id || 'uncategorized'} className="collection-group">
               <div 
-                className="subject-group-header"
+                className="collection-group-header"
                 style={{ borderLeftColor: group.color }}
               >
                 <button 
                   className="expand-btn"
-                  onClick={() => toggleSubject(group.id)}
+                  onClick={() => toggleCollection(group.id)}
                 >
-                  {expandedSubjects.has(group.id) ? (
+                  {expandedCollections.has(group.id) ? (
                     <ChevronDown size={18} />
                   ) : (
                     <ChevronRight size={18} />
                   )}
                 </button>
                 
-                {editingSubject?.id === group.id ? (
+                {editingCollection?.id === group.id ? (
                   <input
                     className="edit-input"
-                    value={editingSubject.name}
-                    onChange={(e) => setEditingSubject({ ...editingSubject, name: e.target.value })}
-                    onBlur={() => handleUpdateSubjectName(group)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleUpdateSubjectName(group)}
+                    value={editingCollection.name}
+                    onChange={(e) => setEditingCollection({ ...editingCollection, name: e.target.value })}
+                    onBlur={() => handleUpdateCollectionName(group)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleUpdateCollectionName(group)}
                     autoFocus
                   />
                 ) : (
-                  <span className="subject-name">{group.name}</span>
+                  <span className="collection-name">{group.name}</span>
                 )}
                 
                 <span className="item-count">{group.items.length} items</span>
                 
                 {group.id && (
-                  <div className="subject-actions">
-                    <button onClick={() => setEditingSubject({ id: group.id, name: group.name })}>
+                  <div className="collection-actions">
+                    <button onClick={() => setEditingCollection({ id: group.id, name: group.name })}>
                       <Edit2 size={14} />
                     </button>
                     <button 
                       className="danger"
                       onClick={() => {
-                        if (window.confirm(`Delete subject "${group.name}"? Items will be moved to uncategorized.`)) {
-                          onDeleteSubject(group.id);
+                        if (window.confirm(`Delete collection "${group.name}"? Items will be moved to uncategorized.`)) {
+                          onDeleteCollection(group.id);
                         }
                       }}
                     >
@@ -501,13 +501,13 @@ const Manage = ({
               </div>
 
               <AnimatePresence>
-                {expandedSubjects.has(group.id) && (
+                {expandedCollections.has(group.id) && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                   >
-                    <Droppable droppableId={group.id ? `subject-${group.id}` : 'uncategorized'}>
+                    <Droppable droppableId={group.id ? `collection-${group.id}` : 'uncategorized'}>
                       {(provided, snapshot) => (
                         <div 
                           ref={provided.innerRef}
@@ -515,8 +515,8 @@ const Manage = ({
                           className={`items-list ${snapshot.isDraggingOver ? 'dragging-over' : ''}`}
                         >
                           {group.items.length === 0 ? (
-                            <div className="empty-subject">
-                              <p>No items in this subject</p>
+                            <div className="empty-collection">
+                              <p>No items in this collection</p>
                             </div>
                           ) : (
                             group.items.map((item, index) => (
@@ -614,15 +614,15 @@ const Manage = ({
         </div>
       </DragDropContext>
 
-      {/* New Subject Modal */}
+      {/* New Collection Modal */}
       <AnimatePresence>
-        {showSubjectModal && (
+        {showCollectionModal && (
           <motion.div 
             className="modal-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setShowSubjectModal(false)}
+            onClick={() => setShowCollectionModal(false)}
           >
             <motion.div 
               className="modal"
@@ -632,18 +632,18 @@ const Manage = ({
               onClick={(e) => e.stopPropagation()}
             >
               <div className="modal-header">
-                <h3>Create New Subject</h3>
-                <button onClick={() => setShowSubjectModal(false)}>
+                <h3>Create New Collection</h3>
+                <button onClick={() => setShowCollectionModal(false)}>
                   <X size={20} />
                 </button>
               </div>
               <div className="modal-body">
                 <div className="form-group">
-                  <label>Subject Name</label>
+                  <label>Collection Name</label>
                   <input
                     type="text"
-                    value={newSubjectName}
-                    onChange={(e) => setNewSubjectName(e.target.value)}
+                    value={newCollectionName}
+                    onChange={(e) => setNewCollectionName(e.target.value)}
                     placeholder="e.g., Mathematics, Physics..."
                     autoFocus
                   />
@@ -654,23 +654,23 @@ const Manage = ({
                     {presetColors.map(color => (
                       <button
                         key={color}
-                        className={`color-btn ${newSubjectColor === color ? 'active' : ''}`}
+                        className={`color-btn ${newCollectionColor === color ? 'active' : ''}`}
                         style={{ background: color }}
-                        onClick={() => setNewSubjectColor(color)}
+                        onClick={() => setNewCollectionColor(color)}
                       >
-                        {newSubjectColor === color && <Check size={14} />}
+                        {newCollectionColor === color && <Check size={14} />}
                       </button>
                     ))}
                   </div>
                 </div>
               </div>
               <div className="modal-footer">
-                <button className="btn-secondary" onClick={() => setShowSubjectModal(false)}>
+                <button className="btn-secondary" onClick={() => setShowCollectionModal(false)}>
                   Cancel
                 </button>
-                <button className="btn-primary" onClick={handleCreateSubject}>
+                <button className="btn-primary" onClick={handleCreateCollection}>
                   <Plus size={18} />
-                  Create Subject
+                  Create Collection
                 </button>
               </div>
             </motion.div>
@@ -763,15 +763,15 @@ const Manage = ({
                 )}
 
                 <div className="form-group" style={{ marginTop: '1rem' }}>
-                  <label>Add to Subject</label>
+                  <label>Add to Collection</label>
                   <select 
-                    value={uploadSubjectId || ''} 
-                    onChange={(e) => setUploadSubjectId(e.target.value ? parseInt(e.target.value) : null)}
+                    value={uploadCollectionId || ''} 
+                    onChange={(e) => setUploadCollectionId(e.target.value ? parseInt(e.target.value) : null)}
                     style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
                   >
-                    <option value="">No Subject (Uncategorized)</option>
-                    {subjects.map(subject => (
-                      <option key={subject.id} value={subject.id}>{subject.name}</option>
+                    <option value="">No Collection (Uncategorized)</option>
+                    {collections.map(collection => (
+                      <option key={collection.id} value={collection.id}>{collection.name}</option>
                     ))}
                   </select>
                 </div>

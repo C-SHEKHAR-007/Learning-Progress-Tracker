@@ -14,20 +14,20 @@ import {
 } from 'lucide-react';
 import './styles.css';
 
-const Dashboard = ({ items, subjects, stats, onItemSelect, fileMap }) => {
+const Dashboard = ({ items, collections, stats, onItemSelect, fileMap }) => {
   // Get recently accessed items (last 5)
   const recentItems = [...items]
     .filter(item => item.progress > 0 && !item.is_completed)
     .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
     .slice(0, 5);
 
-  // Get completed items count by subject
-  const subjectStats = subjects.map(subject => {
-    const subjectItems = items.filter(i => i.subject_id === subject.id);
-    const completed = subjectItems.filter(i => i.is_completed).length;
-    const total = subjectItems.length;
+  // Get completed items count by collection
+  const collectionStats = collections.map(collection => {
+    const collectionItems = items.filter(i => i.collection_id === collection.id);
+    const completed = collectionItems.filter(i => i.is_completed).length;
+    const total = collectionItems.length;
     const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
-    return { ...subject, completed, total, progress };
+    return { ...collection, completed, total, progress };
   }).filter(s => s.total > 0);
 
   const formatDuration = (seconds) => {
@@ -160,8 +160,8 @@ const Dashboard = ({ items, subjects, stats, onItemSelect, fileMap }) => {
         </motion.section>
       )}
 
-      {/* Subject Progress */}
-      {subjectStats.length > 0 && (
+      {/* Collection Progress */}
+      {collectionStats.length > 0 && (
         <motion.section 
           className="dashboard-section"
           initial={{ opacity: 0, y: 20 }}
@@ -169,31 +169,31 @@ const Dashboard = ({ items, subjects, stats, onItemSelect, fileMap }) => {
           transition={{ delay: 0.6 }}
         >
           <div className="section-header">
-            <h2><BookOpen size={20} /> Subject Progress</h2>
+            <h2><BookOpen size={20} /> Collection Progress</h2>
           </div>
-          <div className="subjects-progress-grid">
-            {subjectStats.map(subject => (
-              <div key={subject.id} className="subject-progress-card">
-                <div className="subject-header">
+          <div className="collections-progress-grid">
+            {collectionStats.map(collection => (
+              <div key={collection.id} className="collection-progress-card">
+                <div className="collection-header">
                   <div 
-                    className="subject-color-dot" 
-                    style={{ background: subject.color }}
+                    className="collection-color-dot" 
+                    style={{ background: collection.color }}
                   />
-                  <h3>{subject.name}</h3>
+                  <h3>{collection.name}</h3>
                 </div>
-                <div className="subject-stats">
-                  <span>{subject.completed} / {subject.total} completed</span>
+                <div className="collection-stats">
+                  <span>{collection.completed} / {collection.total} completed</span>
                 </div>
-                <div className="subject-progress-bar">
+                <div className="collection-progress-bar">
                   <div 
-                    className="subject-progress-fill"
+                    className="collection-progress-fill"
                     style={{ 
-                      width: `${subject.progress}%`,
-                      background: subject.color 
+                      width: `${collection.progress}%`,
+                      background: collection.color 
                     }}
                   />
                 </div>
-                <span className="subject-progress-percent">{subject.progress}%</span>
+                <span className="collection-progress-percent">{collection.progress}%</span>
               </div>
             ))}
           </div>
@@ -221,7 +221,7 @@ const Dashboard = ({ items, subjects, stats, onItemSelect, fileMap }) => {
           </Link>
           <Link to="/manage" className="quick-action-btn">
             <TrendingUp size={20} />
-            Manage Subjects
+            Manage Collections
           </Link>
         </div>
       </motion.section>

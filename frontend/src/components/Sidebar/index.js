@@ -27,7 +27,7 @@ const Sidebar = ({ stats, isCollapsed, onToggle }) => {
   const navItems = [
     { path: '/', icon: Home, label: 'Dashboard' },
     { path: '/library', icon: Library, label: 'Library' },
-    { path: '/subjects', icon: Folder, label: 'Subjects' },
+    { path: '/collections', icon: Folder, label: 'Collections' },
     { path: '/manage', icon: Settings, label: 'Manage' },
   ];
 

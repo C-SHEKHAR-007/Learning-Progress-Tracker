@@ -1,8 +1,8 @@
 /* ============================================
-   SUBJECT MANAGER STYLES
+   COLLECTION MANAGER STYLES
    ============================================ */
 
-.subject-manager-overlay {
+.collection-manager-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.7);
@@ -14,7 +14,7 @@
   padding: 2rem;
 }
 
-.subject-manager {
+.collection-manager {
   background: var(--bg-card);
   border-radius: var(--radius-xl);
   border: 1px solid var(--border-color);
@@ -27,7 +27,7 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
-.subject-manager-header {
+.collection-manager-header {
   padding: 1.5rem;
   border-bottom: 1px solid var(--border-color);
   display: flex;
@@ -35,14 +35,14 @@
   align-items: center;
 }
 
-.subject-manager-title {
+.collection-manager-title {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   color: var(--accent-primary);
 }
 
-.subject-manager-title h2 {
+.collection-manager-title h2 {
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--text-primary);
@@ -69,13 +69,13 @@
 }
 
 /* Create Section */
-.create-subject-section {
+.create-collection-section {
   padding: 1.5rem;
   border-bottom: 1px solid var(--border-color);
   background: var(--bg-tertiary);
 }
 
-.create-subject-section h3 {
+.create-collection-section h3 {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-secondary);
@@ -85,7 +85,7 @@
   gap: 0.5rem;
 }
 
-.create-subject-form {
+.create-collection-form {
   display: flex;
   gap: 0.75rem;
   align-items: center;
@@ -146,7 +146,7 @@
   box-shadow: 0 0 10px currentColor;
 }
 
-.subject-input {
+.collection-input {
   flex: 1;
   height: 40px;
   padding: 0 1rem;
@@ -159,56 +159,56 @@
   transition: border-color 0.2s ease;
 }
 
-.subject-input:focus {
+.collection-input:focus {
   border-color: var(--accent-primary);
 }
 
-.subject-input::placeholder {
+.collection-input::placeholder {
   color: var(--text-muted);
 }
 
-/* Subjects List */
-.subjects-list-section {
+/* Collections List */
+.collections-list-section {
   padding: 1.5rem;
   flex: 1;
   overflow-y: auto;
 }
 
-.subjects-list-section h3 {
+.collections-list-section h3 {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-secondary);
   margin: 0 0 1rem;
 }
 
-.subjects-list {
+.collections-list {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.no-subjects {
+.no-collections {
   text-align: center;
   padding: 2rem;
   color: var(--text-muted);
 }
 
-.no-subjects svg {
+.no-collections svg {
   opacity: 0.3;
   margin-bottom: 0.75rem;
 }
 
-.no-subjects p {
+.no-collections p {
   margin: 0;
   font-weight: 500;
   color: var(--text-secondary);
 }
 
-.no-subjects span {
+.no-collections span {
   font-size: 0.875rem;
 }
 
-.subject-item {
+.collection-item {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -218,24 +218,24 @@
   transition: all 0.2s ease;
 }
 
-.subject-item:hover {
+.collection-item:hover {
   background: var(--bg-elevated);
 }
 
-.subject-color-dot {
+.collection-color-dot {
   width: 12px;
   height: 12px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
-.subject-name {
+.collection-name {
   flex: 1;
   font-size: 0.9375rem;
   color: var(--text-primary);
 }
 
-.subject-edit-input {
+.collection-edit-input {
   flex: 1;
   height: 32px;
   padding: 0 0.75rem;
@@ -247,14 +247,14 @@
   outline: none;
 }
 
-.subject-actions {
+.collection-actions {
   display: flex;
   gap: 0.25rem;
   opacity: 0;
   transition: opacity 0.2s ease;
 }
 
-.subject-item:hover .subject-actions {
+.collection-item:hover .collection-actions {
   opacity: 1;
 }
 
@@ -294,15 +294,15 @@
 
 /* Responsive */
 @media (max-width: 480px) {
-  .subject-manager-overlay {
+  .collection-manager-overlay {
     padding: 1rem;
   }
 
-  .create-subject-form {
+  .create-collection-form {
     flex-wrap: wrap;
   }
 
-  .subject-input {
+  .collection-input {
     width: 100%;
     order: 1;
     margin-top: 0.5rem;

@@ -17,26 +17,26 @@ import {
 } from 'lucide-react';
 import './styles.css';
 
-const Subjects = ({ items = [], subjects = [], getItemsBySubject }) => {
+const Collections = ({ items = [], collections = [], getItemsByCollection }) => {
   const navigate = useNavigate();
-  const [expandedSubjects, setExpandedSubjects] = useState(new Set());
+  const [expandedCollections, setExpandedCollections] = useState(new Set());
 
-  // Initialize with all subjects expanded
+  // Initialize with all collections expanded
   React.useEffect(() => {
-    if (subjects.length > 0) {
-      setExpandedSubjects(new Set([...subjects.map(s => s.id), null]));
+    if (collections.length > 0) {
+      setExpandedCollections(new Set([...collections.map(c => c.id), null]));
     }
-  }, [subjects]);
+  }, [collections]);
 
-  const groupedItems = getItemsBySubject ? getItemsBySubject() : [];
+  const groupedItems = getItemsByCollection ? getItemsByCollection() : [];
 
-  const toggleSubject = (subjectId) => {
-    setExpandedSubjects(prev => {
+  const toggleCollection = (collectionId) => {
+    setExpandedCollections(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(subjectId)) {
-        newSet.delete(subjectId);
+      if (newSet.has(collectionId)) {
+        newSet.delete(collectionId);
       } else {
-        newSet.add(subjectId);
+        newSet.add(collectionId);
       }
       return newSet;
     });
@@ -66,47 +66,47 @@ const Subjects = ({ items = [], subjects = [], getItemsBySubject }) => {
   };
 
   return (
-    <div className="subjects-page">
-      <div className="subjects-header">
-        <h1>Subjects</h1>
-        <p>Browse your learning materials organized by subject</p>
+    <div className="collections-page">
+      <div className="collections-header">
+        <h1>Collections</h1>
+        <p>Browse your learning materials organized by collection</p>
       </div>
 
       {groupedItems.length === 0 ? (
-        <div className="subjects-empty">
+        <div className="collections-empty">
           <Folder size={64} />
-          <h3>No subjects yet</h3>
-          <p>Go to Manage page to create subjects and upload content</p>
+          <h3>No collections yet</h3>
+          <p>Go to Manage page to create collections and upload content</p>
         </div>
       ) : (
-        <div className="subjects-content">
+        <div className="collections-content">
           {groupedItems.map(group => {
             const { videos, pdfs } = segregateItems(group.items);
             const hasContent = videos.length > 0 || pdfs.length > 0;
 
             return (
-              <div key={group.id || 'uncategorized'} className="subject-section">
-                {/* Subject Header */}
+              <div key={group.id || 'uncategorized'} className="collection-section">
+                {/* Collection Header */}
                 <div 
-                  className="subject-header"
+                  className="collection-header"
                   style={{ borderLeftColor: group.color }}
-                  onClick={() => toggleSubject(group.id)}
+                  onClick={() => toggleCollection(group.id)}
                 >
                   <button className="expand-btn">
-                    {expandedSubjects.has(group.id) ? (
+                    {expandedCollections.has(group.id) ? (
                       <ChevronDown size={20} />
                     ) : (
                       <ChevronRight size={20} />
                     )}
                   </button>
                   
-                  <div className="subject-icon" style={{ background: group.color }}>
+                  <div className="collection-icon" style={{ background: group.color }}>
                     <Folder size={18} />
                   </div>
                   
-                  <div className="subject-info">
-                    <span className="subject-name">{group.name}</span>
-                    <span className="subject-stats">
+                  <div className="collection-info">
+                    <span className="collection-name">{group.name}</span>
+                    <span className="collection-stats">
                       {videos.length > 0 && (
                         <span className="stat-item">
                           <Video size={14} /> {videos.length}
@@ -125,11 +125,11 @@ const Subjects = ({ items = [], subjects = [], getItemsBySubject }) => {
                   </span>
                 </div>
 
-                {/* Subject Content */}
+                {/* Collection Content */}
                 <AnimatePresence>
-                  {expandedSubjects.has(group.id) && (
+                  {expandedCollections.has(group.id) && (
                     <motion.div
-                      className="subject-content"
+                      className="collection-content"
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
@@ -138,7 +138,7 @@ const Subjects = ({ items = [], subjects = [], getItemsBySubject }) => {
                       {!hasContent ? (
                         <div className="empty-section">
                           <BookOpen size={32} />
-                          <p>No content in this subject</p>
+                          <p>No content in this collection</p>
                         </div>
                       ) : (
                         <div className="content-sections">
@@ -280,4 +280,4 @@ const Subjects = ({ items = [], subjects = [], getItemsBySubject }) => {
   );
 };
 
-export default Subjects;
+export default Collections;
