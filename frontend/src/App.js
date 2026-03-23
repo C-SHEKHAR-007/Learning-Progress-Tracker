@@ -46,23 +46,13 @@ function App() {
   }, [fetchItems, fetchSubjects]);
 
   // File upload handling
-  const handleFilesSelected = useCallback(async (filesOrFileInfos, subjectIdOrIsPathBased = null) => {
+  const handleFilesSelected = useCallback(async (filesOrFileInfos, subjectId = null) => {
     const newItems = [];
     const newFileMap = new Map(fileMap);
-    
-    // Determine if second param is subjectId (number/null) or isPathBased (boolean true)
-    let subjectId = null;
-    let isPathBased = false;
-    
-    if (typeof subjectIdOrIsPathBased === 'boolean') {
-      isPathBased = subjectIdOrIsPathBased;
-    } else {
-      subjectId = subjectIdOrIsPathBased;
-    }
 
     for (const item of filesOrFileInfos) {
       // Check if this is a path-based file info (has file_path property)
-      if (item.file_path || isPathBased) {
+      if (item.file_path) {
         const type = item.type || (item.name?.toLowerCase().endsWith('.pdf') ? 'pdf' : 'video');
         if (!type) continue;
 
@@ -146,18 +136,46 @@ function App() {
     }
   }, [reorderItems]);
 
-  const handleDelete = useCallback(async (item) => {
+  const handleDelete = useCallback(async (item, showToast = true) => {
     try {
       await deleteItem(item.id);
       if (selectedItem?.id === item.id) {
         setSelectedItem(null);
         setSelectedFile(null);
       }
-      toast.success('Item removed');
+      if (showToast) {
+        toast.success('Item removed');
+      }
     } catch (error) {
-      toast.error('Failed to remove item');
+      if (showToast) {
+        toast.error('Failed to remove item');
+      }
+      throw error;
     }
   }, [deleteItem, selectedItem]);
+
+  const handleBulkDelete = useCallback(async (itemIds) => {
+    let successCount = 0;
+    let failCount = 0;
+    
+    for (const itemId of itemIds) {
+      const item = { id: itemId };
+      try {
+        await handleDelete(item, false);
+        successCount++;
+      } catch (error) {
+        failCount++;
+      }
+    }
+    
+    if (successCount > 0 && failCount === 0) {
+      toast.success(`${successCount} item(s) removed`);
+    } else if (successCount > 0 && failCount > 0) {
+      toast.warning(`${successCount} item(s) removed, ${failCount} failed`);
+    } else if (failCount > 0) {
+      toast.error(`Failed to remove ${failCount} item(s)`);
+    }
+  }, [handleDelete]);
 
   const handleUpdateItem = useCallback(async (id, updates) => {
     try {
@@ -203,14 +221,41 @@ function App() {
     }
   }, [deleteSubject]);
 
-  const handleMoveItem = useCallback(async (itemId, subjectId) => {
+  const handleMoveItem = useCallback(async (itemId, subjectId, showToast = true) => {
     try {
       await updateItemSubject(itemId, subjectId);
-      toast.success('Item moved');
+      if (showToast) {
+        toast.success('Item moved');
+      }
     } catch (error) {
-      toast.error('Failed to move item');
+      if (showToast) {
+        toast.error('Failed to move item');
+      }
+      throw error;
     }
   }, [updateItemSubject]);
+
+  const handleBulkMove = useCallback(async (itemIds, subjectId) => {
+    let successCount = 0;
+    let failCount = 0;
+    
+    for (const itemId of itemIds) {
+      try {
+        await handleMoveItem(itemId, subjectId, false);
+        successCount++;
+      } catch (error) {
+        failCount++;
+      }
+    }
+    
+    if (successCount > 0 && failCount === 0) {
+      toast.success(`${successCount} item(s) moved`);
+    } else if (successCount > 0 && failCount > 0) {
+      toast.warning(`${successCount} item(s) moved, ${failCount} failed`);
+    } else if (failCount > 0) {
+      toast.error(`Failed to move ${failCount} item(s)`);
+    }
+  }, [handleMoveItem]);
 
   // Calculate stats
   const stats = {
@@ -264,7 +309,9 @@ function App() {
                   onFilesSelected={handleFilesSelected}
                   onReorder={handleReorder}
                   onDelete={handleDelete}
+                  onBulkDelete={handleBulkDelete}
                   onMoveItem={handleMoveItem}
+                  onBulkMove={handleBulkMove}
                   onCreateSubject={handleCreateSubject}
                   onUpdateSubject={handleUpdateSubject}
                   onDeleteSubject={handleDeleteSubject}

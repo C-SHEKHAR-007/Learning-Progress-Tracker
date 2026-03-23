@@ -33,8 +33,10 @@ const Manage = ({
   subjects = [], 
   onFilesSelected, 
   onReorder, 
-  onDelete, 
+  onDelete,
+  onBulkDelete,
   onMoveItem,
+  onBulkMove,
   onCreateSubject,
   onUpdateSubject,
   onDeleteSubject,
@@ -140,19 +142,21 @@ const Manage = ({
     });
 
     if (fileInfos.length > 0) {
-      onFilesSelected(fileInfos, true);
+      onFilesSelected(fileInfos, uploadSubjectId);
     }
     
     setPendingFiles([]);
     setBasePath('');
     setShowPathConfirm(false);
-  }, [pendingFiles, basePath, onFilesSelected]);
+    setUploadSubjectId(null);
+  }, [pendingFiles, basePath, onFilesSelected, uploadSubjectId]);
 
   // Cancel path confirmation
   const handleCancelPath = useCallback(() => {
     setPendingFiles([]);
     setBasePath('');
     setShowPathConfirm(false);
+    setUploadSubjectId(null);
   }, []);
 
   // Click handlers for different upload types
@@ -198,18 +202,13 @@ const Manage = ({
   const handleBulkDelete = async () => {
     if (selectedItems.size === 0) return;
     if (window.confirm(`Delete ${selectedItems.size} item(s)?`)) {
-      for (const itemId of selectedItems) {
-        const item = items.find(i => i.id === itemId);
-        if (item) await onDelete(item);
-      }
+      await onBulkDelete(Array.from(selectedItems));
       setSelectedItems(new Set());
     }
   };
 
   const handleBulkMove = async (subjectId) => {
-    for (const itemId of selectedItems) {
-      await onMoveItem(itemId, subjectId);
-    }
+    await onBulkMove(Array.from(selectedItems), subjectId);
     setSelectedItems(new Set());
     setShowMoveMenu(null);
   };
@@ -759,6 +758,20 @@ const Manage = ({
                     </code>
                   </div>
                 )}
+
+                <div className="form-group" style={{ marginTop: '1rem' }}>
+                  <label>Add to Subject</label>
+                  <select 
+                    value={uploadSubjectId || ''} 
+                    onChange={(e) => setUploadSubjectId(e.target.value ? parseInt(e.target.value) : null)}
+                    style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
+                  >
+                    <option value="">No Subject (Uncategorized)</option>
+                    {subjects.map(subject => (
+                      <option key={subject.id} value={subject.id}>{subject.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className="modal-footer">
                 <button className="btn-secondary" onClick={handleCancelPath}>
