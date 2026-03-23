@@ -148,8 +148,15 @@ export const useItems = () => {
   }, []);
 
   const reorderItems = useCallback(async (reorderedItems) => {
-    // Optimistic update
-    setItems(reorderedItems);
+    // Create a map of id -> new order_index
+    const orderMap = new Map(reorderedItems.map(item => [item.id, item.order_index]));
+    
+    // Optimistic update - only update order_index, preserve all other data
+    setItems(prev => prev.map(item => {
+      const newOrder = orderMap.get(item.id);
+      return newOrder !== undefined ? { ...item, order_index: newOrder } : item;
+    }));
+    
     try {
       await itemsApi.reorder(reorderedItems);
     } catch (err) {
@@ -224,6 +231,11 @@ export const useItems = () => {
       } else {
         grouped['uncategorized'].items.push(item);
       }
+    });
+    
+    // Sort items within each group by order_index
+    Object.values(grouped).forEach(group => {
+      group.items.sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
     });
     
     // Sort groups by subject order and filter empty uncategorized

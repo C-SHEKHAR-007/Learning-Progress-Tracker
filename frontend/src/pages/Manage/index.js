@@ -260,7 +260,10 @@ const Manage = ({
     // Handle reordering within same subject
     if (source.droppableId === destination.droppableId) {
       const subjectId = source.droppableId === 'uncategorized' ? null : parseInt(source.droppableId.replace('subject-', ''));
-      const subjectItems = items.filter(i => i.subject_id === subjectId);
+      // Get items for this subject and sort by order_index to match visual order
+      const subjectItems = items
+        .filter(i => i.subject_id === subjectId)
+        .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
       const [removed] = subjectItems.splice(source.index, 1);
       subjectItems.splice(destination.index, 0, removed);
       
