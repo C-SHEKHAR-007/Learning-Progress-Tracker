@@ -103,10 +103,10 @@ const itemService = {
         }
 
         const result = await client.query(
-          `INSERT INTO learning_items (name, type, file_id, subject_id, order_index, duration, thumbnail)
-           VALUES ($1, $2, $3, $4, $5, $6, $7)
+          `INSERT INTO learning_items (name, type, file_id, file_path, subject_id, order_index, duration, thumbnail)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
            RETURNING *`,
-          [item.name, item.type, fileId, subjectId, orderIndex++, item.duration || 0, item.thumbnail || null]
+          [item.name, item.type, fileId, item.file_path || null, subjectId, orderIndex++, item.duration || 0, item.thumbnail || null]
         );
         createdItems.push(result.rows[0]);
       }
@@ -239,6 +239,27 @@ const itemService = {
   // Delete all items
   async deleteAllItems() {
     await pool.query('DELETE FROM learning_items');
+  },
+
+  // Get file path by item ID
+  async getFilePath(id) {
+    const result = await pool.query(
+      'SELECT file_path, type, name FROM learning_items WHERE id = $1',
+      [id]
+    );
+    return result.rows[0];
+  },
+
+  // Update file path
+  async updateFilePath(id, filePath) {
+    const result = await pool.query(
+      `UPDATE learning_items 
+       SET file_path = $1, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $2
+       RETURNING *`,
+      [filePath, id]
+    );
+    return result.rows[0];
   }
 };
 

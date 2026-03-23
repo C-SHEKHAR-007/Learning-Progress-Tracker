@@ -9,17 +9,24 @@ import {
 } from 'lucide-react';
 import './styles.css';
 
-const PDFViewer = ({ item, file, onComplete, isCompleted }) => {
+const PDFViewer = ({ item, file, fileUrl: propFileUrl, onComplete, isCompleted }) => {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [zoom, setZoom] = useState(100);
 
   useEffect(() => {
-    if (file) {
+    if (item?.file_path) {
+      // Use backend streaming endpoint
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+      setPdfUrl(`${apiUrl}/items/${item.id}/file`);
+    } else if (file) {
+      // Fallback to blob URL from file object
       const url = URL.createObjectURL(file);
       setPdfUrl(url);
       return () => URL.revokeObjectURL(url);
+    } else if (propFileUrl) {
+      setPdfUrl(propFileUrl);
     }
-  }, [file]);
+  }, [file, item?.id, item?.file_path, propFileUrl]);
 
   const handleZoomIn = () => {
     setZoom((prev) => Math.min(prev + 25, 200));
@@ -29,7 +36,7 @@ const PDFViewer = ({ item, file, onComplete, isCompleted }) => {
     setZoom((prev) => Math.max(prev - 25, 50));
   };
 
-  if (!file && !pdfUrl) {
+  if (!item?.file_path && !file && !pdfUrl) {
     return (
       <div className="pdf-viewer">
         <div className="pdf-placeholder">

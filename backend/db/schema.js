@@ -17,6 +17,7 @@ const createTables = async () => {
       name TEXT NOT NULL,
       type TEXT NOT NULL CHECK (type IN ('video', 'pdf')),
       file_id TEXT UNIQUE NOT NULL,
+      file_path TEXT,
       subject_id INT REFERENCES subjects(id) ON DELETE SET NULL,
       order_index INT DEFAULT 0,
       progress FLOAT DEFAULT 0,
@@ -27,6 +28,14 @@ const createTables = async () => {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
+    
+    -- Add file_path column if it doesn't exist (for existing databases)
+    DO $$ 
+    BEGIN 
+      IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='learning_items' AND column_name='file_path') THEN
+        ALTER TABLE learning_items ADD COLUMN file_path TEXT;
+      END IF;
+    END $$;
 
     CREATE INDEX IF NOT EXISTS idx_learning_items_order ON learning_items(order_index);
     CREATE INDEX IF NOT EXISTS idx_learning_items_type ON learning_items(type);

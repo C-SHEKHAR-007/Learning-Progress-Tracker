@@ -23,7 +23,8 @@ import {
   AlertCircle,
   File,
   Files,
-  FolderOpen
+  FolderOpen,
+  HardDrive
 } from 'lucide-react';
 import './styles.css';
 
@@ -50,6 +51,11 @@ const Manage = ({
   const [isDragging, setIsDragging] = useState(false);
   const [uploadSubjectId, setUploadSubjectId] = useState(null);
   const [showMoveMenu, setShowMoveMenu] = useState(null);
+  
+  // Path confirmation state
+  const [pendingFiles, setPendingFiles] = useState([]);
+  const [basePath, setBasePath] = useState('');
+  const [showPathConfirm, setShowPathConfirm] = useState(false);
 
   // File input refs
   const singleFileInputRef = useRef(null);
@@ -86,9 +92,11 @@ const Manage = ({
     setIsDragging(false);
     const files = filterValidFiles(Array.from(e.dataTransfer.files));
     if (files.length > 0) {
-      onFilesSelected(files, uploadSubjectId);
+      // Show path confirmation modal
+      setPendingFiles(files);
+      setShowPathConfirm(true);
     }
-  }, [onFilesSelected, uploadSubjectId]);
+  }, []);
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -102,11 +110,49 @@ const Manage = ({
   const handleFileInput = (e) => {
     const files = filterValidFiles(Array.from(e.target.files));
     if (files.length > 0) {
-      onFilesSelected(files, uploadSubjectId);
+      // Show path confirmation modal
+      setPendingFiles(files);
+      setShowPathConfirm(true);
     }
     // Reset input so same file can be selected again
     e.target.value = '';
   };
+
+  // Confirm files with path
+  const handleConfirmWithPath = useCallback(() => {
+    const fileInfos = pendingFiles.map(file => {
+      const relativePath = file.webkitRelativePath || file.name;
+      const separator = basePath.includes('/') ? '/' : '\\';
+      const fullPath = basePath.trim() 
+        ? `${basePath.trim().replace(/[\\/]$/, '')}${separator}${relativePath}`
+        : relativePath;
+      
+      const type = (file.type || '').includes('video') ? 'video' : 
+                   (file.type || '').includes('pdf') || file.name.toLowerCase().endsWith('.pdf') ? 'pdf' : 'video';
+      
+      return {
+        name: file.name,
+        type,
+        file_path: fullPath,
+        file_id: `path-${Date.now()}-${file.name}-${file.size}`,
+      };
+    });
+
+    if (fileInfos.length > 0) {
+      onFilesSelected(fileInfos, true);
+    }
+    
+    setPendingFiles([]);
+    setBasePath('');
+    setShowPathConfirm(false);
+  }, [pendingFiles, basePath, onFilesSelected]);
+
+  // Cancel path confirmation
+  const handleCancelPath = useCallback(() => {
+    setPendingFiles([]);
+    setBasePath('');
+    setShowPathConfirm(false);
+  }, []);
 
   // Click handlers for different upload types
   const handleSingleFileClick = (e) => {
@@ -516,6 +562,15 @@ const Manage = ({
                                       )}
                                       <div className="item-meta">
                                         <span className="type-badge">{item.type}</span>
+                                        {item.file_path ? (
+                                          <span className="path-badge" title={`Path: ${item.file_path}`}>
+                                            <HardDrive size={12} /> Stored
+                                          </span>
+                                        ) : (
+                                          <span className="no-path-badge" title="No file path - won't work after refresh">
+                                            ⚠ No path
+                                          </span>
+                                        )}
                                         {item.progress > 0 && (
                                           <span className="progress-badge">
                                             {item.is_completed ? '✓ Completed' : `${Math.round(item.progress)}%`}
@@ -613,6 +668,108 @@ const Manage = ({
                 <button className="btn-primary" onClick={handleCreateSubject}>
                   <Plus size={18} />
                   Create Subject
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Path Confirmation Modal */}
+      <AnimatePresence>
+        {showPathConfirm && (
+          <motion.div
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={handleCancelPath}
+          >
+            <motion.div
+              className="modal path-modal"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-header">
+                <HardDrive size={24} />
+                <h2>Provide Folder Path</h2>
+                <button className="modal-close" onClick={handleCancelPath}>
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="modal-body">
+                <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.875rem' }}>
+                  Browsers don't provide full file paths for security. Enter the folder path where these files are located so they can be played after page refresh.
+                </p>
+                
+                <div className="form-group">
+                  <label>Base Folder Path</label>
+                  <input
+                    type="text"
+                    value={basePath}
+                    onChange={(e) => setBasePath(e.target.value)}
+                    placeholder="C:\Users\YourName\Videos or /home/user/videos"
+                    autoFocus
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label>Files to add ({pendingFiles.length})</label>
+                  <div style={{
+                    maxHeight: '150px',
+                    overflow: 'auto',
+                    background: 'var(--bg-tertiary)',
+                    borderRadius: '8px',
+                    padding: '0.5rem',
+                  }}>
+                    {pendingFiles.map((file, i) => (
+                      <div key={i} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.25rem 0.5rem',
+                        fontSize: '0.8rem',
+                      }}>
+                        {file.type?.includes('video') || file.name.match(/\.(mp4|mkv|avi|mov|webm)$/i) ? (
+                          <Video size={14} style={{ color: 'var(--primary)' }} />
+                        ) : (
+                          <FileText size={14} style={{ color: 'var(--warning)' }} />
+                        )}
+                        <span style={{ color: 'var(--text-secondary)' }}>
+                          {file.webkitRelativePath || file.name}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {basePath && (
+                  <div style={{ 
+                    padding: '0.75rem', 
+                    background: 'var(--bg-tertiary)', 
+                    borderRadius: '8px',
+                    fontSize: '0.8rem',
+                  }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Example full path: </span>
+                    <code style={{ color: 'var(--primary)' }}>
+                      {basePath.replace(/[\\/]$/, '')}{basePath.includes('/') ? '/' : '\\'}{pendingFiles[0]?.webkitRelativePath || pendingFiles[0]?.name}
+                    </code>
+                  </div>
+                )}
+              </div>
+              <div className="modal-footer">
+                <button className="btn-secondary" onClick={handleCancelPath}>
+                  Cancel
+                </button>
+                <button 
+                  className="btn-primary" 
+                  onClick={handleConfirmWithPath}
+                  disabled={!basePath.trim()}
+                >
+                  <Check size={18} />
+                  Add {pendingFiles.length} File{pendingFiles.length > 1 ? 's' : ''}
                 </button>
               </div>
             </motion.div>

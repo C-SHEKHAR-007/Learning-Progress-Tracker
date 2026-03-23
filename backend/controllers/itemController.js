@@ -1,4 +1,6 @@
 const itemService = require('../services/itemService');
+const fs = require('fs');
+const path = require('path');
 
 const itemController = {
   // ==================== SUBJECTS ====================
@@ -234,6 +236,73 @@ const itemController = {
       res.json({ success: true });
     } catch (error) {
       console.error('Error deleting all items:', error);
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  // Serve file from local path
+  async serveFile(req, res) {
+    try {
+      const { id } = req.params;
+      const item = await itemService.getFilePath(id);
+      
+      if (!item) {
+        return res.status(404).json({ error: 'Item not found' });
+      }
+      
+      if (!item.file_path) {
+        return res.status(404).json({ error: 'File path not set for this item' });
+      }
+
+      const filePath = item.file_path;
+      
+      // Check if file exists
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ error: 'File not found on disk' });
+      }
+
+      const stat = fs.statSync(filePath);
+      const fileSize = stat.size;
+      const range = req.headers.range;
+
+      // Determine content type
+      const ext = path.extname(filePath).toLowerCase();
+      let contentType = 'application/octet-stream';
+      if (ext === '.mp4') contentType = 'video/mp4';
+      else if (ext === '.webm') contentType = 'video/webm';
+      else if (ext === '.mkv') contentType = 'video/x-matroska';
+      else if (ext === '.avi') contentType = 'video/x-msvideo';
+      else if (ext === '.mov') contentType = 'video/quicktime';
+      else if (ext === '.pdf') contentType = 'application/pdf';
+
+      // Handle range requests for video streaming
+      if (range && item.type === 'video') {
+        const parts = range.replace(/bytes=/, '').split('-');
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+        const chunkSize = end - start + 1;
+
+        const fileStream = fs.createReadStream(filePath, { start, end });
+
+        res.writeHead(206, {
+          'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+          'Accept-Ranges': 'bytes',
+          'Content-Length': chunkSize,
+          'Content-Type': contentType,
+        });
+
+        fileStream.pipe(res);
+      } else {
+        // Send entire file for PDFs or non-range requests
+        res.writeHead(200, {
+          'Content-Length': fileSize,
+          'Content-Type': contentType,
+        });
+
+        fs.createReadStream(filePath).pipe(res);
+      }
+    } catch (error) {
+      console.error('Error serving file:', error);
       res.status(500).json({ error: error.message });
     }
   }

@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import './styles.css';
 
-const VideoPlayer = ({ item, file, onProgressUpdate, onComplete }) => {
+const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onComplete }) => {
   const videoRef = useRef(null);
   const containerRef = useRef(null);
   const progressRef = useRef(null);
@@ -45,15 +45,27 @@ const VideoPlayer = ({ item, file, onProgressUpdate, onComplete }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [showCompletionPopup, setShowCompletionPopup] = useState(false);
   const [videoUrl, setVideoUrl] = useState(null);
+  const [videoError, setVideoError] = useState(null);
 
-  // Generate video URL from file
+  // Generate video URL - prioritize file path streaming from backend, then file object, then prop URL
   useEffect(() => {
-    if (file) {
+    setVideoError(null);
+    
+    if (item?.file_path) {
+      // Use backend streaming endpoint
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+      const url = `${apiUrl}/items/${item.id}/file`;
+      console.log('Using backend streaming URL:', url, 'for file_path:', item.file_path);
+      setVideoUrl(url);
+    } else if (file) {
+      // Fallback to blob URL from file object
       const url = URL.createObjectURL(file);
       setVideoUrl(url);
       return () => URL.revokeObjectURL(url);
+    } else if (propFileUrl) {
+      setVideoUrl(propFileUrl);
     }
-  }, [file]);
+  }, [file, item?.id, item?.file_path, propFileUrl]);
 
   // Initialize video with last position
   useEffect(() => {
@@ -303,7 +315,20 @@ const VideoPlayer = ({ item, file, onProgressUpdate, onComplete }) => {
 
       {/* Video Element */}
       <div className="video-wrapper" onClick={togglePlay}>
-        {videoUrl ? (
+        {videoError ? (
+          <div className="video-placeholder">
+            <div className="placeholder-content">
+              <Film size={64} style={{ color: 'var(--error, #ef4444)' }} />
+              <p>Failed to load video</p>
+              <span style={{ color: 'var(--error, #ef4444)' }}>{videoError}</span>
+              {item?.file_path && (
+                <span style={{ fontSize: '0.75rem', marginTop: '0.5rem', opacity: 0.7 }}>
+                  Path: {item.file_path}
+                </span>
+              )}
+            </div>
+          </div>
+        ) : videoUrl ? (
           <video
             ref={videoRef}
             src={videoUrl}
@@ -316,6 +341,22 @@ const VideoPlayer = ({ item, file, onProgressUpdate, onComplete }) => {
             onEnded={() => {
               setIsPlaying(false);
               onComplete?.();
+            }}
+            onError={(e) => {
+              console.error('Video error:', e);
+              const video = e.target;
+              const error = video.error;
+              let message = 'Unknown error';
+              if (error) {
+                switch (error.code) {
+                  case 1: message = 'Video loading aborted'; break;
+                  case 2: message = 'Network error - check if backend is running'; break;
+                  case 3: message = 'Video decoding failed'; break;
+                  case 4: message = 'Video format not supported or file not found'; break;
+                  default: message = error.message || 'Unknown error';
+                }
+              }
+              setVideoError(message);
             }}
           />
         ) : (
