@@ -20,6 +20,9 @@ const Player = ({
   // Find the item
   const item = items.find(i => i.id === parseInt(id)) || selectedItem;
   const file = item ? fileMap.get(item.file_id) : null;
+  
+  // Check if item has a local file path (streamed from backend)
+  const hasFilePath = item?.file_path;
 
   useEffect(() => {
     if (item && (!selectedItem || selectedItem.id !== item.id)) {
@@ -64,10 +67,10 @@ const Player = ({
 
       {/* Content */}
       <div className="player-content">
-        {!file ? (
+        {!file && !hasFilePath ? (
           <div className="player-no-file">
             <h3>File not available</h3>
-            <p>Please re-upload this file to continue watching.</p>
+            <p>Please re-upload this file or add it by path to continue watching.</p>
             <Link to="/manage" className="upload-link">
               Go to Manage
             </Link>

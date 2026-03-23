@@ -116,6 +116,11 @@ export const itemsApi = {
     const response = await api.delete('/items');
     return response.data;
   },
+
+  // Get file streaming URL for an item
+  getFileUrl: (itemId) => {
+    return `${API_URL}/items/${itemId}/file`;
+  },
 };
 
 export default api;

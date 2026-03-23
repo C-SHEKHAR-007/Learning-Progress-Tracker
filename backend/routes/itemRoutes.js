@@ -54,4 +54,7 @@ router.delete('/:id', itemController.deleteItem);
 // DELETE /api/items - Delete all items
 router.delete('/', itemController.deleteAllItems);
 
+// GET /api/items/:id/file - Serve file from local path
+router.get('/:id/file', itemController.serveFile);
+
 module.exports = router;

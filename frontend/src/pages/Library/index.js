@@ -13,7 +13,8 @@ import {
   Play,
   Folder,
   ChevronDown,
-  X
+  X,
+  HardDrive
 } from 'lucide-react';
 import './styles.css';
 
@@ -214,6 +215,16 @@ const Library = ({ items, subjects, onItemSelect }) => {
                 {item.is_completed && (
                   <div className="completed-badge">
                     <CheckCircle size={16} />
+                  </div>
+                )}
+                {item.file_path && (
+                  <div className="file-stored-badge" title="File path stored - available after refresh">
+                    <HardDrive size={14} />
+                  </div>
+                )}
+                {!item.file_path && (
+                  <div className="file-missing-badge" title="No file path - will be unavailable after refresh">
+                    <span style={{ fontSize: '10px', color: 'var(--warning)' }}>!</span>
                   </div>
                 )}
                 <div className="play-overlay">

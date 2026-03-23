@@ -40,26 +40,51 @@ function App() {
   }, [fetchItems, fetchSubjects]);
 
   // File upload handling
-  const handleFilesSelected = useCallback(async (files, subjectId = null) => {
+  const handleFilesSelected = useCallback(async (filesOrFileInfos, subjectIdOrIsPathBased = null) => {
     const newItems = [];
     const newFileMap = new Map(fileMap);
+    
+    // Determine if second param is subjectId (number/null) or isPathBased (boolean true)
+    let subjectId = null;
+    let isPathBased = false;
+    
+    if (typeof subjectIdOrIsPathBased === 'boolean') {
+      isPathBased = subjectIdOrIsPathBased;
+    } else {
+      subjectId = subjectIdOrIsPathBased;
+    }
 
-    for (const file of files) {
-      const type = file.type.includes('video') ? 'video' : 
-                   file.type.includes('pdf') ? 'pdf' : null;
-      
-      if (!type) continue;
+    for (const item of filesOrFileInfos) {
+      // Check if this is a path-based file info (has file_path property)
+      if (item.file_path || isPathBased) {
+        const type = item.type || (item.name?.toLowerCase().endsWith('.pdf') ? 'pdf' : 'video');
+        if (!type) continue;
 
-      const fileId = `${file.name}-${file.size}-${file.lastModified}`;
-      
-      newItems.push({
-        name: file.name,
-        type,
-        file_id: fileId,
-        duration: 0,
-      });
+        newItems.push({
+          name: item.name,
+          type,
+          file_id: item.file_id || `path-${Date.now()}-${item.name}`,
+          file_path: item.file_path,
+          duration: 0,
+        });
+      } else {
+        // Handle traditional file objects
+        const type = item.type?.includes('video') ? 'video' : 
+                     item.type?.includes('pdf') ? 'pdf' : null;
+        
+        if (!type) continue;
 
-      newFileMap.set(fileId, file);
+        const fileId = `${item.name}-${item.size}-${item.lastModified}`;
+        
+        newItems.push({
+          name: item.name,
+          type,
+          file_id: fileId,
+          duration: 0,
+        });
+
+        newFileMap.set(fileId, item);
+      }
     }
 
     if (newItems.length === 0) {
