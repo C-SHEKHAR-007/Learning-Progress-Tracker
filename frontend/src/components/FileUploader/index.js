@@ -151,6 +151,7 @@ const FileUploader = ({ onFilesSelected, subjects = [], selectedSubjectId, onSub
         type,
         file_path: fullPath,
         file_id: `path-${Date.now()}-${file.name}-${file.size}`,
+        file_size: file.size || 0,
       };
     });
 

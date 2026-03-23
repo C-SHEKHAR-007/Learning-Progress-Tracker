@@ -103,10 +103,10 @@ const itemService = {
         }
 
         const result = await client.query(
-          `INSERT INTO learning_items (name, type, file_id, file_path, subject_id, order_index, duration, thumbnail)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          `INSERT INTO learning_items (name, type, file_id, file_path, subject_id, order_index, duration, file_size, thumbnail)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
            RETURNING *`,
-          [item.name, item.type, fileId, item.file_path || null, subjectId, orderIndex++, item.duration || 0, item.thumbnail || null]
+          [item.name, item.type, fileId, item.file_path || null, subjectId, orderIndex++, item.duration || 0, item.file_size || 0, item.thumbnail || null]
         );
         createdItems.push(result.rows[0]);
       }
@@ -214,15 +214,17 @@ const itemService = {
     }
   },
 
-  // Update item metadata (name, etc.)
+  // Update item metadata (name, duration, etc.)
   async updateItem(id, updates) {
-    const { name } = updates;
+    const { name, duration } = updates;
     const result = await pool.query(
       `UPDATE learning_items 
-       SET name = COALESCE($1, name), updated_at = CURRENT_TIMESTAMP
-       WHERE id = $2
+       SET name = COALESCE($1, name), 
+           duration = COALESCE($2, duration),
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = $3
        RETURNING *`,
-      [name, id]
+      [name, duration, id]
     );
     return result.rows[0];
   },

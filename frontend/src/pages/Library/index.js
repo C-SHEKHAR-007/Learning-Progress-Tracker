@@ -87,9 +87,25 @@ const Library = ({ items, subjects, onItemSelect }) => {
 
   const formatDuration = (seconds) => {
     if (!seconds) return '';
-    const mins = Math.floor(seconds / 60);
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
     const secs = Math.floor(seconds % 60);
+    if (hours > 0) {
+      return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const formatFileSize = (bytes) => {
+    if (!bytes || bytes === 0) return '';
+    const units = ['B', 'KB', 'MB', 'GB'];
+    let unitIndex = 0;
+    let size = bytes;
+    while (size >= 1024 && unitIndex < units.length - 1) {
+      size /= 1024;
+      unitIndex++;
+    }
+    return `${size.toFixed(unitIndex > 0 ? 1 : 0)} ${units[unitIndex]}`;
   };
 
   return (
@@ -234,8 +250,11 @@ const Library = ({ items, subjects, onItemSelect }) => {
               <div className="card-info">
                 <h3>{item.name}</h3>
                 <div className="card-meta">
-                  {item.duration > 0 && (
-                    <span className="duration">{formatDuration(item.duration)}</span>
+                  {item.type === 'video' && item.duration > 0 && (
+                    <span className="duration">⏱ {formatDuration(item.duration)}</span>
+                  )}
+                  {item.file_size > 0 && (
+                    <span className="file-size">📁 {formatFileSize(item.file_size)}</span>
                   )}
                   <span className="type-badge">{item.type}</span>
                 </div>
@@ -285,8 +304,11 @@ const Library = ({ items, subjects, onItemSelect }) => {
                     )}
                   </div>
                   <div className="list-item-meta">
-                    {item.duration > 0 && (
+                    {item.type === 'video' && item.duration > 0 && (
                       <span className="duration">{formatDuration(item.duration)}</span>
+                    )}
+                    {item.file_size > 0 && (
+                      <span className="file-size">{formatFileSize(item.file_size)}</span>
                     )}
                     {item.is_completed ? (
                       <CheckCircle size={18} className="completed" />
