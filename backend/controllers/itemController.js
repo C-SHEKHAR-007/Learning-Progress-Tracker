@@ -202,8 +202,8 @@ const itemController = {
   async updateItem(req, res) {
     try {
       const { id } = req.params;
-      const { name } = req.body;
-      const item = await itemService.updateItem(id, { name });
+      const { name, duration } = req.body;
+      const item = await itemService.updateItem(id, { name, duration });
       if (!item) {
         return res.status(404).json({ error: 'Item not found' });
       }

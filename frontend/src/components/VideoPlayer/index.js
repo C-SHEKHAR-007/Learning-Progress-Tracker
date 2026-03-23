@@ -20,6 +20,7 @@ import {
   Sparkles,
   Trophy
 } from 'lucide-react';
+import { itemsApi } from '../../services/api';
 import './styles.css';
 
 const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onComplete }) => {
@@ -214,9 +215,16 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
 
   const handleLoadedMetadata = useCallback(() => {
     if (videoRef.current) {
-      setDuration(videoRef.current.duration);
+      const videoDuration = videoRef.current.duration;
+      setDuration(videoDuration);
+      
+      // Save duration to backend if item exists and doesn't have duration yet
+      if (item?.id && !item.duration && videoDuration && isFinite(videoDuration)) {
+        itemsApi.update(item.id, { duration: videoDuration })
+          .catch(err => console.error('Failed to save video duration:', err));
+      }
     }
-  }, []);
+  }, [item?.id, item?.duration]);
 
   const handleProgress = useCallback(() => {
     if (videoRef.current) {

@@ -24,6 +24,7 @@ const createTables = async () => {
       is_completed BOOLEAN DEFAULT FALSE,
       last_position FLOAT DEFAULT 0,
       duration FLOAT DEFAULT 0,
+      file_size BIGINT DEFAULT 0,
       thumbnail TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -34,6 +35,14 @@ const createTables = async () => {
     BEGIN 
       IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='learning_items' AND column_name='file_path') THEN
         ALTER TABLE learning_items ADD COLUMN file_path TEXT;
+      END IF;
+    END $$;
+
+    -- Add file_size column if it doesn't exist
+    DO $$ 
+    BEGIN 
+      IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='learning_items' AND column_name='file_size') THEN
+        ALTER TABLE learning_items ADD COLUMN file_size BIGINT DEFAULT 0;
       END IF;
     END $$;
 

@@ -65,6 +65,7 @@ function App() {
           type,
           file_id: item.file_id || `path-${Date.now()}-${item.name}`,
           file_path: item.file_path,
+          file_size: item.file_size || item.size || 0,
           duration: 0,
         });
       } else {
@@ -80,6 +81,7 @@ function App() {
           name: item.name,
           type,
           file_id: fileId,
+          file_size: item.size || 0,
           duration: 0,
         });
 
