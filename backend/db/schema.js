@@ -3,7 +3,7 @@ const pool = require('./index');
 
 const createTables = async () => {
   const query = `
-    CREATE TABLE IF NOT EXISTS subjects (
+    CREATE TABLE IF NOT EXISTS collections (
       id SERIAL PRIMARY KEY,
       name TEXT NOT NULL UNIQUE,
       color TEXT DEFAULT '#6366f1',
@@ -18,7 +18,7 @@ const createTables = async () => {
       type TEXT NOT NULL CHECK (type IN ('video', 'pdf')),
       file_id TEXT UNIQUE NOT NULL,
       file_path TEXT,
-      subject_id INT REFERENCES subjects(id) ON DELETE SET NULL,
+      collection_id INT REFERENCES collections(id) ON DELETE SET NULL,
       order_index INT DEFAULT 0,
       progress FLOAT DEFAULT 0,
       is_completed BOOLEAN DEFAULT FALSE,
@@ -48,11 +48,11 @@ const createTables = async () => {
 
     CREATE INDEX IF NOT EXISTS idx_learning_items_order ON learning_items(order_index);
     CREATE INDEX IF NOT EXISTS idx_learning_items_type ON learning_items(type);
-    CREATE INDEX IF NOT EXISTS idx_learning_items_subject ON learning_items(subject_id);
-    CREATE INDEX IF NOT EXISTS idx_subjects_order ON subjects(order_index);
+    CREATE INDEX IF NOT EXISTS idx_learning_items_collection ON learning_items(collection_id);
+    CREATE INDEX IF NOT EXISTS idx_collections_order ON collections(order_index);
 
-    -- Insert default subject if none exists
-    INSERT INTO subjects (name, color, icon, order_index)
+    -- Insert default collection if none exists
+    INSERT INTO collections (name, color, icon, order_index)
     VALUES ('General', '#6366f1', 'folder', 0)
     ON CONFLICT (name) DO NOTHING;
   `;

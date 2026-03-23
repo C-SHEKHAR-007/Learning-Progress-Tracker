@@ -205,46 +205,46 @@
   box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
 }
 
-/* Subject Progress */
-.subjects-progress-grid {
+/* Collection Progress */
+.collections-progress-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1rem;
 }
 
-.subject-progress-card {
+.collection-progress-card {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 1rem;
 }
 
-.subject-header {
+.collection-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.5rem;
 }
 
-.subject-color-dot {
+.collection-color-dot {
   width: 12px;
   height: 12px;
   border-radius: 50%;
 }
 
-.subject-header h3 {
+.collection-header h3 {
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--text-primary);
 }
 
-.subject-stats {
+.collection-stats {
   font-size: 0.8rem;
   color: var(--text-secondary);
   margin-bottom: 0.75rem;
 }
 
-.subject-progress-bar {
+.collection-progress-bar {
   height: 6px;
   background: var(--bg-secondary);
   border-radius: 3px;
@@ -252,13 +252,13 @@
   margin-bottom: 0.5rem;
 }
 
-.subject-progress-fill {
+.collection-progress-fill {
   height: 100%;
   border-radius: 3px;
   transition: width 0.3s ease;
 }
 
-.subject-progress-percent {
+.collection-progress-percent {
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--text-primary);
@@ -303,7 +303,7 @@
     gap: 1rem;
   }
 
-  .subjects-progress-grid {
+  .collections-progress-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
@@ -350,7 +350,7 @@
     justify-content: center;
   }
 
-  .subjects-progress-grid {
+  .collections-progress-grid {
     grid-template-columns: 1fr;
   }
 

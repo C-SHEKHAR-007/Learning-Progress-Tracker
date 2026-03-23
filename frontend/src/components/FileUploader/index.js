@@ -2,9 +2,9 @@ import React, { useState, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Upload, FolderOpen, Sparkles, ChevronDown, Folder, FileText, Video, Plus, X, AlertCircle } from 'lucide-react';
 
-const FileUploader = ({ onFilesSelected, subjects = [], selectedSubjectId, onSubjectChange }) => {
+const FileUploader = ({ onFilesSelected, collections = [], selectedCollectionId, onCollectionChange }) => {
   const [isDragging, setIsDragging] = useState(false);
-  const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
+  const [showCollectionDropdown, setShowCollectionDropdown] = useState(false);
   const [showPathInput, setShowPathInput] = useState(false);
   const [pathInput, setPathInput] = useState('');
   const [pathType, setPathType] = useState('video');
@@ -13,7 +13,7 @@ const FileUploader = ({ onFilesSelected, subjects = [], selectedSubjectId, onSub
   const [showPathConfirm, setShowPathConfirm] = useState(false);
   const inputRef = useRef(null);
 
-  const selectedSubject = subjects.find(s => s.id === selectedSubjectId);
+  const selectedCollection = collections.find(s => s.id === selectedCollectionId);
 
   const handleDragEnter = useCallback((e) => {
     e.preventDefault();
@@ -173,9 +173,9 @@ const FileUploader = ({ onFilesSelected, subjects = [], selectedSubjectId, onSub
 
   return (
     <div className="uploader">
-      {/* Subject Selector */}
-      {subjects.length > 0 && (
-        <div className="subject-selector" style={{ marginBottom: '1rem', position: 'relative' }}>
+      {/* Collection Selector */}
+      {collections.length > 0 && (
+        <div className="collection-selector" style={{ marginBottom: '1rem', position: 'relative' }}>
           <label style={{ 
             display: 'block', 
             fontSize: '0.75rem', 
@@ -184,11 +184,11 @@ const FileUploader = ({ onFilesSelected, subjects = [], selectedSubjectId, onSub
             textTransform: 'uppercase',
             letterSpacing: '0.5px'
           }}>
-            Upload to Subject
+            Upload to Collection
           </label>
           <button
-            className="subject-select-btn"
-            onClick={() => setShowSubjectDropdown(!showSubjectDropdown)}
+            className="collection-select-btn"
+            onClick={() => setShowCollectionDropdown(!showCollectionDropdown)}
             style={{
               width: '100%',
               display: 'flex',
@@ -204,15 +204,15 @@ const FileUploader = ({ onFilesSelected, subjects = [], selectedSubjectId, onSub
             }}
           >
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              {selectedSubject ? (
+              {selectedCollection ? (
                 <>
                   <span style={{ 
                     width: '10px', 
                     height: '10px', 
                     borderRadius: '50%', 
-                    background: selectedSubject.color 
+                    background: selectedCollection.color 
                   }} />
-                  {selectedSubject.name}
+                  {selectedCollection.name}
                 </>
               ) : (
                 <>
@@ -222,12 +222,12 @@ const FileUploader = ({ onFilesSelected, subjects = [], selectedSubjectId, onSub
               )}
             </span>
             <ChevronDown size={16} style={{ 
-              transform: showSubjectDropdown ? 'rotate(180deg)' : 'rotate(0)',
+              transform: showCollectionDropdown ? 'rotate(180deg)' : 'rotate(0)',
               transition: 'transform 0.2s ease'
             }} />
           </button>
           
-          {showSubjectDropdown && (
+          {showCollectionDropdown && (
             <div style={{
               position: 'absolute',
               top: '100%',
@@ -243,8 +243,8 @@ const FileUploader = ({ onFilesSelected, subjects = [], selectedSubjectId, onSub
             }}>
               <button
                 onClick={() => {
-                  onSubjectChange(null);
-                  setShowSubjectDropdown(false);
+                  onCollectionChange(null);
+                  setShowCollectionDropdown(false);
                 }}
                 style={{
                   width: '100%',
@@ -252,7 +252,7 @@ const FileUploader = ({ onFilesSelected, subjects = [], selectedSubjectId, onSub
                   alignItems: 'center',
                   gap: '0.5rem',
                   padding: '0.75rem 1rem',
-                  background: selectedSubjectId === null ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+                  background: selectedCollectionId === null ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
                   border: 'none',
                   color: 'var(--text-primary)',
                   cursor: 'pointer',
@@ -263,12 +263,12 @@ const FileUploader = ({ onFilesSelected, subjects = [], selectedSubjectId, onSub
                 <Folder size={14} style={{ opacity: 0.5 }} />
                 Uncategorized
               </button>
-              {subjects.map((subject) => (
+              {collections.map((collection) => (
                 <button
-                  key={subject.id}
+                  key={collection.id}
                   onClick={() => {
-                    onSubjectChange(subject.id);
-                    setShowSubjectDropdown(false);
+                    onCollectionChange(collection.id);
+                    setShowCollectionDropdown(false);
                   }}
                   style={{
                     width: '100%',
@@ -276,7 +276,7 @@ const FileUploader = ({ onFilesSelected, subjects = [], selectedSubjectId, onSub
                     alignItems: 'center',
                     gap: '0.5rem',
                     padding: '0.75rem 1rem',
-                    background: selectedSubjectId === subject.id ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+                    background: selectedCollectionId === collection.id ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
                     border: 'none',
                     color: 'var(--text-primary)',
                     cursor: 'pointer',
@@ -288,9 +288,9 @@ const FileUploader = ({ onFilesSelected, subjects = [], selectedSubjectId, onSub
                     width: '10px', 
                     height: '10px', 
                     borderRadius: '50%', 
-                    background: subject.color 
+                    background: collection.color 
                   }} />
-                  {subject.name}
+                  {collection.name}
                 </button>
               ))}
             </div>

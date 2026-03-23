@@ -10,12 +10,12 @@ A stunning, full-featured multi-page application to track your learning journey 
 - **Learning Statistics** - Total items, completed, in progress, and hours learned
 - **Continue Watching** - Resume where you left off with one click
 - **Recent Activity** - Track your recent learning sessions
-- **Subject Progress** - Visual progress bars for each subject
+- **Collection Progress** - Visual progress bars for each collection
 - **Quick Actions** - Fast access to common tasks
 
 ### 📖 Library
 - **Grid/List Views** - Switch between visual layouts
-- **Search & Filter** - Find content by name, type, or subject
+- **Search & Filter** - Find content by name, type, or collection
 - **Progress Indicators** - See completion status at a glance
 - **Responsive Cards** - Beautiful content cards with hover effects
 
@@ -23,8 +23,8 @@ A stunning, full-featured multi-page application to track your learning journey 
 - **Drag & Drop Upload** - Upload videos and PDFs with ease
 - **Bulk Operations** - Select multiple items for batch actions
 - **Reorder Items** - Drag and drop to customize order
-- **Edit Metadata** - Rename items and change subjects
-- **Subject Management** - Create, edit, and delete subjects
+- **Edit Metadata** - Rename items and change collections
+- **Collection Management** - Create, edit, and delete collections
 
 ### 🎬 Player
 - **Stunning Video Player** - Custom-built with keyboard shortcuts
@@ -33,7 +33,7 @@ A stunning, full-featured multi-page application to track your learning journey 
 - **Fullscreen Support** - Immersive learning experience
 
 ### Core Features
-- 📁 **Subjects/Categories** - Organize content by subject with custom colors
+- 📁 **Collections/Categories** - Organize content by collection with custom colors
 - 📊 **Progress Tracking** - Automatically saves your progress
 - 🖱️ **Drag & Drop** - Reorder your learning materials
 - 🎯 **Resume Learning** - Pick up exactly where you left off
@@ -46,14 +46,14 @@ A stunning, full-featured multi-page application to track your learning journey 
 ### Dashboard
 - Learning statistics overview
 - Continue watching section
-- Subject progress tracking
+- Collection progress tracking
 - Recent activity feed
 - Quick action buttons
 
 ### Library
 - Grid and list view options
 - Search and filter functionality
-- Subject filtering
+- Collection filtering
 - Progress indicators on cards
 - Responsive design
 
@@ -61,8 +61,8 @@ A stunning, full-featured multi-page application to track your learning journey 
 - Drag & drop file upload zone
 - Bulk selection mode
 - Item reordering with drag & drop
-- Edit item and subject modals
-- Subject management panel
+- Edit item and collection modals
+- Collection management panel
 
 ### Video Player
 - Custom controls with gradient design
@@ -104,7 +104,7 @@ A stunning, full-featured multi-page application to track your learning journey 
    # Initialize database schema (for new installations)
    npm run db:init
    
-   # Or migrate existing database (adds subjects support)
+   # Or migrate existing database (adds collections support)
    npm run db:migrate
    
    # Start the server
@@ -189,7 +189,7 @@ Progress-app/
 │       │   ├── PDFViewer/
 │       │   │   ├── index.js     # PDF viewer
 │       │   │   └── styles.css
-│       │   ├── SubjectManager/
+│       │   ├── CollectionManager/
 │       │   │   ├── index.js
 │       │   │   └── styles.css
 │       │   └── index.js         # Central exports
@@ -222,7 +222,7 @@ Progress-app/
 |------|------|-------------|
 | `/` | Dashboard | Learning stats and continue watching |
 | `/library` | Library | Browse all content with search/filter |
-| `/manage` | Manage | Upload and manage files & subjects |
+| `/manage` | Manage | Upload and manage files & collections |
 | `/player/:id` | Player | View video/PDF content |
 
 ## 🔌 API Endpoints
@@ -237,10 +237,10 @@ Progress-app/
 | `PATCH` | `/api/items/:id/complete` | Mark as completed |
 | `PATCH` | `/api/items/reorder` | Reorder items |
 | `DELETE` | `/api/items/:id` | Delete item |
-| `POST` | `/api/subjects` | Create subject |
-| `GET` | `/api/subjects` | Get all subjects |
-| `PUT` | `/api/subjects/:id` | Update subject |
-| `DELETE` | `/api/subjects/:id` | Delete subject |
+| `POST` | `/api/collections` | Create collection |
+| `GET` | `/api/collections` | Get all collections |
+| `PUT` | `/api/collections/:id` | Update collection |
+| `DELETE` | `/api/collections/:id` | Delete collection |
 
 ## 🎨 Tech Stack
 

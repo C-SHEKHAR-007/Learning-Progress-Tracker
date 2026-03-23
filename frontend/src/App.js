@@ -8,27 +8,27 @@ import Dashboard from './pages/Dashboard';
 import Library from './pages/Library';
 import Manage from './pages/Manage';
 import Player from './pages/Player';
-import Subjects from './pages/Subjects';
+import Collections from './pages/Collections';
 import useItems from './hooks/useItems';
 
 function App() {
   const {
     items,
-    subjects,
+    collections,
     loading,
     fetchItems,
-    fetchSubjects,
+    fetchCollections,
     addItems,
     updateProgress,
     markCompleted,
     reorderItems,
     deleteItem,
     updateItem,
-    createSubject,
-    updateSubject,
-    deleteSubject,
-    updateItemSubject,
-    getItemsBySubject,
+    createCollection,
+    updateCollection,
+    deleteCollection,
+    updateItemCollection,
+    getItemsByCollection,
   } = useItems();
 
   const [selectedItem, setSelectedItem] = useState(null);
@@ -42,11 +42,11 @@ function App() {
 
   useEffect(() => {
     fetchItems();
-    fetchSubjects();
-  }, [fetchItems, fetchSubjects]);
+    fetchCollections();
+  }, [fetchItems, fetchCollections]);
 
   // File upload handling
-  const handleFilesSelected = useCallback(async (filesOrFileInfos, subjectId = null) => {
+  const handleFilesSelected = useCallback(async (filesOrFileInfos, collectionId = null) => {
     const newItems = [];
     const newFileMap = new Map(fileMap);
 
@@ -93,7 +93,7 @@ function App() {
     setFileMap(newFileMap);
 
     try {
-      await addItems(newItems, subjectId);
+      await addItems(newItems, collectionId);
       toast.success(`Added ${newItems.length} item(s) to your library`);
     } catch (error) {
       toast.error('Failed to add items');
@@ -187,43 +187,43 @@ function App() {
     }
   }, [updateItem]);
 
-  const handleCreateSubject = useCallback(async (name, color) => {
+  const handleCreateCollection = useCallback(async (name, color) => {
     try {
-      await createSubject(name, color);
-      toast.success(`Created subject: ${name}`);
+      await createCollection(name, color);
+      toast.success(`Created collection: ${name}`);
     } catch (error) {
-      if (error.response?.data?.error === 'Subject already exists') {
-        toast.error('Subject already exists');
+      if (error.response?.data?.error === 'Collection already exists') {
+        toast.error('Collection already exists');
       } else {
-        toast.error('Failed to create subject');
+        toast.error('Failed to create collection');
       }
       throw error;
     }
-  }, [createSubject]);
+  }, [createCollection]);
 
-  const handleUpdateSubject = useCallback(async (id, updates) => {
+  const handleUpdateCollection = useCallback(async (id, updates) => {
     try {
-      await updateSubject(id, updates);
-      toast.success('Subject updated');
+      await updateCollection(id, updates);
+      toast.success('Collection updated');
     } catch (error) {
-      toast.error('Failed to update subject');
+      toast.error('Failed to update collection');
       throw error;
     }
-  }, [updateSubject]);
+  }, [updateCollection]);
 
-  const handleDeleteSubject = useCallback(async (id) => {
+  const handleDeleteCollection = useCallback(async (id) => {
     try {
-      await deleteSubject(id);
-      toast.success('Subject deleted');
+      await deleteCollection(id);
+      toast.success('Collection deleted');
     } catch (error) {
-      toast.error('Failed to delete subject');
+      toast.error('Failed to delete collection');
       throw error;
     }
-  }, [deleteSubject]);
+  }, [deleteCollection]);
 
-  const handleMoveItem = useCallback(async (itemId, subjectId, showToast = true) => {
+  const handleMoveItem = useCallback(async (itemId, collectionId, showToast = true) => {
     try {
-      await updateItemSubject(itemId, subjectId);
+      await updateItemCollection(itemId, collectionId);
       if (showToast) {
         toast.success('Item moved');
       }
@@ -233,15 +233,15 @@ function App() {
       }
       throw error;
     }
-  }, [updateItemSubject]);
+  }, [updateItemCollection]);
 
-  const handleBulkMove = useCallback(async (itemIds, subjectId) => {
+  const handleBulkMove = useCallback(async (itemIds, collectionId) => {
     let successCount = 0;
     let failCount = 0;
     
     for (const itemId of itemIds) {
       try {
-        await handleMoveItem(itemId, subjectId, false);
+        await handleMoveItem(itemId, collectionId, false);
         successCount++;
       } catch (error) {
         failCount++;
@@ -283,7 +283,7 @@ function App() {
               element={
                 <Dashboard 
                   items={items}
-                  subjects={subjects}
+                  collections={collections}
                   stats={stats}
                   onItemSelect={handleItemSelect}
                   fileMap={fileMap}
@@ -295,7 +295,7 @@ function App() {
               element={
                 <Library 
                   items={items}
-                  subjects={subjects}
+                  collections={collections}
                   onItemSelect={handleItemSelect}
                 />
               } 
@@ -305,28 +305,28 @@ function App() {
               element={
                 <Manage 
                   items={items}
-                  subjects={subjects}
+                  collections={collections}
                   onFilesSelected={handleFilesSelected}
                   onReorder={handleReorder}
                   onDelete={handleDelete}
                   onBulkDelete={handleBulkDelete}
                   onMoveItem={handleMoveItem}
                   onBulkMove={handleBulkMove}
-                  onCreateSubject={handleCreateSubject}
-                  onUpdateSubject={handleUpdateSubject}
-                  onDeleteSubject={handleDeleteSubject}
+                  onCreateCollection={handleCreateCollection}
+                  onUpdateCollection={handleUpdateCollection}
+                  onDeleteCollection={handleDeleteCollection}
                   onUpdateItem={handleUpdateItem}
-                  getItemsBySubject={getItemsBySubject}
+                  getItemsByCollection={getItemsByCollection}
                 />
               } 
             />
             <Route 
-              path="/subjects" 
+              path="/collections" 
               element={
-                <Subjects 
+                <Collections 
                   items={items}
-                  subjects={subjects}
-                  getItemsBySubject={getItemsBySubject}
+                  collections={collections}
+                  getItemsByCollection={getItemsByCollection}
                 />
               } 
             />

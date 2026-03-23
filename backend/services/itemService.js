@@ -2,25 +2,25 @@ const pool = require('../db');
 const { v4: uuidv4 } = require('uuid');
 
 const itemService = {
-  // ==================== SUBJECTS ====================
+  // ==================== COLLECTIONS ====================
   
-  // Get all subjects
-  async getAllSubjects() {
+  // Get all collections
+  async getAllCollections() {
     const result = await pool.query(
-      'SELECT * FROM subjects ORDER BY order_index ASC'
+      'SELECT * FROM collections ORDER BY order_index ASC'
     );
     return result.rows;
   },
 
-  // Create a new subject
-  async createSubject(name, color = '#6366f1', icon = 'folder') {
+  // Create a new collection
+  async createCollection(name, color = '#6366f1', icon = 'folder') {
     const maxOrderResult = await pool.query(
-      'SELECT COALESCE(MAX(order_index), -1) as max_order FROM subjects'
+      'SELECT COALESCE(MAX(order_index), -1) as max_order FROM collections'
     );
     const orderIndex = maxOrderResult.rows[0].max_order + 1;
 
     const result = await pool.query(
-      `INSERT INTO subjects (name, color, icon, order_index)
+      `INSERT INTO collections (name, color, icon, order_index)
        VALUES ($1, $2, $3, $4)
        RETURNING *`,
       [name, color, icon, orderIndex]
@@ -28,11 +28,11 @@ const itemService = {
     return result.rows[0];
   },
 
-  // Update subject
-  async updateSubject(id, updates) {
+  // Update collection
+  async updateCollection(id, updates) {
     const { name, color, icon } = updates;
     const result = await pool.query(
-      `UPDATE subjects 
+      `UPDATE collections 
        SET name = COALESCE($1, name), 
            color = COALESCE($2, color), 
            icon = COALESCE($3, icon)
@@ -43,23 +43,23 @@ const itemService = {
     return result.rows[0];
   },
 
-  // Delete subject
-  async deleteSubject(id) {
-    // Move items to no subject before deleting
-    await pool.query('UPDATE learning_items SET subject_id = NULL WHERE subject_id = $1', [id]);
-    const result = await pool.query('DELETE FROM subjects WHERE id = $1 RETURNING *', [id]);
+  // Delete collection
+  async deleteCollection(id) {
+    // Move items to no collection before deleting
+    await pool.query('UPDATE learning_items SET collection_id = NULL WHERE collection_id = $1', [id]);
+    const result = await pool.query('DELETE FROM collections WHERE id = $1 RETURNING *', [id]);
     return result.rows[0];
   },
 
-  // Reorder subjects
-  async reorderSubjects(subjects) {
+  // Reorder collections
+  async reorderCollections(collections) {
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
-      for (let i = 0; i < subjects.length; i++) {
+      for (let i = 0; i < collections.length; i++) {
         await client.query(
-          'UPDATE subjects SET order_index = $1 WHERE id = $2',
-          [i, subjects[i].id]
+          'UPDATE collections SET order_index = $1 WHERE id = $2',
+          [i, collections[i].id]
         );
       }
       await client.query('COMMIT');
@@ -74,15 +74,15 @@ const itemService = {
   // ==================== ITEMS ====================
 
   // Create multiple items
-  async createItems(items, subjectId = null) {
+  async createItems(items, collectionId = null) {
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
       
-      // Get max order_index for this subject
+      // Get max order_index for this collection
       const maxOrderResult = await client.query(
-        'SELECT COALESCE(MAX(order_index), -1) as max_order FROM learning_items WHERE subject_id IS NOT DISTINCT FROM $1',
-        [subjectId]
+        'SELECT COALESCE(MAX(order_index), -1) as max_order FROM learning_items WHERE collection_id IS NOT DISTINCT FROM $1',
+        [collectionId]
       );
       let orderIndex = maxOrderResult.rows[0].max_order + 1;
 
@@ -103,10 +103,10 @@ const itemService = {
         }
 
         const result = await client.query(
-          `INSERT INTO learning_items (name, type, file_id, file_path, subject_id, order_index, duration, file_size, thumbnail)
+          `INSERT INTO learning_items (name, type, file_id, file_path, collection_id, order_index, duration, file_size, thumbnail)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
            RETURNING *`,
-          [item.name, item.type, fileId, item.file_path || null, subjectId, orderIndex++, item.duration || 0, item.file_size || 0, item.thumbnail || null]
+          [item.name, item.type, fileId, item.file_path || null, collectionId, orderIndex++, item.duration || 0, item.file_size || 0, item.thumbnail || null]
         );
         createdItems.push(result.rows[0]);
       }
@@ -121,24 +121,24 @@ const itemService = {
     }
   },
 
-  // Get all items sorted by subject and order_index
+  // Get all items sorted by collection and order_index
   async getAllItems() {
     const result = await pool.query(
-      `SELECT li.*, s.name as subject_name, s.color as subject_color, s.icon as subject_icon
+      `SELECT li.*, c.name as collection_name, c.color as collection_color, c.icon as collection_icon
        FROM learning_items li
-       LEFT JOIN subjects s ON li.subject_id = s.id
-       ORDER BY COALESCE(s.order_index, 999), li.order_index ASC`
+       LEFT JOIN collections c ON li.collection_id = c.id
+       ORDER BY COALESCE(c.order_index, 999), li.order_index ASC`
     );
     return result.rows;
   },
 
-  // Get items by subject
-  async getItemsBySubject(subjectId) {
+  // Get items by collection
+  async getItemsByCollection(collectionId) {
     const result = await pool.query(
       `SELECT * FROM learning_items 
-       WHERE subject_id IS NOT DISTINCT FROM $1
+       WHERE collection_id IS NOT DISTINCT FROM $1
        ORDER BY order_index ASC`,
-      [subjectId]
+      [collectionId]
     );
     return result.rows;
   },
@@ -146,23 +146,23 @@ const itemService = {
   // Get item by ID
   async getItemById(id) {
     const result = await pool.query(
-      `SELECT li.*, s.name as subject_name, s.color as subject_color
+      `SELECT li.*, c.name as collection_name, c.color as collection_color
        FROM learning_items li
-       LEFT JOIN subjects s ON li.subject_id = s.id
+       LEFT JOIN collections c ON li.collection_id = c.id
        WHERE li.id = $1`,
       [id]
     );
     return result.rows[0];
   },
 
-  // Update item's subject
-  async updateItemSubject(itemId, subjectId) {
+  // Update item's collection
+  async updateItemCollection(itemId, collectionId) {
     const result = await pool.query(
       `UPDATE learning_items 
-       SET subject_id = $1, updated_at = CURRENT_TIMESTAMP
+       SET collection_id = $1, updated_at = CURRENT_TIMESTAMP
        WHERE id = $2
        RETURNING *`,
-      [subjectId, itemId]
+      [collectionId, itemId]
     );
     return result.rows[0];
   },

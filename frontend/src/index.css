@@ -791,18 +791,18 @@ body::before {
 }
 
 /* ============================================
-   SUBJECT GROUPS
+   COLLECTION GROUPS
    ============================================ */
 
-.subject-group {
+.collection-group {
   margin-bottom: 1rem;
 }
 
-.subject-header {
+.collection-header {
   user-select: none;
 }
 
-.subject-header:hover {
+.collection-header:hover {
   background: var(--bg-tertiary) !important;
 }
 

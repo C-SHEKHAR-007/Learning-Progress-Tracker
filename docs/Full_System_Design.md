@@ -9,7 +9,7 @@ A stunning, full-featured multi-page application to track your learning journey 
 A full-stack learning management system that allows users to:
 
 - Upload and organize learning resources (videos + PDFs)
-- Group content by subjects with custom colors
+- Group content by collections with custom colors
 - Track learning progress automatically
 - Resume learning from where you left off
 - Beautiful dark theme with modern UI
@@ -51,7 +51,7 @@ A full-stack learning management system that allows users to:
 ┌──────────────────────────────────────────────────────────┐
 │              PostgreSQL Database                          │
 │     ┌──────────────┐      ┌──────────────────┐          │
-│     │   subjects   │◄────►│  learning_items  │          │
+│     │   collections   │◄────►│  learning_items  │          │
 │     └──────────────┘      └──────────────────┘          │
 └──────────────────────────────────────────────────────────┘
 ```
@@ -72,7 +72,7 @@ Progress-app/
 │   │   └── itemRoutes.js        # API routes
 │   ├── services/
 │   │   ├── itemService.js       # Item business logic
-│   │   └── subjectService.js    # Subject business logic
+│   │   └── collectionService.js    # Collection business logic
 │   ├── server.js                # Express entry point
 │   ├── Dockerfile               # Backend Docker image
 │   ├── .dockerignore
@@ -93,8 +93,8 @@ Progress-app/
 │   │   │   ├── PDFViewer/
 │   │   │   │   ├── index.js     # PDF viewer
 │   │   │   │   └── styles.css
-│   │   │   ├── SubjectManager/
-│   │   │   │   ├── index.js     # Subject CRUD
+│   │   │   ├── CollectionManager/
+│   │   │   │   ├── index.js     # Collection CRUD
 │   │   │   │   └── styles.css
 │   │   │   ├── LearningList/
 │   │   │   │   └── index.js     # Item list display
@@ -145,12 +145,12 @@ Progress-app/
 
 ## 4. 🗄️ Database Schema
 
-### Table: subjects
+### Table: collections
 
 | Column | Type | Description |
 |--------|------|-------------|
 | id | SERIAL | Primary key |
-| name | TEXT | Subject name (unique) |
+| name | TEXT | Collection name (unique) |
 | color | TEXT | Hex color code |
 | icon | TEXT | Icon identifier |
 | order_index | INT | Display order |
@@ -164,7 +164,7 @@ Progress-app/
 | name | TEXT | File name |
 | type | TEXT | 'video' or 'pdf' |
 | file_id | TEXT | Unique file identifier |
-| subject_id | INT | FK to subjects |
+| collection_id | INT | FK to collections |
 | order_index | INT | User-defined order |
 | progress | FLOAT | 0 to 100 |
 | is_completed | BOOLEAN | Completion status |
@@ -178,8 +178,8 @@ Progress-app/
 
 - `idx_learning_items_order` - Order index
 - `idx_learning_items_type` - Type filtering
-- `idx_learning_items_subject` - Subject filtering
-- `idx_subjects_order` - Subject ordering
+- `idx_learning_items_collection` - Collection filtering
+- `idx_collections_order` - Collection ordering
 
 ---
 
@@ -187,16 +187,16 @@ Progress-app/
 
 Base URL: `http://localhost:5000/api`
 
-### Subjects API
+### Collections API
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/items/subjects` | Get all subjects |
-| `POST` | `/items/subjects` | Create subject |
-| `PATCH` | `/items/subjects/:id` | Update subject |
-| `DELETE` | `/items/subjects/:id` | Delete subject |
-| `PATCH` | `/items/subjects/reorder` | Reorder subjects |
-| `GET` | `/items/by-subject/:id` | Get items by subject |
+| `GET` | `/items/collections` | Get all collections |
+| `POST` | `/items/collections` | Create collection |
+| `PATCH` | `/items/collections/:id` | Update collection |
+| `DELETE` | `/items/collections/:id` | Delete collection |
+| `PATCH` | `/items/collections/reorder` | Reorder collections |
+| `GET` | `/items/by-collection/:id` | Get items by collection |
 
 ### Items API
 
@@ -208,7 +208,7 @@ Base URL: `http://localhost:5000/api`
 | `PATCH` | `/items/:id` | Update item metadata |
 | `PATCH` | `/items/:id/progress` | Update progress |
 | `PATCH` | `/items/:id/complete` | Toggle completion |
-| `PATCH` | `/items/:id/subject` | Move to subject |
+| `PATCH` | `/items/:id/collection` | Move to collection |
 | `PATCH` | `/items/reorder` | Reorder items |
 | `DELETE` | `/items/:id` | Delete item |
 
@@ -226,7 +226,7 @@ Base URL: `http://localhost:5000/api`
 |------|------|-------------|
 | `/` | Dashboard | Learning stats, continue watching, quick actions |
 | `/library` | Library | Browse all content with search/filter |
-| `/manage` | Manage | Upload files, manage subjects, organize content |
+| `/manage` | Manage | Upload files, manage collections, organize content |
 | `/player/:id` | Player | View video/PDF content |
 
 ---
@@ -237,21 +237,21 @@ Base URL: `http://localhost:5000/api`
 - **Learning Statistics** - Total items, completed, in progress, hours learned
 - **Continue Watching** - Resume from last position
 - **Recent Activity** - Track learning sessions
-- **Subject Progress** - Visual progress bars per subject
+- **Collection Progress** - Visual progress bars per collection
 - **Quick Actions** - Fast access to common tasks
 
 ### 7.2 Library
 - **Grid/List Views** - Toggle between layouts
 - **Search** - Find content by name
-- **Filter** - By type (video/pdf), status, subject
+- **Filter** - By type (video/pdf), status, collection
 - **Progress Indicators** - Visual completion status
 
 ### 7.3 Manage
 - **File Upload** - Single file, multiple files, or folders
 - **Drag & Drop** - Drop files to upload
 - **Bulk Operations** - Select multiple, delete, move
-- **Subject Management** - Create, edit, delete, reorder subjects
-- **Item Organization** - Drag to reorder, move between subjects
+- **Collection Management** - Create, edit, delete, reorder collections
+- **Item Organization** - Drag to reorder, move between collections
 
 ### 7.4 Player
 - **Video Player**
@@ -512,7 +512,7 @@ Files are accessible only during the session. Users must re-select folders after
 
 - Duplicate file uploads (skip if file_id exists)
 - Invalid file types (filter to video/pdf only)
-- Missing subjects (cascade to uncategorized)
+- Missing collections (cascade to uncategorized)
 - Large file uploads (50MB limit)
 - Empty states (graceful UI)
 - Network errors (toast notifications)

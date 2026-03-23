@@ -9,36 +9,36 @@ const api = axios.create({
   },
 });
 
-// ==================== SUBJECTS API ====================
+// ==================== COLLECTIONS API ====================
 
-export const subjectsApi = {
-  // Get all subjects
+export const collectionsApi = {
+  // Get all collections
   getAll: async () => {
-    const response = await api.get('/items/subjects');
+    const response = await api.get('/items/collections');
     return response.data;
   },
 
-  // Create a new subject
+  // Create a new collection
   create: async (name, color = '#6366f1', icon = 'folder') => {
-    const response = await api.post('/items/subjects', { name, color, icon });
+    const response = await api.post('/items/collections', { name, color, icon });
     return response.data;
   },
 
-  // Update subject
+  // Update collection
   update: async (id, updates) => {
-    const response = await api.patch(`/items/subjects/${id}`, updates);
+    const response = await api.patch(`/items/collections/${id}`, updates);
     return response.data;
   },
 
-  // Delete subject
+  // Delete collection
   delete: async (id) => {
-    const response = await api.delete(`/items/subjects/${id}`);
+    const response = await api.delete(`/items/collections/${id}`);
     return response.data;
   },
 
-  // Reorder subjects
-  reorder: async (subjects) => {
-    const response = await api.patch('/items/subjects/reorder', { subjects });
+  // Reorder collections
+  reorder: async (collections) => {
+    const response = await api.patch('/items/collections/reorder', { collections });
     return response.data;
   },
 };
@@ -58,15 +58,15 @@ export const itemsApi = {
     return response.data;
   },
 
-  // Get items by subject
-  getBySubject: async (subjectId) => {
-    const response = await api.get(`/items/by-subject/${subjectId || 'null'}`);
+  // Get items by collection
+  getByCollection: async (collectionId) => {
+    const response = await api.get(`/items/by-collection/${collectionId || 'null'}`);
     return response.data;
   },
 
   // Create items
-  create: async (items, subjectId = null) => {
-    const response = await api.post('/items', { items, subjectId });
+  create: async (items, collectionId = null) => {
+    const response = await api.post('/items', { items, collectionId });
     return response.data;
   },
 
@@ -87,9 +87,9 @@ export const itemsApi = {
     return response.data;
   },
 
-  // Update item subject
-  updateSubject: async (itemId, subjectId) => {
-    const response = await api.patch(`/items/${itemId}/subject`, { subjectId });
+  // Update item collection
+  updateCollection: async (itemId, collectionId) => {
+    const response = await api.patch(`/items/${itemId}/collection`, { collectionId });
     return response.data;
   },
 

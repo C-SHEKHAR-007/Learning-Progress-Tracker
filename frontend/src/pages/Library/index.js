@@ -18,12 +18,12 @@ import {
 } from 'lucide-react';
 import './styles.css';
 
-const Library = ({ items, subjects, onItemSelect }) => {
+const Library = ({ items, collections, onItemSelect }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [filterType, setFilterType] = useState('all'); // 'all', 'video', 'pdf'
   const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'completed', 'in-progress', 'not-started'
-  const [filterSubject, setFilterSubject] = useState('all');
+  const [filterCollection, setFilterCollection] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
 
   // Filter and search items
@@ -44,46 +44,46 @@ const Library = ({ items, subjects, onItemSelect }) => {
       if (filterStatus === 'in-progress' && (item.progress === 0 || item.is_completed)) return false;
       if (filterStatus === 'not-started' && item.progress > 0) return false;
 
-      // Subject filter
-      if (filterSubject !== 'all' && item.subject_id !== parseInt(filterSubject)) {
+      // Collection filter
+      if (filterCollection !== 'all' && item.collection_id !== parseInt(filterCollection)) {
         return false;
       }
 
       return true;
     });
-  }, [items, searchQuery, filterType, filterStatus, filterSubject]);
+  }, [items, searchQuery, filterType, filterStatus, filterCollection]);
 
-  // Group by subject
+  // Group by collection
   const groupedItems = useMemo(() => {
     const groups = {};
     
     filteredItems.forEach(item => {
-      const subject = subjects.find(s => s.id === item.subject_id);
-      const subjectName = subject ? subject.name : 'Uncategorized';
-      const subjectId = subject ? subject.id : 0;
+      const collection = collections.find(s => s.id === item.collection_id);
+      const collectionName = collection ? collection.name : 'Uncategorized';
+      const collectionId = collection ? collection.id : 0;
       
-      if (!groups[subjectId]) {
-        groups[subjectId] = {
-          id: subjectId,
-          name: subjectName,
-          color: subject?.color || '#6b7280',
+      if (!groups[collectionId]) {
+        groups[collectionId] = {
+          id: collectionId,
+          name: collectionName,
+          color: collection?.color || '#6b7280',
           items: []
         };
       }
-      groups[subjectId].items.push(item);
+      groups[collectionId].items.push(item);
     });
 
     return Object.values(groups).sort((a, b) => a.name.localeCompare(b.name));
-  }, [filteredItems, subjects]);
+  }, [filteredItems, collections]);
 
   const clearFilters = () => {
     setSearchQuery('');
     setFilterType('all');
     setFilterStatus('all');
-    setFilterSubject('all');
+    setFilterCollection('all');
   };
 
-  const hasActiveFilters = searchQuery || filterType !== 'all' || filterStatus !== 'all' || filterSubject !== 'all';
+  const hasActiveFilters = searchQuery || filterType !== 'all' || filterStatus !== 'all' || filterCollection !== 'all';
 
   const formatDuration = (seconds) => {
     if (!seconds) return '';
@@ -189,11 +189,11 @@ const Library = ({ items, subjects, onItemSelect }) => {
             </div>
 
             <div className="filter-group">
-              <label>Subject</label>
-              <select value={filterSubject} onChange={(e) => setFilterSubject(e.target.value)}>
-                <option value="all">All Subjects</option>
-                {subjects.map(subject => (
-                  <option key={subject.id} value={subject.id}>{subject.name}</option>
+              <label>Collection</label>
+              <select value={filterCollection} onChange={(e) => setFilterCollection(e.target.value)}>
+                <option value="all">All Collections</option>
+                {collections.map(collection => (
+                  <option key={collection.id} value={collection.id}>{collection.name}</option>
                 ))}
               </select>
             </div>

@@ -2,25 +2,25 @@ const express = require('express');
 const router = express.Router();
 const itemController = require('../controllers/itemController');
 
-// ==================== SUBJECTS ====================
+// ==================== COLLECTIONS ====================
 
-// GET /api/items/subjects - Get all subjects
-router.get('/subjects', itemController.getAllSubjects);
+// GET /api/items/collections - Get all collections
+router.get('/collections', itemController.getAllCollections);
 
-// POST /api/items/subjects - Create a new subject
-router.post('/subjects', itemController.createSubject);
+// POST /api/items/collections - Create a new collection
+router.post('/collections', itemController.createCollection);
 
-// PATCH /api/items/subjects/reorder - Reorder subjects
-router.patch('/subjects/reorder', itemController.reorderSubjects);
+// PATCH /api/items/collections/reorder - Reorder collections
+router.patch('/collections/reorder', itemController.reorderCollections);
 
-// PATCH /api/items/subjects/:id - Update subject
-router.patch('/subjects/:id', itemController.updateSubject);
+// PATCH /api/items/collections/:id - Update collection
+router.patch('/collections/:id', itemController.updateCollection);
 
-// DELETE /api/items/subjects/:id - Delete subject
-router.delete('/subjects/:id', itemController.deleteSubject);
+// DELETE /api/items/collections/:id - Delete collection
+router.delete('/collections/:id', itemController.deleteCollection);
 
-// GET /api/items/by-subject/:subjectId - Get items by subject
-router.get('/by-subject/:subjectId', itemController.getItemsBySubject);
+// GET /api/items/by-collection/:collectionId - Get items by collection
+router.get('/by-collection/:collectionId', itemController.getItemsByCollection);
 
 // ==================== ITEMS ====================
 
@@ -39,8 +39,8 @@ router.patch('/:id/progress', itemController.updateProgress);
 // PATCH /api/items/:id/complete - Mark as completed
 router.patch('/:id/complete', itemController.markCompleted);
 
-// PATCH /api/items/:id/subject - Update item subject
-router.patch('/:id/subject', itemController.updateItemSubject);
+// PATCH /api/items/:id/collection - Update item collection
+router.patch('/:id/collection', itemController.updateItemCollection);
 
 // PATCH /api/items/reorder - Reorder items
 router.patch('/reorder', itemController.reorderItems);
