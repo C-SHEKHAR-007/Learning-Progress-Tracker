@@ -34,6 +34,11 @@ function App() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileMap, setFileMap] = useState(new Map());
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  const handleSidebarToggle = useCallback(() => {
+    setSidebarCollapsed(prev => !prev);
+  }, []);
 
   useEffect(() => {
     fetchItems();
@@ -220,9 +225,13 @@ function App() {
   return (
     <Router>
       <div className="app-layout">
-        <Sidebar stats={stats} />
+        <Sidebar 
+          stats={stats} 
+          isCollapsed={sidebarCollapsed}
+          onToggle={handleSidebarToggle}
+        />
         
-        <main className="main-area">
+        <main className={`main-area ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
           <Routes>
             <Route 
               path="/" 

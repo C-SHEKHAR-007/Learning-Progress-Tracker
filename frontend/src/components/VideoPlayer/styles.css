@@ -622,9 +622,52 @@
    RESPONSIVE
    ============================================ */
 
+/* Tablet */
+@media (max-width: 1024px) {
+  .video-header {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .video-title {
+    font-size: 1.1rem;
+  }
+
+  .video-controls {
+    padding: 0 1.25rem 1.25rem;
+  }
+
+  .control-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .play-pause-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .play-button-large {
+    width: 80px;
+    height: 80px;
+  }
+
+  .play-button-large svg {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Mobile */
 @media (max-width: 768px) {
+  .video-player {
+    border-radius: 0;
+  }
+
   .video-header {
     padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
   }
 
   .video-title {
@@ -634,6 +677,18 @@
   .video-meta {
     flex-wrap: wrap;
     gap: 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .video-header-actions {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+
+  .action-btn {
+    width: 36px;
+    height: 36px;
   }
 
   .video-controls {
@@ -643,6 +698,21 @@
   .controls-row {
     flex-wrap: wrap;
     gap: 0.5rem;
+  }
+
+  .controls-left,
+  .controls-right {
+    gap: 0.25rem;
+  }
+
+  .control-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .play-pause-btn {
+    width: 44px;
+    height: 44px;
   }
 
   .time-display {
@@ -656,5 +726,188 @@
 
   .skip-zone {
     width: 33%;
+  }
+
+  .play-button-large {
+    width: 70px;
+    height: 70px;
+  }
+
+  .play-button-large svg {
+    width: 28px;
+    height: 28px;
+    margin-left: 4px;
+  }
+
+  .volume-slider-container {
+    display: none;
+  }
+
+  .progress-container {
+    margin-bottom: 0.75rem;
+  }
+
+  .settings-menu {
+    min-width: 140px;
+  }
+
+  .completion-content {
+    padding: 2rem;
+    margin: 1rem;
+    max-width: calc(100% - 2rem);
+  }
+
+  .completion-icon {
+    width: 80px;
+    height: 80px;
+  }
+
+  .completion-content h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .video-header {
+    padding: 0.75rem;
+  }
+
+  .video-title-section {
+    gap: 0.5rem;
+  }
+
+  .video-title-section svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .video-title {
+    font-size: 0.9rem;
+  }
+
+  .video-meta {
+    font-size: 0.7rem;
+    gap: 0.5rem;
+  }
+
+  .action-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .video-controls {
+    padding: 0 0.75rem 0.75rem;
+  }
+
+  .control-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .play-pause-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .play-pause-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .time-display {
+    font-size: 0.65rem;
+    margin-left: 0.25rem;
+  }
+
+  .speed-btn {
+    padding: 0 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .play-button-large {
+    width: 60px;
+    height: 60px;
+  }
+
+  .play-button-large svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .progress-bar {
+    height: 4px;
+  }
+
+  .progress-container:hover .progress-bar {
+    height: 6px;
+  }
+
+  .skip-zone {
+    width: 40%;
+    bottom: 60px;
+  }
+
+  .skip-indicator {
+    padding: 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .completion-content {
+    padding: 1.5rem;
+  }
+
+  .completion-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 1rem;
+  }
+
+  .completion-content h3 {
+    font-size: 1.1rem;
+  }
+
+  .completion-content p {
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Landscape mode */
+@media (max-height: 500px) and (orientation: landscape) {
+  .video-header {
+    padding: 0.5rem 1rem;
+    flex-direction: row;
+  }
+
+  .video-title {
+    font-size: 0.9rem;
+  }
+
+  .video-meta {
+    display: none;
+  }
+
+  .video-controls {
+    padding: 0 1rem 0.5rem;
+  }
+
+  .progress-container {
+    margin-bottom: 0.5rem;
+  }
+
+  .control-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .play-pause-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .play-button-large {
+    width: 50px;
+    height: 50px;
   }
 }
