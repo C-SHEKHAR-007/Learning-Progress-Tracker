@@ -230,7 +230,8 @@ const Library = ({ items, collections, onItemSelect }) => {
                 {item.type === 'video' ? <Video size={32} /> : <FileText size={32} />}
                 {item.is_completed && (
                   <div className="completed-badge">
-                    <CheckCircle size={16} />
+                    <CheckCircle size={14} />
+                    <span>Done</span>
                   </div>
                 )}
                 {item.file_path && (
@@ -311,7 +312,10 @@ const Library = ({ items, collections, onItemSelect }) => {
                       <span className="file-size">{formatFileSize(item.file_size)}</span>
                     )}
                     {item.is_completed ? (
-                      <CheckCircle size={18} className="completed" />
+                      <span className="completed-status">
+                        <CheckCircle size={16} />
+                        Done
+                      </span>
                     ) : item.progress > 0 ? (
                       <Clock size={18} className="in-progress" />
                     ) : null}
