@@ -46,10 +46,23 @@ const createTables = async () => {
       END IF;
     END $$;
 
+    -- Create progress_history table for tracking learning sessions
+    CREATE TABLE IF NOT EXISTS progress_history (
+      id SERIAL PRIMARY KEY,
+      item_id INT REFERENCES learning_items(id) ON DELETE CASCADE,
+      progress FLOAT NOT NULL,
+      time_spent INT DEFAULT 0,
+      session_date DATE DEFAULT CURRENT_DATE,
+      recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
     CREATE INDEX IF NOT EXISTS idx_learning_items_order ON learning_items(order_index);
     CREATE INDEX IF NOT EXISTS idx_learning_items_type ON learning_items(type);
     CREATE INDEX IF NOT EXISTS idx_learning_items_collection ON learning_items(collection_id);
     CREATE INDEX IF NOT EXISTS idx_collections_order ON collections(order_index);
+    CREATE INDEX IF NOT EXISTS idx_progress_history_item ON progress_history(item_id);
+    CREATE INDEX IF NOT EXISTS idx_progress_history_date ON progress_history(session_date);
+    CREATE INDEX IF NOT EXISTS idx_progress_history_recorded ON progress_history(recorded_at);
 
     -- Insert default collection if none exists
     INSERT INTO collections (name, color, icon, order_index)

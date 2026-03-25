@@ -1,5 +1,6 @@
 const pool = require('../db');
 const { v4: uuidv4 } = require('uuid');
+const analyticsService = require('./analyticsService');
 
 const itemService = {
   // ==================== COLLECTIONS ====================
@@ -168,7 +169,7 @@ const itemService = {
   },
 
   // Update progress
-  async updateProgress(id, progress, lastPosition) {
+  async updateProgress(id, progress, lastPosition, timeSpent = 0) {
     const result = await pool.query(
       `UPDATE learning_items 
        SET progress = $1, last_position = $2, updated_at = CURRENT_TIMESTAMP
@@ -176,6 +177,17 @@ const itemService = {
        RETURNING *`,
       [progress, lastPosition, id]
     );
+    
+    // Log progress to history for analytics
+    if (result.rows[0]) {
+      try {
+        await analyticsService.logProgress(id, progress, timeSpent);
+      } catch (error) {
+        // Don't fail the main operation if logging fails
+        console.error('Error logging progress history:', error);
+      }
+    }
+    
     return result.rows[0];
   },
 
@@ -189,6 +201,16 @@ const itemService = {
        RETURNING *`,
       [isCompleted, progress, id]
     );
+    
+    // Log completion to history for analytics
+    if (result.rows[0]) {
+      try {
+        await analyticsService.logProgress(id, progress, 0);
+      } catch (error) {
+        console.error('Error logging completion history:', error);
+      }
+    }
+    
     return result.rows[0];
   },
 

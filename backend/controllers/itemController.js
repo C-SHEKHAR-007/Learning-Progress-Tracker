@@ -155,8 +155,8 @@ const itemController = {
   async updateProgress(req, res) {
     try {
       const { id } = req.params;
-      const { progress, last_position } = req.body;
-      const item = await itemService.updateProgress(id, progress, last_position);
+      const { progress, last_position, time_spent } = req.body;
+      const item = await itemService.updateProgress(id, progress, last_position, time_spent || 0);
       if (!item) {
         return res.status(404).json({ error: 'Item not found' });
       }

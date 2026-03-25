@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const itemRoutes = require('./routes/itemRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
 const { createTables } = require('./db/schema');
 
 const app = express();
@@ -14,6 +15,7 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Routes
 app.use('/api/items', itemRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
