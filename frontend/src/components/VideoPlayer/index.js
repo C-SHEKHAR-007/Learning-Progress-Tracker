@@ -23,7 +23,7 @@ import {
 import { itemsApi } from '../../services/api';
 import './styles.css';
 
-const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onComplete }) => {
+const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onComplete, onPlayStateChange, isIdle }) => {
   const videoRef = useRef(null);
   const containerRef = useRef(null);
   const progressRef = useRef(null);
@@ -75,16 +75,22 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
     }
   }, [item?.last_position, videoUrl]);
 
-  // Auto-hide controls
+  // Auto-hide controls - sync with parent idle state
   useEffect(() => {
-    let timeout;
-    if (isPlaying && !isHovering) {
-      timeout = setTimeout(() => setShowControls(false), 3000);
+    if (isIdle !== undefined) {
+      // Parent controls the idle/show state
+      setShowControls(!isIdle);
     } else {
-      setShowControls(true);
+      // Fallback to internal logic
+      let timeout;
+      if (isPlaying && !isHovering) {
+        timeout = setTimeout(() => setShowControls(false), 3000);
+      } else {
+        setShowControls(true);
+      }
+      return () => clearTimeout(timeout);
     }
-    return () => clearTimeout(timeout);
-  }, [isPlaying, isHovering]);
+  }, [isPlaying, isHovering, isIdle]);
 
   // Keyboard shortcuts
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -341,13 +347,20 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
             ref={videoRef}
             src={videoUrl}
             className="video-element"
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
+            onPlay={() => {
+              setIsPlaying(true);
+              onPlayStateChange?.(true);
+            }}
+            onPause={() => {
+              setIsPlaying(false);
+              onPlayStateChange?.(false);
+            }}
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={handleLoadedMetadata}
             onProgress={handleProgress}
             onEnded={() => {
               setIsPlaying(false);
+              onPlayStateChange?.(false);
               onComplete?.();
             }}
             onError={(e) => {
