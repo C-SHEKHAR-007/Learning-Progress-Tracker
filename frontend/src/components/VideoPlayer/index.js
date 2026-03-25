@@ -285,7 +285,6 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
         setShowSettings(false);
         setShowVolumeSlider(false);
       }}
-      onMouseMove={() => setShowControls(true)}
     >
       {/* Video Header */}
       <AnimatePresence>
@@ -671,12 +670,22 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
       </AnimatePresence>
 
       {/* Keyboard Shortcuts Hint */}
-      <div className="keyboard-hint">
-        <span>Space: Play/Pause</span>
-        <span>←→: Skip 10s</span>
-        <span>F: Fullscreen</span>
-        <span>M: Mute</span>
-      </div>
+      <AnimatePresence>
+        {showControls && (
+          <motion.div
+            className="keyboard-hint"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <span>Space: Play/Pause</span>
+            <span>←→: Skip 10s</span>
+            <span>F: Fullscreen</span>
+            <span>M: Mute</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

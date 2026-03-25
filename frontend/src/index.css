@@ -155,6 +155,10 @@ body::before {
   margin-left: 70px;
 }
 
+.main-area.player-page-active {
+  margin-left: 0;
+}
+
 @media (max-width: 1024px) {
   .main-area {
     margin-left: 70px;

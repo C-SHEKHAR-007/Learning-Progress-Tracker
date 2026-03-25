@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -11,7 +11,11 @@ import Player from './pages/Player';
 import Collections from './pages/Collections';
 import useItems from './hooks/useItems';
 
-function App() {
+// Inner component that has access to useLocation
+function AppContent() {
+  const location = useLocation();
+  const isPlayerPage = location.pathname.startsWith('/player');
+  
   const {
     items,
     collections,
@@ -268,32 +272,33 @@ function App() {
   };
 
   return (
-    <Router>
-      <div className="app-layout">
+    <div className="app-layout">
+      {!isPlayerPage && (
         <Sidebar 
           stats={stats} 
           isCollapsed={sidebarCollapsed}
           onToggle={handleSidebarToggle}
         />
-        
-        <main className={`main-area ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-          <Routes>
-            <Route 
-              path="/" 
-              element={
-                <Dashboard 
-                  items={items}
-                  collections={collections}
-                  stats={stats}
-                  onItemSelect={handleItemSelect}
-                  fileMap={fileMap}
-                />
-              } 
-            />
-            <Route 
-              path="/library" 
-              element={
-                <Library 
+      )}
+      
+      <main className={`main-area ${sidebarCollapsed ? 'sidebar-collapsed' : ''} ${isPlayerPage ? 'player-page-active' : ''}`}>
+        <Routes>
+          <Route 
+            path="/" 
+            element={
+              <Dashboard 
+                items={items}
+                collections={collections}
+                stats={stats}
+                onItemSelect={handleItemSelect}
+                fileMap={fileMap}
+              />
+            } 
+          />
+          <Route 
+            path="/library" 
+            element={
+              <Library 
                   items={items}
                   collections={collections}
                   onItemSelect={handleItemSelect}
@@ -335,6 +340,7 @@ function App() {
               element={
                 <Player 
                   items={items}
+                  collections={collections}
                   fileMap={fileMap}
                   selectedItem={selectedItem}
                   onItemSelect={handleItemSelect}
@@ -359,6 +365,14 @@ function App() {
           theme="dark"
         />
       </div>
+  );
+}
+
+// Main App component that wraps with Router
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }
