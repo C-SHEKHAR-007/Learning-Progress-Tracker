@@ -28,31 +28,31 @@ A full-stack learning management system that allows users to:
 ## 2. 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     React Frontend                          │
-│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐          │
-│  │Dashboard│ │ Library │ │ Manage  │ │ Player  │          │
-│  └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘          │
+┌────────────────────────────────────────────────────────────┐
+│                     React Frontend                         │
+│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐           │
+│  │Dashboard│ │ Library │ │ Manage  │ │ Player  │           │
+│  └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘           │
 │       └───────────┴───────────┴───────────┘                │
-│                        │                                    │
+│                        │                                   │
 │              ┌─────────┴─────────┐                         │
 │              │   Sidebar Nav     │                         │
 └──────────────┼───────────────────┼─────────────────────────┘
                │                   │
                ▼                   ▼
 ┌──────────────────────────────────────────────────────────┐
-│                  Express Backend (Port 5000)              │
-│  ┌────────────┐  ┌────────────┐  ┌────────────┐         │
-│  │ Controllers│──│  Services  │──│   Routes   │         │
-│  └────────────┘  └────────────┘  └────────────┘         │
+│                  Express Backend (Port 5000)             │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐          │
+│  │ Controllers│──│  Services  │──│   Routes   │          │
+│  └────────────┘  └────────────┘  └────────────┘          │
 └──────────────────────────┬───────────────────────────────┘
                            │
                            ▼
 ┌──────────────────────────────────────────────────────────┐
-│              PostgreSQL Database                          │
-│     ┌──────────────┐      ┌──────────────────┐          │
-│     │   collections   │◄────►│  learning_items  │          │
-│     └──────────────┘      └──────────────────┘          │
+│              PostgreSQL Database                         │
+│     ┌──────────────┐      ┌──────────────────┐           │
+│     │  collections │◄────►│  learning_items  │           │
+│     └──────────────┘      └──────────────────┘           │
 └──────────────────────────────────────────────────────────┘
 ```
 
@@ -64,15 +64,18 @@ A full-stack learning management system that allows users to:
 Progress-app/
 ├── backend/
 │   ├── controllers/
-│   │   └── itemController.js    # Request handlers
+│   │   ├── itemController.js    # Item request handlers
+│   │   └── analyticsController.js # Analytics request handlers
 │   ├── db/
 │   │   ├── index.js             # Database connection pool
 │   │   └── schema.js            # Table definitions
 │   ├── routes/
-│   │   └── itemRoutes.js        # API routes
+│   │   ├── itemRoutes.js        # Item API routes
+│   │   └── analyticsRoutes.js   # Analytics API routes
 │   ├── services/
 │   │   ├── itemService.js       # Item business logic
-│   │   └── collectionService.js    # Collection business logic
+│   │   ├── analyticsService.js  # Analytics & progress history
+│   │   └── collectionService.js # Collection business logic
 │   ├── server.js                # Express entry point
 │   ├── Dockerfile               # Backend Docker image
 │   ├── .dockerignore
@@ -118,6 +121,9 @@ Progress-app/
 │   │   │   │   └── styles.css
 │   │   │   ├── Player/
 │   │   │   │   ├── index.js     # Video/PDF player
+│   │   │   │   └── styles.css
+│   │   │   ├── ProgressMap/
+│   │   │   │   ├── index.js     # Learning analytics
 │   │   │   │   └── styles.css
 │   │   │   └── index.js         # Central exports
 │   │   │
@@ -174,12 +180,26 @@ Progress-app/
 | created_at | TIMESTAMP | Creation time |
 | updated_at | TIMESTAMP | Last update time |
 
+### Table: progress_history
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | SERIAL | Primary key |
+| item_id | INT | FK to learning_items |
+| progress | FLOAT | Progress at time of logging |
+| time_spent | INT | Seconds spent in session |
+| session_date | DATE | Date of the learning session |
+| recorded_at | TIMESTAMP | Exact timestamp |
+
 ### Indexes
 
 - `idx_learning_items_order` - Order index
 - `idx_learning_items_type` - Type filtering
 - `idx_learning_items_collection` - Collection filtering
 - `idx_collections_order` - Collection ordering
+- `idx_progress_history_item` - Progress history by item
+- `idx_progress_history_date` - Progress history by date
+- `idx_progress_history_recorded` - Progress history by timestamp
 
 ---
 
@@ -212,6 +232,21 @@ Base URL: `http://localhost:5000/api`
 | `PATCH` | `/items/reorder` | Reorder items |
 | `DELETE` | `/items/:id` | Delete item |
 
+### Analytics API
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/analytics/dashboard` | Combined dashboard analytics |
+| `GET` | `/analytics/heatmap` | Activity heatmap data (365 days) |
+| `GET` | `/analytics/streak` | Current and longest streak |
+| `GET` | `/analytics/today` | Today's learning stats |
+| `GET` | `/analytics/daily` | Daily stats for date range |
+| `GET` | `/analytics/weekly` | Weekly summary |
+| `GET` | `/analytics/monthly` | Monthly summary |
+| `GET` | `/analytics/completions` | Recent completions |
+| `GET` | `/analytics/weekday-pattern` | Learning pattern by weekday |
+| `POST` | `/analytics/log` | Manually log progress |
+
 ### Health Check
 
 | Method | Endpoint | Description |
@@ -226,6 +261,8 @@ Base URL: `http://localhost:5000/api`
 |------|------|-------------|
 | `/` | Dashboard | Learning stats, continue watching, quick actions |
 | `/library` | Library | Browse all content with search/filter |
+| `/collections` | Collections | View content organized by collection |
+| `/progress-map` | Progress Map | Activity heatmap, streaks, learning analytics |
 | `/manage` | Manage | Upload files, manage collections, organize content |
 | `/player/:id` | Player | View video/PDF content |
 
@@ -264,7 +301,23 @@ Base URL: `http://localhost:5000/api`
   - Zoom controls
   - Mark as complete
 
-### 7.5 Sidebar Navigation
+### 7.5 Progress Map
+- **Activity Heatmap**
+  - GitHub-style contribution graph
+  - Last 365 days of activity
+  - Color intensity based on session count
+  - Hover tooltips with date and count
+- **Streak Tracking**
+  - Current consecutive learning days
+  - Longest streak record
+  - Visual streak indicator
+- **Learning Analytics**
+  - Today's time spent and sessions
+  - Weekly totals and daily averages
+  - Weekday learning patterns chart
+  - Recent completions list
+
+### 7.6 Sidebar Navigation
 - Collapsible navigation
 - Quick stats display
 - Active route highlighting

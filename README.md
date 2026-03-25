@@ -32,6 +32,14 @@ A stunning, full-featured multi-page application to track your learning journey 
 - **Progress Persistence** - Auto-saves as you learn
 - **Fullscreen Support** - Immersive learning experience
 
+### 🗺️ Progress Map
+- **Activity Heatmap** - GitHub-style visualization of your learning activity over the past year
+- **Streak Tracking** - Current and longest learning streak counter
+- **Daily Stats** - Today's learning time and session count
+- **Weekly Summary** - Total time, sessions, and daily averages
+- **Learning Patterns** - Weekday activity breakdown chart
+- **Recent Completions** - Track your latest achievements
+
 ### Core Features
 - 📁 **Collections/Categories** - Organize content by collection with custom colors
 - 📊 **Progress Tracking** - Automatically saves your progress
@@ -70,6 +78,14 @@ A stunning, full-featured multi-page application to track your learning journey 
 - Keyboard shortcuts (Space, K, J, L, F, M)
 - Playback speed control
 - Progress persistence
+
+### Progress Map
+- GitHub-style activity heatmap (365 days)
+- Current and longest streak display
+- Today's learning stats
+- Weekly summary cards
+- Weekday learning pattern chart
+- Recent completions list
 
 ## 🚀 Getting Started
 
@@ -207,6 +223,9 @@ Progress-app/
 │       │   ├── Player/
 │       │   │   ├── index.js     # Media player
 │       │   │   └── styles.css
+│       │   ├── ProgressMap/
+│       │   │   ├── index.js     # Learning analytics
+│       │   │   └── styles.css
 │       │   └── index.js         # Central exports
 │       │
 │       ├── hooks/               # Custom React hooks
@@ -222,6 +241,8 @@ Progress-app/
 |------|------|-------------|
 | `/` | Dashboard | Learning stats and continue watching |
 | `/library` | Library | Browse all content with search/filter |
+| `/collections` | Collections | View content organized by collection |
+| `/progress-map` | Progress Map | Activity heatmap, streaks, analytics |
 | `/manage` | Manage | Upload and manage files & collections |
 | `/player/:id` | Player | View video/PDF content |
 
@@ -241,6 +262,11 @@ Progress-app/
 | `GET` | `/api/collections` | Get all collections |
 | `PUT` | `/api/collections/:id` | Update collection |
 | `DELETE` | `/api/collections/:id` | Delete collection |
+| `GET` | `/api/analytics/dashboard` | Combined analytics data |
+| `GET` | `/api/analytics/heatmap` | Activity heatmap (365 days) |
+| `GET` | `/api/analytics/streak` | Current & longest streak |
+| `GET` | `/api/analytics/today` | Today's learning stats |
+| `GET` | `/api/analytics/weekly` | Weekly summary |
 
 ## 🎨 Tech Stack
 
