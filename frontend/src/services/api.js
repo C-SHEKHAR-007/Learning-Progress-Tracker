@@ -123,4 +123,62 @@ export const itemsApi = {
   },
 };
 
+// ==================== ANALYTICS API ====================
+
+export const analyticsApi = {
+  // Get dashboard analytics (combined endpoint)
+  getDashboard: async () => {
+    const response = await api.get('/analytics/dashboard');
+    return response.data;
+  },
+
+  // Get activity heatmap
+  getHeatmap: async (days = 365) => {
+    const response = await api.get(`/analytics/heatmap?days=${days}`);
+    return response.data;
+  },
+
+  // Get current streak
+  getStreak: async () => {
+    const response = await api.get('/analytics/streak');
+    return response.data;
+  },
+
+  // Get today's stats
+  getTodayStats: async () => {
+    const response = await api.get('/analytics/today');
+    return response.data;
+  },
+
+  // Get daily stats
+  getDailyStats: async (days = 30) => {
+    const response = await api.get(`/analytics/daily?days=${days}`);
+    return response.data;
+  },
+
+  // Get weekly summary
+  getWeeklySummary: async () => {
+    const response = await api.get('/analytics/weekly');
+    return response.data;
+  },
+
+  // Get monthly summary
+  getMonthlySummary: async () => {
+    const response = await api.get('/analytics/monthly');
+    return response.data;
+  },
+
+  // Get recent completions
+  getRecentCompletions: async (limit = 10) => {
+    const response = await api.get(`/analytics/completions?limit=${limit}`);
+    return response.data;
+  },
+
+  // Get weekday learning pattern
+  getWeekdayPattern: async () => {
+    const response = await api.get('/analytics/weekday-pattern');
+    return response.data;
+  },
+};
+
 export default api;

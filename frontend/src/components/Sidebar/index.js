@@ -11,7 +11,8 @@ import {
   Zap,
   Folder,
   Menu,
-  X
+  X,
+  Map
 } from 'lucide-react';
 import './styles.css';
 
@@ -28,6 +29,7 @@ const Sidebar = ({ stats, isCollapsed, onToggle }) => {
     { path: '/', icon: Home, label: 'Dashboard' },
     { path: '/library', icon: Library, label: 'Library' },
     { path: '/collections', icon: Folder, label: 'Collections' },
+    { path: '/progress-map', icon: Map, label: 'Progress Map' },
     { path: '/manage', icon: Settings, label: 'Manage' },
   ];
 

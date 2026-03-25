@@ -9,6 +9,7 @@ import Library from './pages/Library';
 import Manage from './pages/Manage';
 import Player from './pages/Player';
 import Collections from './pages/Collections';
+import ProgressMap from './pages/ProgressMap';
 import useItems from './hooks/useItems';
 
 // Inner component that has access to useLocation
@@ -334,6 +335,10 @@ function AppContent() {
                   getItemsByCollection={getItemsByCollection}
                 />
               } 
+            />
+            <Route 
+              path="/progress-map" 
+              element={<ProgressMap />} 
             />
             <Route 
               path="/player/:id" 
