@@ -26,6 +26,11 @@ const createTables = async () => {
       duration FLOAT DEFAULT 0,
       file_size BIGINT DEFAULT 0,
       thumbnail TEXT,
+      current_page INT DEFAULT 1,
+      total_pages INT DEFAULT 0,
+      bookmarks JSONB DEFAULT '[]',
+      notes JSONB DEFAULT '[]',
+      reading_time INT DEFAULT 0,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
@@ -43,6 +48,26 @@ const createTables = async () => {
     BEGIN 
       IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='learning_items' AND column_name='file_size') THEN
         ALTER TABLE learning_items ADD COLUMN file_size BIGINT DEFAULT 0;
+      END IF;
+    END $$;
+
+    -- Add PDF tracking columns if they don't exist
+    DO $$ 
+    BEGIN 
+      IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='learning_items' AND column_name='current_page') THEN
+        ALTER TABLE learning_items ADD COLUMN current_page INT DEFAULT 1;
+      END IF;
+      IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='learning_items' AND column_name='total_pages') THEN
+        ALTER TABLE learning_items ADD COLUMN total_pages INT DEFAULT 0;
+      END IF;
+      IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='learning_items' AND column_name='bookmarks') THEN
+        ALTER TABLE learning_items ADD COLUMN bookmarks JSONB DEFAULT '[]';
+      END IF;
+      IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='learning_items' AND column_name='notes') THEN
+        ALTER TABLE learning_items ADD COLUMN notes JSONB DEFAULT '[]';
+      END IF;
+      IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='learning_items' AND column_name='reading_time') THEN
+        ALTER TABLE learning_items ADD COLUMN reading_time INT DEFAULT 0;
       END IF;
     END $$;
 

@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const itemRoutes = require("./routes/itemRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
+const pdfRoutes = require("./routes/pdfRoutes");
 const { createTables } = require("./db/schema");
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 // Routes
 app.use("/api/items", itemRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/pdf", pdfRoutes);
 
 // Health check
 app.get("/health", (req, res) => {
