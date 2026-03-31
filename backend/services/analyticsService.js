@@ -1,4 +1,4 @@
-const pool = require('../db');
+const pool = require("../db");
 
 const analyticsService = {
   /**
@@ -77,7 +77,7 @@ const analyticsService = {
       WHERE grp = (SELECT grp FROM streak WHERE date = CURRENT_DATE OR date = CURRENT_DATE - 1 LIMIT 1)
     `;
     const result = await pool.query(query);
-    
+
     // Check if streak is current (includes today or yesterday)
     const streak = result.rows[0];
     if (streak && streak.streak_end) {
@@ -86,17 +86,17 @@ const analyticsService = {
       today.setHours(0, 0, 0, 0);
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
-      
+
       if (endDate >= yesterday) {
         return {
           days: parseInt(streak.streak_days) || 0,
           start: streak.streak_start,
           end: streak.streak_end,
-          isActive: endDate >= today
+          isActive: endDate >= today,
         };
       }
     }
-    
+
     return { days: 0, start: null, end: null, isActive: false };
   },
 
@@ -207,7 +207,7 @@ const analyticsService = {
       weeklySummary,
       monthlySummary,
       recentCompletions,
-      weekdayPattern
+      weekdayPattern,
     ] = await Promise.all([
       this.getActivityHeatmap(180), // 6 months
       this.getStreak(),
@@ -215,7 +215,7 @@ const analyticsService = {
       this.getWeeklySummary(),
       this.getMonthlySummary(),
       this.getRecentCompletions(5),
-      this.getWeekdayPattern()
+      this.getWeekdayPattern(),
     ]);
 
     return {
@@ -225,9 +225,9 @@ const analyticsService = {
       weekly: weeklySummary,
       monthly: monthlySummary,
       recentCompletions,
-      weekdayPattern
+      weekdayPattern,
     };
-  }
+  },
 };
 
 module.exports = analyticsService;

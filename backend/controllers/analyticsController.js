@@ -1,4 +1,4 @@
-const analyticsService = require('../services/analyticsService');
+const analyticsService = require("../services/analyticsService");
 
 const analyticsController = {
   // Get activity heatmap data
@@ -8,7 +8,7 @@ const analyticsController = {
       const heatmap = await analyticsService.getActivityHeatmap(days);
       res.json(heatmap);
     } catch (error) {
-      console.error('Error fetching heatmap:', error);
+      console.error("Error fetching heatmap:", error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -19,7 +19,7 @@ const analyticsController = {
       const streak = await analyticsService.getStreak();
       res.json(streak);
     } catch (error) {
-      console.error('Error fetching streak:', error);
+      console.error("Error fetching streak:", error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -30,7 +30,7 @@ const analyticsController = {
       const stats = await analyticsService.getTodayStats();
       res.json(stats);
     } catch (error) {
-      console.error('Error fetching today stats:', error);
+      console.error("Error fetching today stats:", error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -42,7 +42,7 @@ const analyticsController = {
       const stats = await analyticsService.getDailyStats(days);
       res.json(stats);
     } catch (error) {
-      console.error('Error fetching daily stats:', error);
+      console.error("Error fetching daily stats:", error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -53,7 +53,7 @@ const analyticsController = {
       const summary = await analyticsService.getWeeklySummary();
       res.json(summary);
     } catch (error) {
-      console.error('Error fetching weekly summary:', error);
+      console.error("Error fetching weekly summary:", error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -64,7 +64,7 @@ const analyticsController = {
       const summary = await analyticsService.getMonthlySummary();
       res.json(summary);
     } catch (error) {
-      console.error('Error fetching monthly summary:', error);
+      console.error("Error fetching monthly summary:", error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -76,7 +76,7 @@ const analyticsController = {
       const completions = await analyticsService.getRecentCompletions(limit);
       res.json(completions);
     } catch (error) {
-      console.error('Error fetching recent completions:', error);
+      console.error("Error fetching recent completions:", error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -87,7 +87,7 @@ const analyticsController = {
       const pattern = await analyticsService.getWeekdayPattern();
       res.json(pattern);
     } catch (error) {
-      console.error('Error fetching weekday pattern:', error);
+      console.error("Error fetching weekday pattern:", error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -98,7 +98,7 @@ const analyticsController = {
       const dashboard = await analyticsService.getDashboardAnalytics();
       res.json(dashboard);
     } catch (error) {
-      console.error('Error fetching dashboard analytics:', error);
+      console.error("Error fetching dashboard analytics:", error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -108,15 +108,15 @@ const analyticsController = {
     try {
       const { itemId, progress, timeSpent } = req.body;
       if (!itemId) {
-        return res.status(400).json({ error: 'itemId is required' });
+        return res.status(400).json({ error: "itemId is required" });
       }
       const entry = await analyticsService.logProgress(itemId, progress || 0, timeSpent || 0);
       res.status(201).json(entry);
     } catch (error) {
-      console.error('Error logging progress:', error);
+      console.error("Error logging progress:", error);
       res.status(500).json({ error: error.message });
     }
-  }
+  },
 };
 
 module.exports = analyticsController;

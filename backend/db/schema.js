@@ -1,5 +1,5 @@
-require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
-const pool = require('./index');
+require("dotenv").config({ path: require("path").join(__dirname, "..", ".env") });
+const pool = require("./index");
 
 const createTables = async () => {
   const query = `
@@ -72,9 +72,9 @@ const createTables = async () => {
 
   try {
     await pool.query(query);
-    console.log('✅ Tables created successfully');
+    console.log("✅ Tables created successfully");
   } catch (error) {
-    console.error('❌ Error creating tables:', error);
+    console.error("❌ Error creating tables:", error);
   }
 };
 
@@ -83,7 +83,7 @@ module.exports = { createTables };
 // Run if called directly
 if (require.main === module) {
   createTables().then(() => {
-    console.log('Schema initialization complete');
+    console.log("Schema initialization complete");
     process.exit(0);
   });
 }
