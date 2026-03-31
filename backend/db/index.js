@@ -12,7 +12,28 @@ class Database {
 
     this.pool = null;
     this.isConnected = false;
+    this.isShuttingDown = false;
     Database.instance = this;
+
+    // Register graceful shutdown handlers
+    this._registerShutdownHandlers();
+  }
+
+  /**
+   * Register process handlers for graceful shutdown
+   * @private
+   */
+  _registerShutdownHandlers() {
+    const shutdown = async (signal) => {
+      if (this.isShuttingDown) return;
+      this.isShuttingDown = true;
+      console.log(`\n📦 Received ${signal}, closing database connections...`);
+      await this.close();
+      process.exit(0);
+    };
+
+    process.on("SIGTERM", () => shutdown("SIGTERM"));
+    process.on("SIGINT", () => shutdown("SIGINT"));
   }
 
   /**
@@ -26,6 +47,13 @@ class Database {
 
     this.pool = new Pool({
       connectionString: process.env.DATABASE_URL,
+      // Pool configuration
+      max: parseInt(process.env.DB_POOL_MAX, 10) || 20,
+      min: parseInt(process.env.DB_POOL_MIN, 10) || 2,
+      idleTimeoutMillis: parseInt(process.env.DB_IDLE_TIMEOUT, 10) || 30000,
+      connectionTimeoutMillis: parseInt(process.env.DB_CONNECT_TIMEOUT, 10) || 5000,
+      // Query timeout (30 seconds default)
+      statement_timeout: parseInt(process.env.DB_STATEMENT_TIMEOUT, 10) || 30000,
     });
 
     this.pool.on("connect", () => {
@@ -36,7 +64,10 @@ class Database {
     this.pool.on("error", (err) => {
       this.isConnected = false;
       console.error("Unexpected error on idle client", err);
-      process.exit(-1);
+      // Don't exit immediately - let the app handle reconnection
+      if (!this.isShuttingDown) {
+        console.error("Database connection lost, attempting to reconnect...");
+      }
     });
 
     return this.pool;
@@ -60,6 +91,11 @@ class Database {
    * @returns {Promise} Query result
    */
   query(text, params) {
+    // Debug logging in development
+    if (process.env.NODE_ENV === "development" && process.env.DEBUG_SQL === "true") {
+      console.log("📝 SQL:", text);
+      if (params?.length) console.log("   Params:", params);
+    }
     return this.getPool().query(text, params);
   }
 
@@ -69,6 +105,34 @@ class Database {
    */
   getClient() {
     return this.getPool().connect();
+  }
+
+  /**
+   * Health check - verify database connectivity
+   * @returns {Promise<boolean>} True if database is reachable
+   */
+  async ping() {
+    try {
+      await this.query("SELECT 1");
+      return true;
+    } catch (error) {
+      console.error("Database ping failed:", error.message);
+      return false;
+    }
+  }
+
+  /**
+   * Get pool statistics
+   * @returns {Object} Pool stats (total, idle, waiting connections)
+   */
+  getStats() {
+    const pool = this.getPool();
+    return {
+      total: pool.totalCount,
+      idle: pool.idleCount,
+      waiting: pool.waitingCount,
+      isConnected: this.isConnected,
+    };
   }
 
   /**
@@ -132,4 +196,6 @@ module.exports = {
   getPool: () => database.getPool(),
   close: () => database.close(),
   isConnected: () => database.isPoolConnected(),
+  ping: () => database.ping(),
+  getStats: () => database.getStats(),
 };
