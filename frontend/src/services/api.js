@@ -181,4 +181,67 @@ export const analyticsApi = {
   },
 };
 
+// ==================== PDF API ====================
+
+export const pdfApi = {
+  // Get reading state (current page, bookmarks, notes)
+  getReadingState: async (itemId) => {
+    const response = await api.get(`/pdf/${itemId}/state`);
+    return response.data;
+  },
+
+  // Update page progress
+  updatePageProgress: async (itemId, currentPage, totalPages, readingTime = 0) => {
+    const response = await api.patch(`/pdf/${itemId}/page`, {
+      currentPage,
+      totalPages,
+      readingTime,
+    });
+    return response.data;
+  },
+
+  // Get PDF statistics
+  getStats: async (itemId) => {
+    const response = await api.get(`/pdf/${itemId}/stats`);
+    return response.data;
+  },
+
+  // Bookmarks
+  getBookmarks: async (itemId) => {
+    const response = await api.get(`/pdf/${itemId}/bookmarks`);
+    return response.data;
+  },
+
+  addBookmark: async (itemId, page, title, color) => {
+    const response = await api.post(`/pdf/${itemId}/bookmarks`, { page, title, color });
+    return response.data;
+  },
+
+  removeBookmark: async (itemId, bookmarkId) => {
+    const response = await api.delete(`/pdf/${itemId}/bookmarks/${bookmarkId}`);
+    return response.data;
+  },
+
+  // Notes
+  getNotes: async (itemId) => {
+    const response = await api.get(`/pdf/${itemId}/notes`);
+    return response.data;
+  },
+
+  addNote: async (itemId, page, content, highlight = '') => {
+    const response = await api.post(`/pdf/${itemId}/notes`, { page, content, highlight });
+    return response.data;
+  },
+
+  updateNote: async (itemId, noteId, content, highlight) => {
+    const response = await api.patch(`/pdf/${itemId}/notes/${noteId}`, { content, highlight });
+    return response.data;
+  },
+
+  removeNote: async (itemId, noteId) => {
+    const response = await api.delete(`/pdf/${itemId}/notes/${noteId}`);
+    return response.data;
+  },
+};
+
 export default api;
