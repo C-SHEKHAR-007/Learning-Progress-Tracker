@@ -1,18 +1,12 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { 
-  GraduationCap, 
-  BookOpen, 
-  Trophy, 
-  TrendingUp,
-  Sparkles
-} from 'lucide-react';
+import React from "react";
+import { motion } from "framer-motion";
+import { GraduationCap, BookOpen, Trophy, TrendingUp, Sparkles } from "lucide-react";
 
 const Header = ({ stats }) => {
   return (
     <header className="header">
       <div className="header-content">
-        <motion.div 
+        <motion.div
           className="logo"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -23,67 +17,67 @@ const Header = ({ stats }) => {
           </div>
           <div>
             <h1 className="logo-text">Learning Tracker</h1>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+            <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "2px" }}>
               Track your progress, achieve your goals
             </p>
           </div>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="header-stats"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <div className="stat-item">
-            <motion.div 
+            <motion.div
               className="stat-value"
               key={stats.total}
               initial={{ scale: 1.2 }}
               animate={{ scale: 1 }}
             >
-              <BookOpen size={16} style={{ display: 'inline', marginRight: '4px' }} />
+              <BookOpen size={16} style={{ display: "inline", marginRight: "4px" }} />
               {stats.total}
             </motion.div>
             <div className="stat-label">Total Items</div>
           </div>
 
           <div className="stat-item">
-            <motion.div 
+            <motion.div
               className="stat-value"
-              style={{ color: 'var(--success)' }}
+              style={{ color: "var(--success)" }}
               key={stats.completed}
               initial={{ scale: 1.2 }}
               animate={{ scale: 1 }}
             >
-              <Trophy size={16} style={{ display: 'inline', marginRight: '4px' }} />
+              <Trophy size={16} style={{ display: "inline", marginRight: "4px" }} />
               {stats.completed}
             </motion.div>
             <div className="stat-label">Completed</div>
           </div>
 
           <div className="stat-item">
-            <motion.div 
+            <motion.div
               className="stat-value"
-              style={{ color: 'var(--warning)' }}
+              style={{ color: "var(--warning)" }}
               key={stats.inProgress}
               initial={{ scale: 1.2 }}
               animate={{ scale: 1 }}
             >
-              <TrendingUp size={16} style={{ display: 'inline', marginRight: '4px' }} />
+              <TrendingUp size={16} style={{ display: "inline", marginRight: "4px" }} />
               {stats.inProgress}
             </motion.div>
             <div className="stat-label">In Progress</div>
           </div>
 
           <div className="stat-item">
-            <motion.div 
+            <motion.div
               className="stat-value"
               key={stats.avgProgress}
               initial={{ scale: 1.2 }}
               animate={{ scale: 1 }}
             >
-              <Sparkles size={16} style={{ display: 'inline', marginRight: '4px' }} />
+              <Sparkles size={16} style={{ display: "inline", marginRight: "4px" }} />
               {stats.avgProgress}%
             </motion.div>
             <div className="stat-label">Avg Progress</div>

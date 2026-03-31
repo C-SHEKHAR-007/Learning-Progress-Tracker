@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import {
   Flame,
   Clock,
@@ -8,10 +8,10 @@ import {
   CheckCircle,
   Target,
   BarChart3,
-  Award
-} from 'lucide-react';
-import { analyticsApi } from '../../services/api';
-import './styles.css';
+  Award,
+} from "lucide-react";
+import { analyticsApi } from "../../services/api";
+import "./styles.css";
 
 const ProgressMap = () => {
   const [loading, setLoading] = useState(true);
@@ -24,12 +24,12 @@ const ProgressMap = () => {
         setLoading(true);
         const [dashboard, heatmap] = await Promise.all([
           analyticsApi.getDashboard(),
-          analyticsApi.getHeatmap(365)
+          analyticsApi.getHeatmap(365),
         ]);
         setAnalytics(dashboard);
         setHeatmapData(heatmap);
       } catch (error) {
-        console.error('Error fetching analytics:', error);
+        console.error("Error fetching analytics:", error);
       } finally {
         setLoading(false);
       }
@@ -39,7 +39,7 @@ const ProgressMap = () => {
   }, []);
 
   const formatTime = (seconds) => {
-    if (!seconds || seconds < 60) return '< 1 min';
+    if (!seconds || seconds < 60) return "< 1 min";
     const hours = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     if (hours > 0) {
@@ -49,11 +49,11 @@ const ProgressMap = () => {
   };
 
   const getHeatmapColor = (count) => {
-    if (!count || count === 0) return 'var(--heatmap-0)';
-    if (count <= 2) return 'var(--heatmap-1)';
-    if (count <= 5) return 'var(--heatmap-2)';
-    if (count <= 10) return 'var(--heatmap-3)';
-    return 'var(--heatmap-4)';
+    if (!count || count === 0) return "var(--heatmap-0)";
+    if (count <= 2) return "var(--heatmap-1)";
+    if (count <= 5) return "var(--heatmap-2)";
+    if (count <= 10) return "var(--heatmap-3)";
+    return "var(--heatmap-4)";
   };
 
   // Generate heatmap grid (last 365 days)
@@ -61,7 +61,7 @@ const ProgressMap = () => {
     const today = new Date();
     const startDate = new Date(today);
     startDate.setDate(startDate.getDate() - 364);
-    
+
     // Adjust to start from Sunday
     const dayOfWeek = startDate.getDay();
     startDate.setDate(startDate.getDate() - dayOfWeek);
@@ -71,24 +71,24 @@ const ProgressMap = () => {
 
     // Create a map for quick lookup
     const activityMap = {};
-    heatmapData.forEach(item => {
+    heatmapData.forEach((item) => {
       activityMap[item.session_date] = parseInt(item.session_count);
     });
 
     while (currentDate <= today || weeks.length < 53) {
       const week = [];
       for (let i = 0; i < 7; i++) {
-        const dateStr = currentDate.toISOString().split('T')[0];
+        const dateStr = currentDate.toISOString().split("T")[0];
         const count = activityMap[dateStr] || 0;
         const isToday = currentDate.toDateString() === today.toDateString();
         const isFuture = currentDate > today;
-        
+
         week.push({
           date: new Date(currentDate),
           dateStr,
           count,
           isToday,
-          isFuture
+          isFuture,
         });
         currentDate.setDate(currentDate.getDate() + 1);
       }
@@ -99,8 +99,21 @@ const ProgressMap = () => {
     return weeks;
   };
 
-  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
 
   if (loading) {
     return (
@@ -125,13 +138,16 @@ const ProgressMap = () => {
 
       {/* Stats Overview */}
       <div className="stats-overview">
-        <motion.div 
+        <motion.div
           className="stat-card streak-card"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <div className="stat-icon" style={{ background: 'linear-gradient(135deg, #f97316, #fb923c)' }}>
+          <div
+            className="stat-icon"
+            style={{ background: "linear-gradient(135deg, #f97316, #fb923c)" }}
+          >
             <Flame size={24} />
           </div>
           <div className="stat-content">
@@ -143,13 +159,16 @@ const ProgressMap = () => {
           </div>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="stat-card"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <div className="stat-icon" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+          <div
+            className="stat-icon"
+            style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }}
+          >
             <Clock size={24} />
           </div>
           <div className="stat-content">
@@ -159,13 +178,16 @@ const ProgressMap = () => {
           </div>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="stat-card"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <div className="stat-icon" style={{ background: 'linear-gradient(135deg, #10b981, #34d399)' }}>
+          <div
+            className="stat-icon"
+            style={{ background: "linear-gradient(135deg, #10b981, #34d399)" }}
+          >
             <TrendingUp size={24} />
           </div>
           <div className="stat-content">
@@ -175,13 +197,16 @@ const ProgressMap = () => {
           </div>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="stat-card"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <div className="stat-icon" style={{ background: 'linear-gradient(135deg, #ec4899, #f472b6)' }}>
+          <div
+            className="stat-icon"
+            style={{ background: "linear-gradient(135deg, #ec4899, #f472b6)" }}
+          >
             <Target size={24} />
           </div>
           <div className="stat-content">
@@ -193,22 +218,24 @@ const ProgressMap = () => {
       </div>
 
       {/* Activity Heatmap */}
-      <motion.div 
+      <motion.div
         className="heatmap-section"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
         <div className="section-header">
-          <h2><Calendar size={20} /> Activity Heatmap</h2>
+          <h2>
+            <Calendar size={20} /> Activity Heatmap
+          </h2>
           <div className="heatmap-legend">
             <span>Less</span>
             <div className="legend-squares">
-              <div className="legend-square" style={{ background: 'var(--heatmap-0)' }}></div>
-              <div className="legend-square" style={{ background: 'var(--heatmap-1)' }}></div>
-              <div className="legend-square" style={{ background: 'var(--heatmap-2)' }}></div>
-              <div className="legend-square" style={{ background: 'var(--heatmap-3)' }}></div>
-              <div className="legend-square" style={{ background: 'var(--heatmap-4)' }}></div>
+              <div className="legend-square" style={{ background: "var(--heatmap-0)" }}></div>
+              <div className="legend-square" style={{ background: "var(--heatmap-1)" }}></div>
+              <div className="legend-square" style={{ background: "var(--heatmap-2)" }}></div>
+              <div className="legend-square" style={{ background: "var(--heatmap-3)" }}></div>
+              <div className="legend-square" style={{ background: "var(--heatmap-4)" }}></div>
             </div>
             <span>More</span>
           </div>
@@ -217,7 +244,9 @@ const ProgressMap = () => {
         <div className="heatmap-container">
           <div className="heatmap-weekdays">
             {weekdays.map((day, i) => (
-              <span key={day} className={i % 2 === 0 ? '' : 'hidden-label'}>{day}</span>
+              <span key={day} className={i % 2 === 0 ? "" : "hidden-label"}>
+                {day}
+              </span>
             ))}
           </div>
           <div className="heatmap-grid-wrapper">
@@ -236,8 +265,10 @@ const ProgressMap = () => {
                   {week.map((day, dayIndex) => (
                     <div
                       key={dayIndex}
-                      className={`heatmap-day ${day.isToday ? 'today' : ''} ${day.isFuture ? 'future' : ''}`}
-                      style={{ background: day.isFuture ? 'transparent' : getHeatmapColor(day.count) }}
+                      className={`heatmap-day ${day.isToday ? "today" : ""} ${day.isFuture ? "future" : ""}`}
+                      style={{
+                        background: day.isFuture ? "transparent" : getHeatmapColor(day.count),
+                      }}
                       title={`${day.dateStr}: ${day.count} sessions`}
                     />
                   ))}
@@ -250,23 +281,27 @@ const ProgressMap = () => {
 
       <div className="bottom-sections">
         {/* Weekday Pattern */}
-        <motion.div 
+        <motion.div
           className="weekday-section"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
         >
           <div className="section-header">
-            <h2><BarChart3 size={20} /> Learning Pattern</h2>
+            <h2>
+              <BarChart3 size={20} /> Learning Pattern
+            </h2>
           </div>
           <div className="weekday-chart">
             {weekdayPattern?.map((day, index) => {
-              const maxSessions = Math.max(...(weekdayPattern?.map(d => d.total_sessions) || [1]));
+              const maxSessions = Math.max(
+                ...(weekdayPattern?.map((d) => d.total_sessions) || [1]),
+              );
               const height = maxSessions > 0 ? (day.total_sessions / maxSessions) * 100 : 0;
               return (
                 <div key={index} className="weekday-bar-container">
-                  <div 
-                    className="weekday-bar" 
+                  <div
+                    className="weekday-bar"
                     style={{ height: `${Math.max(height, 5)}%` }}
                     title={`${day.day_name}: ${day.total_sessions} sessions`}
                   >
@@ -280,14 +315,16 @@ const ProgressMap = () => {
         </motion.div>
 
         {/* Recent Completions */}
-        <motion.div 
+        <motion.div
           className="completions-section"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
         >
           <div className="section-header">
-            <h2><Award size={20} /> Recent Completions</h2>
+            <h2>
+              <Award size={20} /> Recent Completions
+            </h2>
           </div>
           <div className="completions-list">
             {recentCompletions?.length > 0 ? (
@@ -299,9 +336,9 @@ const ProgressMap = () => {
                   <div className="completion-info">
                     <span className="completion-title">{item.title}</span>
                     <span className="completion-date">
-                      {new Date(item.completed_at).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric'
+                      {new Date(item.completed_at).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
                       })}
                     </span>
                   </div>

@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useCallback, useRef } from "react";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Upload,
   Folder,
@@ -24,15 +24,15 @@ import {
   File,
   Files,
   FolderOpen,
-  HardDrive
-} from 'lucide-react';
-import './styles.css';
+  HardDrive,
+} from "lucide-react";
+import "./styles.css";
 
-const Manage = ({ 
-  items = [], 
-  collections = [], 
-  onFilesSelected, 
-  onReorder, 
+const Manage = ({
+  items = [],
+  collections = [],
+  onFilesSelected,
+  onReorder,
   onDelete,
   onBulkDelete,
   onMoveItem,
@@ -41,22 +41,22 @@ const Manage = ({
   onUpdateCollection,
   onDeleteCollection,
   onUpdateItem,
-  getItemsByCollection
+  getItemsByCollection,
 }) => {
   const [selectedItems, setSelectedItems] = useState(new Set());
   const [expandedCollections, setExpandedCollections] = useState(new Set());
   const [editingItem, setEditingItem] = useState(null);
   const [editingCollection, setEditingCollection] = useState(null);
   const [showCollectionModal, setShowCollectionModal] = useState(false);
-  const [newCollectionName, setNewCollectionName] = useState('');
-  const [newCollectionColor, setNewCollectionColor] = useState('#6366f1');
+  const [newCollectionName, setNewCollectionName] = useState("");
+  const [newCollectionColor, setNewCollectionColor] = useState("#6366f1");
   const [isDragging, setIsDragging] = useState(false);
   const [uploadCollectionId, setUploadCollectionId] = useState(null);
   const [showMoveMenu, setShowMoveMenu] = useState(null);
-  
+
   // Path confirmation state
   const [pendingFiles, setPendingFiles] = useState([]);
-  const [basePath, setBasePath] = useState('');
+  const [basePath, setBasePath] = useState("");
   const [showPathConfirm, setShowPathConfirm] = useState(false);
 
   // File input refs
@@ -67,24 +67,33 @@ const Manage = ({
   // Initialize expanded collections when collections load
   React.useEffect(() => {
     if (collections.length > 0) {
-      setExpandedCollections(new Set([...collections.map(s => s.id), null])); // null for uncategorized
+      setExpandedCollections(new Set([...collections.map((s) => s.id), null])); // null for uncategorized
     }
   }, [collections]);
 
   const groupedItems = getItemsByCollection ? getItemsByCollection() : [];
 
   const presetColors = [
-    '#6366f1', '#8b5cf6', '#ec4899', '#ef4444', '#f97316',
-    '#f59e0b', '#84cc16', '#22c55e', '#14b8a6', '#06b6d4',
-    '#3b82f6', '#6b7280'
+    "#6366f1",
+    "#8b5cf6",
+    "#ec4899",
+    "#ef4444",
+    "#f97316",
+    "#f59e0b",
+    "#84cc16",
+    "#22c55e",
+    "#14b8a6",
+    "#06b6d4",
+    "#3b82f6",
+    "#6b7280",
   ];
 
   // File upload handling
   // Filter valid files (videos and PDFs)
   const filterValidFiles = (files) => {
-    return files.filter(file => {
-      const isVideo = file.type.startsWith('video/');
-      const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    return files.filter((file) => {
+      const isVideo = file.type.startsWith("video/");
+      const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
       return isVideo || isPdf;
     });
   };
@@ -117,21 +126,24 @@ const Manage = ({
       setShowPathConfirm(true);
     }
     // Reset input so same file can be selected again
-    e.target.value = '';
+    e.target.value = "";
   };
 
   // Confirm files with path
   const handleConfirmWithPath = useCallback(() => {
-    const fileInfos = pendingFiles.map(file => {
+    const fileInfos = pendingFiles.map((file) => {
       const relativePath = file.webkitRelativePath || file.name;
-      const separator = basePath.includes('/') ? '/' : '\\';
-      const fullPath = basePath.trim() 
-        ? `${basePath.trim().replace(/[\\/]$/, '')}${separator}${relativePath}`
+      const separator = basePath.includes("/") ? "/" : "\\";
+      const fullPath = basePath.trim()
+        ? `${basePath.trim().replace(/[\\/]$/, "")}${separator}${relativePath}`
         : relativePath;
-      
-      const type = (file.type || '').includes('video') ? 'video' : 
-                   (file.type || '').includes('pdf') || file.name.toLowerCase().endsWith('.pdf') ? 'pdf' : 'video';
-      
+
+      const type = (file.type || "").includes("video")
+        ? "video"
+        : (file.type || "").includes("pdf") || file.name.toLowerCase().endsWith(".pdf")
+          ? "pdf"
+          : "video";
+
       return {
         name: file.name,
         type,
@@ -144,9 +156,9 @@ const Manage = ({
     if (fileInfos.length > 0) {
       onFilesSelected(fileInfos, uploadCollectionId);
     }
-    
+
     setPendingFiles([]);
-    setBasePath('');
+    setBasePath("");
     setShowPathConfirm(false);
     setUploadCollectionId(null);
   }, [pendingFiles, basePath, onFilesSelected, uploadCollectionId]);
@@ -154,7 +166,7 @@ const Manage = ({
   // Cancel path confirmation
   const handleCancelPath = useCallback(() => {
     setPendingFiles([]);
-    setBasePath('');
+    setBasePath("");
     setShowPathConfirm(false);
     setUploadCollectionId(null);
   }, []);
@@ -180,7 +192,7 @@ const Manage = ({
 
   // Selection handling
   const toggleSelectItem = (itemId) => {
-    setSelectedItems(prev => {
+    setSelectedItems((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(itemId)) {
         newSet.delete(itemId);
@@ -195,7 +207,7 @@ const Manage = ({
     if (selectedItems.size === items.length) {
       setSelectedItems(new Set());
     } else {
-      setSelectedItems(new Set(items.map(i => i.id)));
+      setSelectedItems(new Set(items.map((i) => i.id)));
     }
   };
 
@@ -215,7 +227,7 @@ const Manage = ({
 
   // Collection handling
   const toggleCollection = (collectionId) => {
-    setExpandedCollections(prev => {
+    setExpandedCollections((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(collectionId)) {
         newSet.delete(collectionId);
@@ -230,8 +242,8 @@ const Manage = ({
     if (!newCollectionName.trim()) return;
     try {
       await onCreateCollection(newCollectionName.trim(), newCollectionColor);
-      setNewCollectionName('');
-      setNewCollectionColor('#6366f1');
+      setNewCollectionName("");
+      setNewCollectionColor("#6366f1");
       setShowCollectionModal(false);
     } catch (error) {
       // Error handled by parent
@@ -256,29 +268,33 @@ const Manage = ({
     if (!result.destination) return;
 
     const { source, destination, draggableId } = result;
-    
+
     // Handle reordering within same collection
     if (source.droppableId === destination.droppableId) {
-      const collectionId = source.droppableId === 'uncategorized' ? null : parseInt(source.droppableId.replace('collection-', ''));
+      const collectionId =
+        source.droppableId === "uncategorized"
+          ? null
+          : parseInt(source.droppableId.replace("collection-", ""));
       // Get items for this collection and sort by order_index to match visual order
       const collectionItems = items
-        .filter(i => i.collection_id === collectionId)
+        .filter((i) => i.collection_id === collectionId)
         .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
       const [removed] = collectionItems.splice(source.index, 1);
       collectionItems.splice(destination.index, 0, removed);
-      
+
       const reorderedItems = collectionItems.map((item, index) => ({
         id: item.id,
-        order_index: index
+        order_index: index,
       }));
-      
+
       await onReorder(reorderedItems);
     } else {
       // Moving to different collection
-      const itemId = parseInt(draggableId.replace('item-', ''));
-      const newCollectionId = destination.droppableId === 'uncategorized' 
-        ? null 
-        : parseInt(destination.droppableId.replace('collection-', ''));
+      const itemId = parseInt(draggableId.replace("item-", ""));
+      const newCollectionId =
+        destination.droppableId === "uncategorized"
+          ? null
+          : parseInt(destination.droppableId.replace("collection-", ""));
       await onMoveItem(itemId, newCollectionId);
     }
   };
@@ -305,7 +321,7 @@ const Manage = ({
         type="file"
         accept="video/*,.pdf,application/pdf"
         onChange={handleFileInput}
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
       />
       <input
         ref={multipleFileInputRef}
@@ -313,7 +329,7 @@ const Manage = ({
         multiple
         accept="video/*,.pdf,application/pdf"
         onChange={handleFileInput}
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
       />
       <input
         ref={folderInputRef}
@@ -322,7 +338,7 @@ const Manage = ({
         directory=""
         multiple
         onChange={handleFileInput}
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
       />
 
       <div className="manage-header">
@@ -331,8 +347,8 @@ const Manage = ({
       </div>
 
       {/* Upload Zone */}
-      <div 
-        className={`upload-zone ${isDragging ? 'dragging' : ''}`}
+      <div
+        className={`upload-zone ${isDragging ? "dragging" : ""}`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -345,27 +361,15 @@ const Manage = ({
 
         {/* Upload buttons */}
         <div className="upload-buttons">
-          <button 
-            className="upload-btn"
-            onClick={handleSingleFileClick}
-            type="button"
-          >
+          <button className="upload-btn" onClick={handleSingleFileClick} type="button">
             <File size={18} />
             Single File
           </button>
-          <button 
-            className="upload-btn"
-            onClick={handleMultipleFilesClick}
-            type="button"
-          >
+          <button className="upload-btn" onClick={handleMultipleFilesClick} type="button">
             <Files size={18} />
             Multiple Files
           </button>
-          <button 
-            className="upload-btn"
-            onClick={handleFolderClick}
-            type="button"
-          >
+          <button className="upload-btn" onClick={handleFolderClick} type="button">
             <FolderOpen size={18} />
             Folder
           </button>
@@ -373,13 +377,17 @@ const Manage = ({
 
         <div className="upload-target">
           <label>Upload to:</label>
-          <select 
-            value={uploadCollectionId || ''} 
-            onChange={(e) => setUploadCollectionId(e.target.value ? parseInt(e.target.value) : null)}
+          <select
+            value={uploadCollectionId || ""}
+            onChange={(e) =>
+              setUploadCollectionId(e.target.value ? parseInt(e.target.value) : null)
+            }
           >
             <option value="">No Collection</option>
-            {collections.map(collection => (
-              <option key={collection.id} value={collection.id}>{collection.name}</option>
+            {collections.map((collection) => (
+              <option key={collection.id} value={collection.id}>
+                {collection.name}
+              </option>
             ))}
           </select>
         </div>
@@ -388,12 +396,9 @@ const Manage = ({
       {/* Toolbar */}
       <div className="manage-toolbar">
         <div className="toolbar-left">
-          <button 
-            className="select-all-btn"
-            onClick={selectAll}
-          >
+          <button className="select-all-btn" onClick={selectAll}>
             {selectedItems.size === items.length ? <CheckSquare size={18} /> : <Square size={18} />}
-            {selectedItems.size > 0 ? `${selectedItems.size} selected` : 'Select All'}
+            {selectedItems.size > 0 ? `${selectedItems.size} selected` : "Select All"}
           </button>
         </div>
 
@@ -401,44 +406,32 @@ const Manage = ({
           {selectedItems.size > 0 && (
             <>
               <div className="move-menu-container">
-                <button 
+                <button
                   className="toolbar-btn"
-                  onClick={() => setShowMoveMenu(showMoveMenu ? null : 'bulk')}
+                  onClick={() => setShowMoveMenu(showMoveMenu ? null : "bulk")}
                 >
                   <ArrowRight size={18} />
                   Move to
                 </button>
-                {showMoveMenu === 'bulk' && (
+                {showMoveMenu === "bulk" && (
                   <div className="move-dropdown">
                     <button onClick={() => handleBulkMove(null)}>No Collection</button>
-                    {collections.map(collection => (
-                      <button 
-                        key={collection.id}
-                        onClick={() => handleBulkMove(collection.id)}
-                      >
-                        <span 
-                          className="color-dot"
-                          style={{ background: collection.color }} 
-                        />
+                    {collections.map((collection) => (
+                      <button key={collection.id} onClick={() => handleBulkMove(collection.id)}>
+                        <span className="color-dot" style={{ background: collection.color }} />
                         {collection.name}
                       </button>
                     ))}
                   </div>
                 )}
               </div>
-              <button 
-                className="toolbar-btn danger"
-                onClick={handleBulkDelete}
-              >
+              <button className="toolbar-btn danger" onClick={handleBulkDelete}>
                 <Trash2 size={18} />
                 Delete ({selectedItems.size})
               </button>
             </>
           )}
-          <button 
-            className="toolbar-btn primary"
-            onClick={() => setShowCollectionModal(true)}
-          >
+          <button className="toolbar-btn primary" onClick={() => setShowCollectionModal(true)}>
             <FolderPlus size={18} />
             New Collection
           </button>
@@ -449,47 +442,49 @@ const Manage = ({
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="manage-content">
           {/* Collections */}
-          {groupedItems.map(group => (
-            <div key={group.id || 'uncategorized'} className="collection-group">
-              <div 
-                className="collection-group-header"
-                style={{ borderLeftColor: group.color }}
-              >
-                <button 
-                  className="expand-btn"
-                  onClick={() => toggleCollection(group.id)}
-                >
+          {groupedItems.map((group) => (
+            <div key={group.id || "uncategorized"} className="collection-group">
+              <div className="collection-group-header" style={{ borderLeftColor: group.color }}>
+                <button className="expand-btn" onClick={() => toggleCollection(group.id)}>
                   {expandedCollections.has(group.id) ? (
                     <ChevronDown size={18} />
                   ) : (
                     <ChevronRight size={18} />
                   )}
                 </button>
-                
+
                 {editingCollection?.id === group.id ? (
                   <input
                     className="edit-input"
                     value={editingCollection.name}
-                    onChange={(e) => setEditingCollection({ ...editingCollection, name: e.target.value })}
+                    onChange={(e) =>
+                      setEditingCollection({ ...editingCollection, name: e.target.value })
+                    }
                     onBlur={() => handleUpdateCollectionName(group)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleUpdateCollectionName(group)}
+                    onKeyDown={(e) => e.key === "Enter" && handleUpdateCollectionName(group)}
                     autoFocus
                   />
                 ) : (
                   <span className="collection-name">{group.name}</span>
                 )}
-                
+
                 <span className="item-count">{group.items.length} items</span>
-                
+
                 {group.id && (
                   <div className="collection-actions">
-                    <button onClick={() => setEditingCollection({ id: group.id, name: group.name })}>
+                    <button
+                      onClick={() => setEditingCollection({ id: group.id, name: group.name })}
+                    >
                       <Edit2 size={14} />
                     </button>
-                    <button 
+                    <button
                       className="danger"
                       onClick={() => {
-                        if (window.confirm(`Delete collection "${group.name}"? Items will be moved to uncategorized.`)) {
+                        if (
+                          window.confirm(
+                            `Delete collection "${group.name}"? Items will be moved to uncategorized.`,
+                          )
+                        ) {
                           onDeleteCollection(group.id);
                         }
                       }}
@@ -504,15 +499,15 @@ const Manage = ({
                 {expandedCollections.has(group.id) && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
+                    animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                   >
-                    <Droppable droppableId={group.id ? `collection-${group.id}` : 'uncategorized'}>
+                    <Droppable droppableId={group.id ? `collection-${group.id}` : "uncategorized"}>
                       {(provided, snapshot) => (
-                        <div 
+                        <div
                           ref={provided.innerRef}
                           {...provided.droppableProps}
-                          className={`items-list ${snapshot.isDraggingOver ? 'dragging-over' : ''}`}
+                          className={`items-list ${snapshot.isDraggingOver ? "dragging-over" : ""}`}
                         >
                           {group.items.length === 0 ? (
                             <div className="empty-collection">
@@ -520,16 +515,16 @@ const Manage = ({
                             </div>
                           ) : (
                             group.items.map((item, index) => (
-                              <Draggable 
-                                key={item.id} 
-                                draggableId={`item-${item.id}`} 
+                              <Draggable
+                                key={item.id}
+                                draggableId={`item-${item.id}`}
                                 index={index}
                               >
                                 {(provided, snapshot) => (
                                   <div
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
-                                    className={`manage-item ${snapshot.isDragging ? 'dragging' : ''} ${selectedItems.has(item.id) ? 'selected' : ''}`}
+                                    className={`manage-item ${snapshot.isDragging ? "dragging" : ""} ${selectedItems.has(item.id) ? "selected" : ""}`}
                                   >
                                     <button
                                       className="select-btn"
@@ -541,23 +536,31 @@ const Manage = ({
                                         <Square size={18} />
                                       )}
                                     </button>
-                                    
+
                                     <div {...provided.dragHandleProps} className="drag-handle">
                                       <GripVertical size={18} />
                                     </div>
-                                    
+
                                     <div className="item-icon">
-                                      {item.type === 'video' ? <Video size={18} /> : <FileText size={18} />}
+                                      {item.type === "video" ? (
+                                        <Video size={18} />
+                                      ) : (
+                                        <FileText size={18} />
+                                      )}
                                     </div>
-                                    
+
                                     <div className="item-info">
                                       {editingItem?.id === item.id ? (
                                         <input
                                           className="edit-input"
                                           value={editingItem.name}
-                                          onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
+                                          onChange={(e) =>
+                                            setEditingItem({ ...editingItem, name: e.target.value })
+                                          }
                                           onBlur={() => handleUpdateItemName(item)}
-                                          onKeyDown={(e) => e.key === 'Enter' && handleUpdateItemName(item)}
+                                          onKeyDown={(e) =>
+                                            e.key === "Enter" && handleUpdateItemName(item)
+                                          }
                                           autoFocus
                                         />
                                       ) : (
@@ -566,27 +569,39 @@ const Manage = ({
                                       <div className="item-meta">
                                         <span className="type-badge">{item.type}</span>
                                         {item.file_path ? (
-                                          <span className="path-badge" title={`Path: ${item.file_path}`}>
+                                          <span
+                                            className="path-badge"
+                                            title={`Path: ${item.file_path}`}
+                                          >
                                             <HardDrive size={12} /> Stored
                                           </span>
                                         ) : (
-                                          <span className="no-path-badge" title="No file path - won't work after refresh">
+                                          <span
+                                            className="no-path-badge"
+                                            title="No file path - won't work after refresh"
+                                          >
                                             ⚠ No path
                                           </span>
                                         )}
                                         {item.progress > 0 && (
                                           <span className="progress-badge">
-                                            {item.is_completed ? '✓ Completed' : `${Math.round(item.progress)}%`}
+                                            {item.is_completed
+                                              ? "✓ Completed"
+                                              : `${Math.round(item.progress)}%`}
                                           </span>
                                         )}
                                       </div>
                                     </div>
-                                    
+
                                     <div className="item-actions">
-                                      <button onClick={() => setEditingItem({ id: item.id, name: item.name })}>
+                                      <button
+                                        onClick={() =>
+                                          setEditingItem({ id: item.id, name: item.name })
+                                        }
+                                      >
                                         <Edit2 size={14} />
                                       </button>
-                                      <button 
+                                      <button
                                         className="danger"
                                         onClick={() => {
                                           if (window.confirm(`Delete "${item.name}"?`)) {
@@ -617,14 +632,14 @@ const Manage = ({
       {/* New Collection Modal */}
       <AnimatePresence>
         {showCollectionModal && (
-          <motion.div 
+          <motion.div
             className="modal-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setShowCollectionModal(false)}
           >
-            <motion.div 
+            <motion.div
               className="modal"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -651,10 +666,10 @@ const Manage = ({
                 <div className="form-group">
                   <label>Color</label>
                   <div className="color-picker">
-                    {presetColors.map(color => (
+                    {presetColors.map((color) => (
                       <button
                         key={color}
-                        className={`color-btn ${newCollectionColor === color ? 'active' : ''}`}
+                        className={`color-btn ${newCollectionColor === color ? "active" : ""}`}
                         style={{ background: color }}
                         onClick={() => setNewCollectionColor(color)}
                       >
@@ -703,10 +718,13 @@ const Manage = ({
                 </button>
               </div>
               <div className="modal-body">
-                <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.875rem' }}>
-                  Browsers don't provide full file paths for security. Enter the folder path where these files are located so they can be played after page refresh.
+                <p
+                  style={{ color: "var(--text-muted)", marginBottom: "1rem", fontSize: "0.875rem" }}
+                >
+                  Browsers don't provide full file paths for security. Enter the folder path where
+                  these files are located so they can be played after page refresh.
                 </p>
-                
+
                 <div className="form-group">
                   <label>Base Folder Path</label>
                   <input
@@ -717,61 +735,82 @@ const Manage = ({
                     autoFocus
                   />
                 </div>
-                
+
                 <div className="form-group">
                   <label>Files to add ({pendingFiles.length})</label>
-                  <div style={{
-                    maxHeight: '150px',
-                    overflow: 'auto',
-                    background: 'var(--bg-tertiary)',
-                    borderRadius: '8px',
-                    padding: '0.5rem',
-                  }}>
+                  <div
+                    style={{
+                      maxHeight: "150px",
+                      overflow: "auto",
+                      background: "var(--bg-tertiary)",
+                      borderRadius: "8px",
+                      padding: "0.5rem",
+                    }}
+                  >
                     {pendingFiles.map((file, i) => (
-                      <div key={i} style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        padding: '0.25rem 0.5rem',
-                        fontSize: '0.8rem',
-                      }}>
-                        {file.type?.includes('video') || file.name.match(/\.(mp4|mkv|avi|mov|webm)$/i) ? (
-                          <Video size={14} style={{ color: 'var(--primary)' }} />
+                      <div
+                        key={i}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.5rem",
+                          padding: "0.25rem 0.5rem",
+                          fontSize: "0.8rem",
+                        }}
+                      >
+                        {file.type?.includes("video") ||
+                        file.name.match(/\.(mp4|mkv|avi|mov|webm)$/i) ? (
+                          <Video size={14} style={{ color: "var(--primary)" }} />
                         ) : (
-                          <FileText size={14} style={{ color: 'var(--warning)' }} />
+                          <FileText size={14} style={{ color: "var(--warning)" }} />
                         )}
-                        <span style={{ color: 'var(--text-secondary)' }}>
+                        <span style={{ color: "var(--text-secondary)" }}>
                           {file.webkitRelativePath || file.name}
                         </span>
                       </div>
                     ))}
                   </div>
                 </div>
-                
+
                 {basePath && (
-                  <div style={{ 
-                    padding: '0.75rem', 
-                    background: 'var(--bg-tertiary)', 
-                    borderRadius: '8px',
-                    fontSize: '0.8rem',
-                  }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Example full path: </span>
-                    <code style={{ color: 'var(--primary)' }}>
-                      {basePath.replace(/[\\/]$/, '')}{basePath.includes('/') ? '/' : '\\'}{pendingFiles[0]?.webkitRelativePath || pendingFiles[0]?.name}
+                  <div
+                    style={{
+                      padding: "0.75rem",
+                      background: "var(--bg-tertiary)",
+                      borderRadius: "8px",
+                      fontSize: "0.8rem",
+                    }}
+                  >
+                    <span style={{ color: "var(--text-muted)" }}>Example full path: </span>
+                    <code style={{ color: "var(--primary)" }}>
+                      {basePath.replace(/[\\/]$/, "")}
+                      {basePath.includes("/") ? "/" : "\\"}
+                      {pendingFiles[0]?.webkitRelativePath || pendingFiles[0]?.name}
                     </code>
                   </div>
                 )}
 
-                <div className="form-group" style={{ marginTop: '1rem' }}>
+                <div className="form-group" style={{ marginTop: "1rem" }}>
                   <label>Add to Collection</label>
-                  <select 
-                    value={uploadCollectionId || ''} 
-                    onChange={(e) => setUploadCollectionId(e.target.value ? parseInt(e.target.value) : null)}
-                    style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
+                  <select
+                    value={uploadCollectionId || ""}
+                    onChange={(e) =>
+                      setUploadCollectionId(e.target.value ? parseInt(e.target.value) : null)
+                    }
+                    style={{
+                      width: "100%",
+                      padding: "0.5rem",
+                      borderRadius: "6px",
+                      border: "1px solid var(--border-color)",
+                      background: "var(--bg-tertiary)",
+                      color: "var(--text-primary)",
+                    }}
                   >
                     <option value="">No Collection (Uncategorized)</option>
-                    {collections.map(collection => (
-                      <option key={collection.id} value={collection.id}>{collection.name}</option>
+                    {collections.map((collection) => (
+                      <option key={collection.id} value={collection.id}>
+                        {collection.name}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -780,13 +819,13 @@ const Manage = ({
                 <button className="btn-secondary" onClick={handleCancelPath}>
                   Cancel
                 </button>
-                <button 
-                  className="btn-primary" 
+                <button
+                  className="btn-primary"
                   onClick={handleConfirmWithPath}
                   disabled={!basePath.trim()}
                 >
                   <Check size={18} />
-                  Add {pendingFiles.length} File{pendingFiles.length > 1 ? 's' : ''}
+                  Add {pendingFiles.length} File{pendingFiles.length > 1 ? "s" : ""}
                 </button>
               </div>
             </motion.div>

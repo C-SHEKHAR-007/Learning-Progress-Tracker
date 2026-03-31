@@ -1,11 +1,11 @@
-import axios from 'axios';
+import axios from "axios";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 const api = axios.create({
   baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -14,13 +14,13 @@ const api = axios.create({
 export const collectionsApi = {
   // Get all collections
   getAll: async () => {
-    const response = await api.get('/items/collections');
+    const response = await api.get("/items/collections");
     return response.data;
   },
 
   // Create a new collection
-  create: async (name, color = '#6366f1', icon = 'folder') => {
-    const response = await api.post('/items/collections', { name, color, icon });
+  create: async (name, color = "#6366f1", icon = "folder") => {
+    const response = await api.post("/items/collections", { name, color, icon });
     return response.data;
   },
 
@@ -38,7 +38,7 @@ export const collectionsApi = {
 
   // Reorder collections
   reorder: async (collections) => {
-    const response = await api.patch('/items/collections/reorder', { collections });
+    const response = await api.patch("/items/collections/reorder", { collections });
     return response.data;
   },
 };
@@ -48,7 +48,7 @@ export const collectionsApi = {
 export const itemsApi = {
   // Get all items
   getAll: async () => {
-    const response = await api.get('/items');
+    const response = await api.get("/items");
     return response.data;
   },
 
@@ -60,13 +60,13 @@ export const itemsApi = {
 
   // Get items by collection
   getByCollection: async (collectionId) => {
-    const response = await api.get(`/items/by-collection/${collectionId || 'null'}`);
+    const response = await api.get(`/items/by-collection/${collectionId || "null"}`);
     return response.data;
   },
 
   // Create items
   create: async (items, collectionId = null) => {
-    const response = await api.post('/items', { items, collectionId });
+    const response = await api.post("/items", { items, collectionId });
     return response.data;
   },
 
@@ -95,7 +95,7 @@ export const itemsApi = {
 
   // Reorder items
   reorder: async (items) => {
-    const response = await api.patch('/items/reorder', { items });
+    const response = await api.patch("/items/reorder", { items });
     return response.data;
   },
 
@@ -113,7 +113,7 @@ export const itemsApi = {
 
   // Delete all items
   deleteAll: async () => {
-    const response = await api.delete('/items');
+    const response = await api.delete("/items");
     return response.data;
   },
 
@@ -128,7 +128,7 @@ export const itemsApi = {
 export const analyticsApi = {
   // Get dashboard analytics (combined endpoint)
   getDashboard: async () => {
-    const response = await api.get('/analytics/dashboard');
+    const response = await api.get("/analytics/dashboard");
     return response.data;
   },
 
@@ -140,13 +140,13 @@ export const analyticsApi = {
 
   // Get current streak
   getStreak: async () => {
-    const response = await api.get('/analytics/streak');
+    const response = await api.get("/analytics/streak");
     return response.data;
   },
 
   // Get today's stats
   getTodayStats: async () => {
-    const response = await api.get('/analytics/today');
+    const response = await api.get("/analytics/today");
     return response.data;
   },
 
@@ -158,13 +158,13 @@ export const analyticsApi = {
 
   // Get weekly summary
   getWeeklySummary: async () => {
-    const response = await api.get('/analytics/weekly');
+    const response = await api.get("/analytics/weekly");
     return response.data;
   },
 
   // Get monthly summary
   getMonthlySummary: async () => {
-    const response = await api.get('/analytics/monthly');
+    const response = await api.get("/analytics/monthly");
     return response.data;
   },
 
@@ -176,7 +176,7 @@ export const analyticsApi = {
 
   // Get weekday learning pattern
   getWeekdayPattern: async () => {
-    const response = await api.get('/analytics/weekday-pattern');
+    const response = await api.get("/analytics/weekday-pattern");
     return response.data;
   },
 };
@@ -228,7 +228,7 @@ export const pdfApi = {
     return response.data;
   },
 
-  addNote: async (itemId, page, content, highlight = '') => {
+  addNote: async (itemId, page, content, highlight = "") => {
     const response = await api.post(`/pdf/${itemId}/notes`, { page, content, highlight });
     return response.data;
   },

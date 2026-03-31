@@ -84,14 +84,12 @@ const PDFViewer = ({
   const observerRef = useRef(null);
 
   // Progress calculation
-  const progress =
-    totalPages > 0 ? Math.round((currentPage / totalPages) * 100) : 0;
+  const progress = totalPages > 0 ? Math.round((currentPage / totalPages) * 100) : 0;
 
   // Load PDF URL
   useEffect(() => {
     if (item?.file_path) {
-      const apiUrl =
-        process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
       setPdfUrl(`${apiUrl}/items/${item.id}/file`);
     } else if (file) {
       const url = URL.createObjectURL(file);
@@ -181,25 +179,24 @@ const PDFViewer = ({
   // Auto-save progress (called after scroll stops)
   const saveProgress = useCallback(async () => {
     if (!item?.id || totalPages === 0) return;
-    
+
     // Only save if page actually changed since last save
     if (currentPageRef.current === lastSavedPageRef.current) return;
 
     const sessionTime = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
 
     try {
-      await pdfApi.updatePageProgress(
-        item.id,
-        currentPageRef.current,
-        totalPages,
-        sessionTime,
-      );
+      await pdfApi.updatePageProgress(item.id, currentPageRef.current, totalPages, sessionTime);
       sessionStartTimeRef.current = Date.now();
       lastSavedPageRef.current = currentPageRef.current;
 
       if (onProgressUpdate) {
         const currentProgress = Math.round((currentPageRef.current / totalPages) * 100);
-        onProgressUpdate({ progress: currentProgress, currentPage: currentPageRef.current, totalPages });
+        onProgressUpdate({
+          progress: currentProgress,
+          currentPage: currentPageRef.current,
+          totalPages,
+        });
       }
     } catch (error) {
       console.error("Error saving progress:", error);
@@ -223,10 +220,10 @@ const PDFViewer = ({
       }, 1500);
     };
 
-    container.addEventListener('scroll', handleScroll, { passive: true });
+    container.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
-      container.removeEventListener('scroll', handleScroll);
+      container.removeEventListener("scroll", handleScroll);
       if (scrollDebounceRef.current) {
         clearTimeout(scrollDebounceRef.current);
       }
@@ -242,18 +239,23 @@ const PDFViewer = ({
       // Use sendBeacon for reliable save on page unload/unmount
       if (itemId && totalPages > 0 && currentPageRef.current !== lastSavedPageRef.current) {
         const sessionTime = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
-        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+        const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
         const data = JSON.stringify({
           currentPage: currentPageRef.current,
           totalPages,
-          readingTime: sessionTime
+          readingTime: sessionTime,
         });
         // sendBeacon ensures request completes even if page is closing
         if (navigator.sendBeacon) {
-          navigator.sendBeacon(`${apiUrl}/pdf/${itemId}/page`, new Blob([data], { type: 'application/json' }));
+          navigator.sendBeacon(
+            `${apiUrl}/pdf/${itemId}/page`,
+            new Blob([data], { type: "application/json" }),
+          );
         } else {
           // Fallback for older browsers
-          pdfApi.updatePageProgress(itemId, currentPageRef.current, totalPages, sessionTime).catch(console.error);
+          pdfApi
+            .updatePageProgress(itemId, currentPageRef.current, totalPages, sessionTime)
+            .catch(console.error);
         }
       }
     };
@@ -298,18 +300,15 @@ const PDFViewer = ({
   };
 
   useEffect(() => {
-    const handleFullscreenChange = () =>
-      setIsFullscreen(!!document.fullscreenElement);
+    const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () =>
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
 
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeydown = (e) => {
-      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")
-        return;
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
 
       switch (e.key) {
         case "ArrowRight":
@@ -365,11 +364,7 @@ const PDFViewer = ({
     }
 
     try {
-      const result = await pdfApi.addBookmark(
-        item.id,
-        currentPage,
-        `Page ${currentPage}`,
-      );
+      const result = await pdfApi.addBookmark(item.id, currentPage, `Page ${currentPage}`);
       setBookmarks(result.bookmarks || []);
     } catch (error) {
       console.error("Error adding bookmark:", error);
@@ -588,11 +583,7 @@ const PDFViewer = ({
           >
             <ZoomOut size={18} />
           </motion.button>
-          <span
-            className="zoom-label"
-            onClick={resetZoom}
-            title="Reset zoom (0)"
-          >
+          <span className="zoom-label" onClick={resetZoom} title="Reset zoom (0)">
             {zoom}%
           </span>
           <motion.button
@@ -616,11 +607,7 @@ const PDFViewer = ({
             onClick={handleAddBookmark}
             title="Toggle bookmark (B)"
           >
-            {isCurrentPageBookmarked ? (
-              <Bookmark size={18} />
-            ) : (
-              <BookmarkPlus size={18} />
-            )}
+            {isCurrentPageBookmarked ? <Bookmark size={18} /> : <BookmarkPlus size={18} />}
           </motion.button>
 
           <motion.button
@@ -635,9 +622,7 @@ const PDFViewer = ({
             title="View bookmarks"
           >
             <List size={18} />
-            {bookmarks.length > 0 && (
-              <span className="badge">{bookmarks.length}</span>
-            )}
+            {bookmarks.length > 0 && <span className="badge">{bookmarks.length}</span>}
           </motion.button>
 
           <motion.button
@@ -732,14 +717,8 @@ const PDFViewer = ({
                       .sort((a, b) => a.page - b.page)
                       .map((bookmark) => (
                         <li key={bookmark.id} className="bookmark-item">
-                          <button
-                            className="bookmark-link"
-                            onClick={() => goToPage(bookmark.page)}
-                          >
-                            <Bookmark
-                              size={14}
-                              style={{ color: bookmark.color }}
-                            />
+                          <button className="bookmark-link" onClick={() => goToPage(bookmark.page)}>
+                            <Bookmark size={14} style={{ color: bookmark.color }} />
                             <span>{bookmark.title}</span>
                             <span className="page-num">p.{bookmark.page}</span>
                           </button>
@@ -799,9 +778,7 @@ const PDFViewer = ({
                 </div>
 
                 {notes.length === 0 ? (
-                  <p className="empty-message">
-                    No notes yet. Add your first note above.
-                  </p>
+                  <p className="empty-message">No notes yet. Add your first note above.</p>
                 ) : (
                   <ul className="notes-list">
                     {notes
@@ -809,10 +786,7 @@ const PDFViewer = ({
                       .map((note) => (
                         <li key={note.id} className="note-item">
                           <div className="note-header">
-                            <button
-                              className="page-link"
-                              onClick={() => goToPage(note.page)}
-                            >
+                            <button className="page-link" onClick={() => goToPage(note.page)}>
                               Page {note.page}
                             </button>
                             <div className="note-actions">
@@ -857,12 +831,7 @@ const PDFViewer = ({
                                   className="btn btn-primary btn-sm"
                                   whileHover={{ scale: 1.05 }}
                                   whileTap={{ scale: 0.95 }}
-                                  onClick={() =>
-                                    handleUpdateNote(
-                                      note.id,
-                                      editingNote.content,
-                                    )
-                                  }
+                                  onClick={() => handleUpdateNote(note.id, editingNote.content)}
                                 >
                                   Save
                                 </motion.button>
@@ -982,9 +951,7 @@ const PDFViewer = ({
                     <BarChart3 size={24} />
                   </div>
                   <div className="stat-info">
-                    <span className="stat-value">
-                      {Math.round(stats.progress)}%
-                    </span>
+                    <span className="stat-value">{Math.round(stats.progress)}%</span>
                     <span className="stat-label">Progress</span>
                   </div>
                 </div>
@@ -994,9 +961,7 @@ const PDFViewer = ({
                     <Clock size={24} />
                   </div>
                   <div className="stat-info">
-                    <span className="stat-value">
-                      {formatTime(stats.reading_time || 0)}
-                    </span>
+                    <span className="stat-value">{formatTime(stats.reading_time || 0)}</span>
                     <span className="stat-label">Reading Time</span>
                   </div>
                 </div>
@@ -1006,9 +971,7 @@ const PDFViewer = ({
                     <Bookmark size={24} />
                   </div>
                   <div className="stat-info">
-                    <span className="stat-value">
-                      {stats.bookmark_count || 0}
-                    </span>
+                    <span className="stat-value">{stats.bookmark_count || 0}</span>
                     <span className="stat-label">Bookmarks</span>
                   </div>
                 </div>
@@ -1028,9 +991,7 @@ const PDFViewer = ({
                     <CheckCircle size={24} />
                   </div>
                   <div className="stat-info">
-                    <span className="stat-value">
-                      {stats.is_completed ? "Yes" : "No"}
-                    </span>
+                    <span className="stat-value">{stats.is_completed ? "Yes" : "No"}</span>
                     <span className="stat-label">Completed</span>
                   </div>
                 </div>

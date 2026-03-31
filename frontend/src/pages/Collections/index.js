@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Folder,
   Video,
@@ -13,9 +13,9 @@ import {
   CheckCircle,
   Circle,
   HardDrive,
-  AlertCircle
-} from 'lucide-react';
-import './styles.css';
+  AlertCircle,
+} from "lucide-react";
+import "./styles.css";
 
 const Collections = ({ items = [], collections = [], getItemsByCollection }) => {
   const navigate = useNavigate();
@@ -24,14 +24,14 @@ const Collections = ({ items = [], collections = [], getItemsByCollection }) => 
   // Initialize with all collections expanded
   React.useEffect(() => {
     if (collections.length > 0) {
-      setExpandedCollections(new Set([...collections.map(c => c.id), null]));
+      setExpandedCollections(new Set([...collections.map((c) => c.id), null]));
     }
   }, [collections]);
 
   const groupedItems = getItemsByCollection ? getItemsByCollection() : [];
 
   const toggleCollection = (collectionId) => {
-    setExpandedCollections(prev => {
+    setExpandedCollections((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(collectionId)) {
         newSet.delete(collectionId);
@@ -53,15 +53,15 @@ const Collections = ({ items = [], collections = [], getItemsByCollection }) => 
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = Math.floor(seconds % 60);
     if (hrs > 0) {
-      return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      return `${hrs}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     }
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   // Separate items into videos and PDFs
   const segregateItems = (items) => {
-    const videos = items.filter(item => item.type === 'video');
-    const pdfs = items.filter(item => item.type === 'pdf');
+    const videos = items.filter((item) => item.type === "video");
+    const pdfs = items.filter((item) => item.type === "pdf");
     return { videos, pdfs };
   };
 
@@ -80,14 +80,14 @@ const Collections = ({ items = [], collections = [], getItemsByCollection }) => 
         </div>
       ) : (
         <div className="collections-content">
-          {groupedItems.map(group => {
+          {groupedItems.map((group) => {
             const { videos, pdfs } = segregateItems(group.items);
             const hasContent = videos.length > 0 || pdfs.length > 0;
 
             return (
-              <div key={group.id || 'uncategorized'} className="collection-section">
+              <div key={group.id || "uncategorized"} className="collection-section">
                 {/* Collection Header */}
-                <div 
+                <div
                   className="collection-header"
                   style={{ borderLeftColor: group.color }}
                   onClick={() => toggleCollection(group.id)}
@@ -99,11 +99,11 @@ const Collections = ({ items = [], collections = [], getItemsByCollection }) => 
                       <ChevronRight size={20} />
                     )}
                   </button>
-                  
+
                   <div className="collection-icon" style={{ background: group.color }}>
                     <Folder size={18} />
                   </div>
-                  
+
                   <div className="collection-info">
                     <span className="collection-name">{group.name}</span>
                     <span className="collection-stats">
@@ -121,7 +121,7 @@ const Collections = ({ items = [], collections = [], getItemsByCollection }) => 
                   </div>
 
                   <span className="total-items">
-                    {group.items.length} {group.items.length === 1 ? 'item' : 'items'}
+                    {group.items.length} {group.items.length === 1 ? "item" : "items"}
                   </span>
                 </div>
 
@@ -131,7 +131,7 @@ const Collections = ({ items = [], collections = [], getItemsByCollection }) => 
                     <motion.div
                       className="collection-content"
                       initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
+                      animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
                     >
@@ -150,10 +150,10 @@ const Collections = ({ items = [], collections = [], getItemsByCollection }) => 
                                 <span>Videos ({videos.length})</span>
                               </div>
                               <div className="items-grid">
-                                {videos.map(item => (
+                                {videos.map((item) => (
                                   <motion.div
                                     key={item.id}
-                                    className={`content-item video-item ${item.is_completed ? 'completed' : ''}`}
+                                    className={`content-item video-item ${item.is_completed ? "completed" : ""}`}
                                     onClick={() => handleItemClick(item)}
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
@@ -165,7 +165,9 @@ const Collections = ({ items = [], collections = [], getItemsByCollection }) => 
                                       </div>
                                     </div>
                                     <div className="item-details">
-                                      <span className="item-name" title={item.name}>{item.name}</span>
+                                      <span className="item-name" title={item.name}>
+                                        {item.name}
+                                      </span>
                                       <div className="item-meta">
                                         {item.duration ? (
                                           <span className="meta-item">
@@ -195,7 +197,7 @@ const Collections = ({ items = [], collections = [], getItemsByCollection }) => 
                                     {/* Progress bar */}
                                     {item.progress > 0 && !item.is_completed && (
                                       <div className="item-progress-bar">
-                                        <div 
+                                        <div
                                           className="progress-fill"
                                           style={{ width: `${item.progress}%` }}
                                         />
@@ -215,10 +217,10 @@ const Collections = ({ items = [], collections = [], getItemsByCollection }) => 
                                 <span>PDFs ({pdfs.length})</span>
                               </div>
                               <div className="items-grid">
-                                {pdfs.map(item => (
+                                {pdfs.map((item) => (
                                   <motion.div
                                     key={item.id}
-                                    className={`content-item pdf-item ${item.is_completed ? 'completed' : ''}`}
+                                    className={`content-item pdf-item ${item.is_completed ? "completed" : ""}`}
                                     onClick={() => handleItemClick(item)}
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
@@ -230,7 +232,9 @@ const Collections = ({ items = [], collections = [], getItemsByCollection }) => 
                                       </div>
                                     </div>
                                     <div className="item-details">
-                                      <span className="item-name" title={item.name}>{item.name}</span>
+                                      <span className="item-name" title={item.name}>
+                                        {item.name}
+                                      </span>
                                       <div className="item-meta">
                                         {item.is_completed ? (
                                           <span className="meta-item completed">
@@ -255,7 +259,7 @@ const Collections = ({ items = [], collections = [], getItemsByCollection }) => 
                                     {/* Progress bar */}
                                     {item.progress > 0 && !item.is_completed && (
                                       <div className="item-progress-bar">
-                                        <div 
+                                        <div
                                           className="progress-fill"
                                           style={{ width: `${item.progress}%` }}
                                         />

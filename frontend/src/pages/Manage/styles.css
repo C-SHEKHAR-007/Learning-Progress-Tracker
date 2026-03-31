@@ -650,7 +650,9 @@
 
 .color-btn.active {
   border-color: white;
-  box-shadow: 0 0 0 2px var(--bg-secondary), 0 0 0 4px currentColor;
+  box-shadow:
+    0 0 0 2px var(--bg-secondary),
+    0 0 0 4px currentColor;
 }
 
 .modal-footer {

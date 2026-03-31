@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   Filter,
@@ -14,38 +14,39 @@ import {
   Folder,
   ChevronDown,
   X,
-  HardDrive
-} from 'lucide-react';
-import './styles.css';
+  HardDrive,
+} from "lucide-react";
+import "./styles.css";
 
 const Library = ({ items, collections, onItemSelect }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
-  const [filterType, setFilterType] = useState('all'); // 'all', 'video', 'pdf'
-  const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'completed', 'in-progress', 'not-started'
-  const [filterCollection, setFilterCollection] = useState('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState("grid"); // 'grid' or 'list'
+  const [filterType, setFilterType] = useState("all"); // 'all', 'video', 'pdf'
+  const [filterStatus, setFilterStatus] = useState("all"); // 'all', 'completed', 'in-progress', 'not-started'
+  const [filterCollection, setFilterCollection] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
 
   // Filter and search items
   const filteredItems = useMemo(() => {
-    return items.filter(item => {
+    return items.filter((item) => {
       // Search filter
       if (searchQuery && !item.name.toLowerCase().includes(searchQuery.toLowerCase())) {
         return false;
       }
 
       // Type filter
-      if (filterType !== 'all' && item.type !== filterType) {
+      if (filterType !== "all" && item.type !== filterType) {
         return false;
       }
 
       // Status filter
-      if (filterStatus === 'completed' && !item.is_completed) return false;
-      if (filterStatus === 'in-progress' && (item.progress === 0 || item.is_completed)) return false;
-      if (filterStatus === 'not-started' && item.progress > 0) return false;
+      if (filterStatus === "completed" && !item.is_completed) return false;
+      if (filterStatus === "in-progress" && (item.progress === 0 || item.is_completed))
+        return false;
+      if (filterStatus === "not-started" && item.progress > 0) return false;
 
       // Collection filter
-      if (filterCollection !== 'all' && item.collection_id !== parseInt(filterCollection)) {
+      if (filterCollection !== "all" && item.collection_id !== parseInt(filterCollection)) {
         return false;
       }
 
@@ -56,18 +57,18 @@ const Library = ({ items, collections, onItemSelect }) => {
   // Group by collection
   const groupedItems = useMemo(() => {
     const groups = {};
-    
-    filteredItems.forEach(item => {
-      const collection = collections.find(s => s.id === item.collection_id);
-      const collectionName = collection ? collection.name : 'Uncategorized';
+
+    filteredItems.forEach((item) => {
+      const collection = collections.find((s) => s.id === item.collection_id);
+      const collectionName = collection ? collection.name : "Uncategorized";
       const collectionId = collection ? collection.id : 0;
-      
+
       if (!groups[collectionId]) {
         groups[collectionId] = {
           id: collectionId,
           name: collectionName,
-          color: collection?.color || '#6b7280',
-          items: []
+          color: collection?.color || "#6b7280",
+          items: [],
         };
       }
       groups[collectionId].items.push(item);
@@ -77,28 +78,29 @@ const Library = ({ items, collections, onItemSelect }) => {
   }, [filteredItems, collections]);
 
   const clearFilters = () => {
-    setSearchQuery('');
-    setFilterType('all');
-    setFilterStatus('all');
-    setFilterCollection('all');
+    setSearchQuery("");
+    setFilterType("all");
+    setFilterStatus("all");
+    setFilterCollection("all");
   };
 
-  const hasActiveFilters = searchQuery || filterType !== 'all' || filterStatus !== 'all' || filterCollection !== 'all';
+  const hasActiveFilters =
+    searchQuery || filterType !== "all" || filterStatus !== "all" || filterCollection !== "all";
 
   const formatDuration = (seconds) => {
-    if (!seconds) return '';
+    if (!seconds) return "";
     const hours = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = Math.floor(seconds % 60);
     if (hours > 0) {
-      return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      return `${hours}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     }
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   const formatFileSize = (bytes) => {
-    if (!bytes || bytes === 0) return '';
-    const units = ['B', 'KB', 'MB', 'GB'];
+    if (!bytes || bytes === 0) return "";
+    const units = ["B", "KB", "MB", "GB"];
     let unitIndex = 0;
     let size = bytes;
     while (size >= 1024 && unitIndex < units.length - 1) {
@@ -127,15 +129,15 @@ const Library = ({ items, collections, onItemSelect }) => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           {searchQuery && (
-            <button className="search-clear" onClick={() => setSearchQuery('')}>
+            <button className="search-clear" onClick={() => setSearchQuery("")}>
               <X size={16} />
             </button>
           )}
         </div>
 
         <div className="toolbar-actions">
-          <button 
-            className={`filter-toggle ${showFilters || hasActiveFilters ? 'active' : ''}`}
+          <button
+            className={`filter-toggle ${showFilters || hasActiveFilters ? "active" : ""}`}
             onClick={() => setShowFilters(!showFilters)}
           >
             <Filter size={18} />
@@ -144,15 +146,15 @@ const Library = ({ items, collections, onItemSelect }) => {
           </button>
 
           <div className="view-toggle">
-            <button 
-              className={viewMode === 'grid' ? 'active' : ''}
-              onClick={() => setViewMode('grid')}
+            <button
+              className={viewMode === "grid" ? "active" : ""}
+              onClick={() => setViewMode("grid")}
             >
               <Grid size={18} />
             </button>
-            <button 
-              className={viewMode === 'list' ? 'active' : ''}
-              onClick={() => setViewMode('list')}
+            <button
+              className={viewMode === "list" ? "active" : ""}
+              onClick={() => setViewMode("list")}
             >
               <List size={18} />
             </button>
@@ -166,7 +168,7 @@ const Library = ({ items, collections, onItemSelect }) => {
           <motion.div
             className="filter-panel"
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
+            animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
           >
             <div className="filter-group">
@@ -190,10 +192,15 @@ const Library = ({ items, collections, onItemSelect }) => {
 
             <div className="filter-group">
               <label>Collection</label>
-              <select value={filterCollection} onChange={(e) => setFilterCollection(e.target.value)}>
+              <select
+                value={filterCollection}
+                onChange={(e) => setFilterCollection(e.target.value)}
+              >
                 <option value="all">All Collections</option>
-                {collections.map(collection => (
-                  <option key={collection.id} value={collection.id}>{collection.name}</option>
+                {collections.map((collection) => (
+                  <option key={collection.id} value={collection.id}>
+                    {collection.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -213,13 +220,11 @@ const Library = ({ items, collections, onItemSelect }) => {
         <div className="library-empty">
           <Folder size={48} />
           <p>No items found</p>
-          {hasActiveFilters && (
-            <button onClick={clearFilters}>Clear filters</button>
-          )}
+          {hasActiveFilters && <button onClick={clearFilters}>Clear filters</button>}
         </div>
-      ) : viewMode === 'grid' ? (
+      ) : viewMode === "grid" ? (
         <div className="library-grid">
-          {filteredItems.map(item => (
+          {filteredItems.map((item) => (
             <Link
               key={item.id}
               to={`/player/${item.id}`}
@@ -227,7 +232,7 @@ const Library = ({ items, collections, onItemSelect }) => {
               onClick={() => onItemSelect(item)}
             >
               <div className="card-thumbnail">
-                {item.type === 'video' ? <Video size={32} /> : <FileText size={32} />}
+                {item.type === "video" ? <Video size={32} /> : <FileText size={32} />}
                 {item.is_completed && (
                   <div className="completed-badge">
                     <CheckCircle size={14} />
@@ -235,13 +240,19 @@ const Library = ({ items, collections, onItemSelect }) => {
                   </div>
                 )}
                 {item.file_path && (
-                  <div className="file-stored-badge" title="File path stored - available after refresh">
+                  <div
+                    className="file-stored-badge"
+                    title="File path stored - available after refresh"
+                  >
                     <HardDrive size={14} />
                   </div>
                 )}
                 {!item.file_path && (
-                  <div className="file-missing-badge" title="No file path - will be unavailable after refresh">
-                    <span style={{ fontSize: '10px', color: 'var(--warning)' }}>!</span>
+                  <div
+                    className="file-missing-badge"
+                    title="No file path - will be unavailable after refresh"
+                  >
+                    <span style={{ fontSize: "10px", color: "var(--warning)" }}>!</span>
                   </div>
                 )}
                 <div className="play-overlay">
@@ -251,7 +262,7 @@ const Library = ({ items, collections, onItemSelect }) => {
               <div className="card-info">
                 <h3>{item.name}</h3>
                 <div className="card-meta">
-                  {item.type === 'video' && item.duration > 0 && (
+                  {item.type === "video" && item.duration > 0 && (
                     <span className="duration">⏱ {formatDuration(item.duration)}</span>
                   )}
                   {item.file_size > 0 && (
@@ -261,10 +272,7 @@ const Library = ({ items, collections, onItemSelect }) => {
                 </div>
                 {item.progress > 0 && !item.is_completed && (
                   <div className="card-progress">
-                    <div 
-                      className="card-progress-fill"
-                      style={{ width: `${item.progress}%` }}
-                    />
+                    <div className="card-progress-fill" style={{ width: `${item.progress}%` }} />
                   </div>
                 )}
               </div>
@@ -273,17 +281,14 @@ const Library = ({ items, collections, onItemSelect }) => {
         </div>
       ) : (
         <div className="library-list">
-          {groupedItems.map(group => (
+          {groupedItems.map((group) => (
             <div key={group.id} className="list-group">
-              <div 
-                className="list-group-header"
-                style={{ borderLeftColor: group.color }}
-              >
+              <div className="list-group-header" style={{ borderLeftColor: group.color }}>
                 <Folder size={18} />
                 <span>{group.name}</span>
                 <span className="group-count">{group.items.length}</span>
               </div>
-              {group.items.map(item => (
+              {group.items.map((item) => (
                 <Link
                   key={item.id}
                   to={`/player/${item.id}`}
@@ -291,13 +296,13 @@ const Library = ({ items, collections, onItemSelect }) => {
                   onClick={() => onItemSelect(item)}
                 >
                   <div className="list-item-icon">
-                    {item.type === 'video' ? <Video size={20} /> : <FileText size={20} />}
+                    {item.type === "video" ? <Video size={20} /> : <FileText size={20} />}
                   </div>
                   <div className="list-item-info">
                     <h4>{item.name}</h4>
                     {item.progress > 0 && !item.is_completed && (
                       <div className="list-item-progress">
-                        <div 
+                        <div
                           className="list-item-progress-fill"
                           style={{ width: `${item.progress}%` }}
                         />
@@ -305,7 +310,7 @@ const Library = ({ items, collections, onItemSelect }) => {
                     )}
                   </div>
                   <div className="list-item-meta">
-                    {item.type === 'video' && item.duration > 0 && (
+                    {item.type === "video" && item.duration > 0 && (
                       <span className="duration">{formatDuration(item.duration)}</span>
                     )}
                     {item.file_size > 0 && (

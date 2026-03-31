@@ -1,41 +1,46 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import {
-  X,
-  Plus,
-  Trash2,
-  Edit2,
-  Check,
-  Folder,
-  Palette
-} from 'lucide-react';
-import './styles.css';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { X, Plus, Trash2, Edit2, Check, Folder, Palette } from "lucide-react";
+import "./styles.css";
 
 const PRESET_COLORS = [
-  '#6366f1', '#8b5cf6', '#a855f7', '#d946ef',
-  '#ec4899', '#f43f5e', '#ef4444', '#f97316',
-  '#f59e0b', '#eab308', '#84cc16', '#22c55e',
-  '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9',
-  '#3b82f6', '#6366f1'
+  "#6366f1",
+  "#8b5cf6",
+  "#a855f7",
+  "#d946ef",
+  "#ec4899",
+  "#f43f5e",
+  "#ef4444",
+  "#f97316",
+  "#f59e0b",
+  "#eab308",
+  "#84cc16",
+  "#22c55e",
+  "#10b981",
+  "#14b8a6",
+  "#06b6d4",
+  "#0ea5e9",
+  "#3b82f6",
+  "#6366f1",
 ];
 
 const CollectionManager = ({ collections, onClose, onCreate, onUpdate, onDelete }) => {
-  const [newCollectionName, setNewCollectionName] = useState('');
-  const [newCollectionColor, setNewCollectionColor] = useState('#6366f1');
+  const [newCollectionName, setNewCollectionName] = useState("");
+  const [newCollectionColor, setNewCollectionColor] = useState("#6366f1");
   const [editingId, setEditingId] = useState(null);
-  const [editName, setEditName] = useState('');
-  const [editColor, setEditColor] = useState('');
+  const [editName, setEditName] = useState("");
+  const [editColor, setEditColor] = useState("");
   const [showColorPicker, setShowColorPicker] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
 
   const handleCreate = async () => {
     if (!newCollectionName.trim()) return;
-    
+
     setIsCreating(true);
     try {
       await onCreate(newCollectionName.trim(), newCollectionColor);
-      setNewCollectionName('');
-      setNewCollectionColor('#6366f1');
+      setNewCollectionName("");
+      setNewCollectionColor("#6366f1");
     } catch (error) {
       // Error handled in parent
     } finally {
@@ -51,7 +56,7 @@ const CollectionManager = ({ collections, onClose, onCreate, onUpdate, onDelete 
 
   const handleSaveEdit = async (id) => {
     if (!editName.trim()) return;
-    
+
     try {
       await onUpdate(id, { name: editName.trim(), color: editColor });
       setEditingId(null);
@@ -61,7 +66,7 @@ const CollectionManager = ({ collections, onClose, onCreate, onUpdate, onDelete 
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Delete this collection? Items will be moved to Uncategorized.')) {
+    if (window.confirm("Delete this collection? Items will be moved to Uncategorized.")) {
       try {
         await onDelete(id);
       } catch (error) {
@@ -106,16 +111,16 @@ const CollectionManager = ({ collections, onClose, onCreate, onUpdate, onDelete 
               <button
                 className="color-preview"
                 style={{ background: newCollectionColor }}
-                onClick={() => setShowColorPicker(showColorPicker === 'new' ? null : 'new')}
+                onClick={() => setShowColorPicker(showColorPicker === "new" ? null : "new")}
               >
                 <Palette size={16} />
               </button>
-              {showColorPicker === 'new' && (
+              {showColorPicker === "new" && (
                 <div className="color-picker-dropdown">
                   {PRESET_COLORS.map((color) => (
                     <button
                       key={color}
-                      className={`color-option ${newCollectionColor === color ? 'active' : ''}`}
+                      className={`color-option ${newCollectionColor === color ? "active" : ""}`}
                       style={{ background: color }}
                       onClick={() => {
                         setNewCollectionColor(color);
@@ -132,7 +137,7 @@ const CollectionManager = ({ collections, onClose, onCreate, onUpdate, onDelete 
               placeholder="Collection name (e.g., Mathematics, JavaScript)"
               value={newCollectionName}
               onChange={(e) => setNewCollectionName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+              onKeyDown={(e) => e.key === "Enter" && handleCreate()}
             />
             <motion.button
               className="btn btn-primary"
@@ -172,7 +177,11 @@ const CollectionManager = ({ collections, onClose, onCreate, onUpdate, onDelete 
                         <button
                           className="color-preview"
                           style={{ background: editColor }}
-                          onClick={() => setShowColorPicker(showColorPicker === collection.id ? null : collection.id)}
+                          onClick={() =>
+                            setShowColorPicker(
+                              showColorPicker === collection.id ? null : collection.id,
+                            )
+                          }
                         >
                           <Palette size={14} />
                         </button>
@@ -181,7 +190,7 @@ const CollectionManager = ({ collections, onClose, onCreate, onUpdate, onDelete 
                             {PRESET_COLORS.map((color) => (
                               <button
                                 key={color}
-                                className={`color-option ${editColor === color ? 'active' : ''}`}
+                                className={`color-option ${editColor === color ? "active" : ""}`}
                                 style={{ background: color }}
                                 onClick={() => {
                                   setEditColor(color);
@@ -197,7 +206,7 @@ const CollectionManager = ({ collections, onClose, onCreate, onUpdate, onDelete 
                         className="collection-edit-input"
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit(collection.id)}
+                        onKeyDown={(e) => e.key === "Enter" && handleSaveEdit(collection.id)}
                         autoFocus
                       />
                       <button
@@ -206,10 +215,7 @@ const CollectionManager = ({ collections, onClose, onCreate, onUpdate, onDelete 
                       >
                         <Check size={16} />
                       </button>
-                      <button
-                        className="action-btn cancel"
-                        onClick={() => setEditingId(null)}
-                      >
+                      <button className="action-btn cancel" onClick={() => setEditingId(null)}>
                         <X size={16} />
                       </button>
                     </>

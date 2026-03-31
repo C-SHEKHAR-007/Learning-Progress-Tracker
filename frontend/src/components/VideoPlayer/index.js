@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Play,
   Pause,
@@ -18,12 +18,20 @@ import {
   Clock,
   Zap,
   Sparkles,
-  Trophy
-} from 'lucide-react';
-import { itemsApi } from '../../services/api';
-import './styles.css';
+  Trophy,
+} from "lucide-react";
+import { itemsApi } from "../../services/api";
+import "./styles.css";
 
-const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onComplete, onPlayStateChange, isIdle }) => {
+const VideoPlayer = ({
+  item,
+  file,
+  fileUrl: propFileUrl,
+  onProgressUpdate,
+  onComplete,
+  onPlayStateChange,
+  isIdle,
+}) => {
   const videoRef = useRef(null);
   const containerRef = useRef(null);
   const progressRef = useRef(null);
@@ -51,12 +59,12 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
   // Generate video URL - prioritize file path streaming from backend, then file object, then prop URL
   useEffect(() => {
     setVideoError(null);
-    
+
     if (item?.file_path) {
       // Use backend streaming endpoint
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
       const url = `${apiUrl}/items/${item.id}/file`;
-      console.log('Using backend streaming URL:', url, 'for file_path:', item.file_path);
+      console.log("Using backend streaming URL:", url, "for file_path:", item.file_path);
       setVideoUrl(url);
     } else if (file) {
       // Fallback to blob URL from file object
@@ -96,50 +104,50 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const handleKeyPress = (e) => {
-      if (e.target.tagName === 'INPUT') return;
+      if (e.target.tagName === "INPUT") return;
 
       switch (e.key.toLowerCase()) {
-        case ' ':
-        case 'k':
+        case " ":
+        case "k":
           e.preventDefault();
           togglePlay();
           break;
-        case 'f':
+        case "f":
           toggleFullscreen();
           break;
-        case 'm':
+        case "m":
           toggleMute();
           break;
-        case 'arrowleft':
+        case "arrowleft":
           skip(-10);
           break;
-        case 'arrowright':
+        case "arrowright":
           skip(10);
           break;
-        case 'arrowup':
+        case "arrowup":
           e.preventDefault();
           changeVolume(0.1);
           break;
-        case 'arrowdown':
+        case "arrowdown":
           e.preventDefault();
           changeVolume(-0.1);
           break;
-        case 'j':
+        case "j":
           skip(-10);
           break;
-        case 'l':
+        case "l":
           skip(10);
           break;
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
+        case "0":
+        case "1":
+        case "2":
+        case "3":
+        case "4":
+        case "5":
+        case "6":
+        case "7":
+        case "8":
+        case "9":
           seekToPercent(parseInt(e.key) * 10);
           break;
         default:
@@ -147,8 +155,8 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
       }
     };
 
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
   }, []);
 
   const togglePlay = useCallback(() => {
@@ -168,14 +176,17 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
     }
   }, [isMuted]);
 
-  const changeVolume = useCallback((delta) => {
-    const newVolume = Math.max(0, Math.min(1, volume + delta));
-    setVolume(newVolume);
-    if (videoRef.current) {
-      videoRef.current.volume = newVolume;
-      setIsMuted(newVolume === 0);
-    }
-  }, [volume]);
+  const changeVolume = useCallback(
+    (delta) => {
+      const newVolume = Math.max(0, Math.min(1, volume + delta));
+      setVolume(newVolume);
+      if (videoRef.current) {
+        videoRef.current.volume = newVolume;
+        setIsMuted(newVolume === 0);
+      }
+    },
+    [volume],
+  );
 
   const skip = useCallback((seconds) => {
     if (videoRef.current) {
@@ -183,11 +194,14 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
     }
   }, []);
 
-  const seekToPercent = useCallback((percent) => {
-    if (videoRef.current && duration) {
-      videoRef.current.currentTime = (percent / 100) * duration;
-    }
-  }, [duration]);
+  const seekToPercent = useCallback(
+    (percent) => {
+      if (videoRef.current && duration) {
+        videoRef.current.currentTime = (percent / 100) * duration;
+      }
+    },
+    [duration],
+  );
 
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
@@ -204,7 +218,7 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
       const current = videoRef.current.currentTime;
       const total = videoRef.current.duration;
       setCurrentTime(current);
-      
+
       // Update progress periodically
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
       saveTimeoutRef.current = setTimeout(() => {
@@ -223,11 +237,12 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
     if (videoRef.current) {
       const videoDuration = videoRef.current.duration;
       setDuration(videoDuration);
-      
+
       // Save duration to backend if item exists and doesn't have duration yet
       if (item?.id && !item.duration && videoDuration && isFinite(videoDuration)) {
-        itemsApi.update(item.id, { duration: videoDuration })
-          .catch(err => console.error('Failed to save video duration:', err));
+        itemsApi
+          .update(item.id, { duration: videoDuration })
+          .catch((err) => console.error("Failed to save video duration:", err));
       }
     }
   }, [item?.id, item?.duration]);
@@ -242,33 +257,39 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
     }
   }, [duration]);
 
-  const handleProgressClick = useCallback((e) => {
-    if (progressRef.current && videoRef.current) {
-      const rect = progressRef.current.getBoundingClientRect();
-      const percent = (e.clientX - rect.left) / rect.width;
-      videoRef.current.currentTime = percent * duration;
-    }
-  }, [duration]);
+  const handleProgressClick = useCallback(
+    (e) => {
+      if (progressRef.current && videoRef.current) {
+        const rect = progressRef.current.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        videoRef.current.currentTime = percent * duration;
+      }
+    },
+    [duration],
+  );
 
-  const handleProgressHover = useCallback((e) => {
-    if (progressRef.current && duration) {
-      const rect = progressRef.current.getBoundingClientRect();
-      const percent = (e.clientX - rect.left) / rect.width;
-      setHoverTime(percent * duration);
-      setHoverPosition(e.clientX - rect.left);
-    }
-  }, [duration]);
+  const handleProgressHover = useCallback(
+    (e) => {
+      if (progressRef.current && duration) {
+        const rect = progressRef.current.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        setHoverTime(percent * duration);
+        setHoverPosition(e.clientX - rect.left);
+      }
+    },
+    [duration],
+  );
 
   const formatTime = (time) => {
-    if (isNaN(time)) return '0:00';
+    if (isNaN(time)) return "0:00";
     const hours = Math.floor(time / 3600);
     const minutes = Math.floor((time % 3600) / 60);
     const seconds = Math.floor(time % 60);
-    
+
     if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
     }
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
   const playbackRates = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
@@ -278,7 +299,7 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
   return (
     <div
       ref={containerRef}
-      className={`video-player ${isFullscreen ? 'fullscreen' : ''}`}
+      className={`video-player ${isFullscreen ? "fullscreen" : ""}`}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => {
         setIsHovering(false);
@@ -299,7 +320,7 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
             <div className="video-title-section">
               <Film size={20} />
               <div className="video-info">
-                <h2 className="video-title">{item?.name || 'Untitled Video'}</h2>
+                <h2 className="video-title">{item?.name || "Untitled Video"}</h2>
                 <div className="video-meta">
                   <span className="video-duration">
                     <Clock size={14} />
@@ -314,12 +335,12 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
             </div>
             <div className="video-header-actions">
               <motion.button
-                className={`action-btn ${isLiked ? 'liked' : ''}`}
+                className={`action-btn ${isLiked ? "liked" : ""}`}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsLiked(!isLiked)}
               >
-                <Heart size={20} fill={isLiked ? 'currentColor' : 'none'} />
+                <Heart size={20} fill={isLiked ? "currentColor" : "none"} />
               </motion.button>
             </div>
           </motion.div>
@@ -331,11 +352,11 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
         {videoError ? (
           <div className="video-placeholder">
             <div className="placeholder-content">
-              <Film size={64} style={{ color: 'var(--error, #ef4444)' }} />
+              <Film size={64} style={{ color: "var(--error, #ef4444)" }} />
               <p>Failed to load video</p>
-              <span style={{ color: 'var(--error, #ef4444)' }}>{videoError}</span>
+              <span style={{ color: "var(--error, #ef4444)" }}>{videoError}</span>
               {item?.file_path && (
-                <span style={{ fontSize: '0.75rem', marginTop: '0.5rem', opacity: 0.7 }}>
+                <span style={{ fontSize: "0.75rem", marginTop: "0.5rem", opacity: 0.7 }}>
                   Path: {item.file_path}
                 </span>
               )}
@@ -363,17 +384,26 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
               onComplete?.();
             }}
             onError={(e) => {
-              console.error('Video error:', e);
+              console.error("Video error:", e);
               const video = e.target;
               const error = video.error;
-              let message = 'Unknown error';
+              let message = "Unknown error";
               if (error) {
                 switch (error.code) {
-                  case 1: message = 'Video loading aborted'; break;
-                  case 2: message = 'Network error - check if backend is running'; break;
-                  case 3: message = 'Video decoding failed'; break;
-                  case 4: message = 'Video format not supported or file not found'; break;
-                  default: message = error.message || 'Unknown error';
+                  case 1:
+                    message = "Video loading aborted";
+                    break;
+                  case 2:
+                    message = "Network error - check if backend is running";
+                    break;
+                  case 3:
+                    message = "Video decoding failed";
+                    break;
+                  case 4:
+                    message = "Video format not supported or file not found";
+                    break;
+                  default:
+                    message = error.message || "Unknown error";
                 }
               }
               setVideoError(message);
@@ -459,22 +489,13 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
               onMouseLeave={() => setIsHovering(false)}
             >
               <div className="progress-bar">
-                <div
-                  className="progress-buffered"
-                  style={{ width: `${buffered}%` }}
-                />
-                <div
-                  className="progress-played"
-                  style={{ width: `${progress}%` }}
-                >
+                <div className="progress-buffered" style={{ width: `${buffered}%` }} />
+                <div className="progress-played" style={{ width: `${progress}%` }}>
                   <div className="progress-thumb" />
                 </div>
               </div>
               {isHovering && (
-                <div
-                  className="progress-tooltip"
-                  style={{ left: `${hoverPosition}px` }}
-                >
+                <div className="progress-tooltip" style={{ left: `${hoverPosition}px` }}>
                   {formatTime(hoverTime)}
                 </div>
               )}
@@ -593,7 +614,7 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
                         {playbackRates.map((rate) => (
                           <button
                             key={rate}
-                            className={`settings-option ${playbackRate === rate ? 'active' : ''}`}
+                            className={`settings-option ${playbackRate === rate ? "active" : ""}`}
                             onClick={() => {
                               setPlaybackRate(rate);
                               if (videoRef.current) {
@@ -602,7 +623,7 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
                               setShowSettings(false);
                             }}
                           >
-                            <span>{rate === 1 ? 'Normal' : `${rate}x`}</span>
+                            <span>{rate === 1 ? "Normal" : `${rate}x`}</span>
                             {playbackRate === rate && <Check size={16} />}
                           </button>
                         ))}
@@ -657,10 +678,7 @@ const VideoPlayer = ({ item, file, fileUrl: propFileUrl, onProgressUpdate, onCom
                   <Check size={18} />
                   Mark as Complete
                 </button>
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setShowCompletionPopup(false)}
-                >
+                <button className="btn btn-secondary" onClick={() => setShowCompletionPopup(false)}>
                   Continue Watching
                 </button>
               </div>
