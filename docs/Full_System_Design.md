@@ -176,6 +176,11 @@ Progress-app/
 | is_completed | BOOLEAN | Completion status |
 | last_position | FLOAT | Video timestamp (seconds) |
 | duration | FLOAT | Video duration (seconds) |
+| current_page | INT | Current PDF page (default 1) |
+| total_pages | INT | Total pages in PDF (default 0) |
+| bookmarks | JSONB | PDF bookmarks array (default []) |
+| notes | JSONB | PDF notes array (default []) |
+| reading_time | INT | Total reading time in seconds (default 0) |
 | thumbnail | TEXT | Thumbnail data (optional) |
 | created_at | TIMESTAMP | Creation time |
 | updated_at | TIMESTAMP | Last update time |
@@ -253,6 +258,21 @@ Base URL: `http://localhost:5000/api`
 |--------|----------|-------------|
 | `GET` | `/health` | API status check |
 
+### PDF API
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/pdf/:id/state` | Get PDF reading state |
+| `PATCH` | `/pdf/:id/page` | Update page progress |
+| `GET` | `/pdf/:id/stats` | Get PDF statistics |
+| `GET` | `/pdf/:id/bookmarks` | Get all bookmarks |
+| `POST` | `/pdf/:id/bookmarks` | Add bookmark |
+| `DELETE` | `/pdf/:id/bookmarks/:bookmarkId` | Remove bookmark |
+| `GET` | `/pdf/:id/notes` | Get all notes |
+| `POST` | `/pdf/:id/notes` | Add note |
+| `PATCH` | `/pdf/:id/notes/:noteId` | Update note |
+| `DELETE` | `/pdf/:id/notes/:noteId` | Remove note |
+
 ---
 
 ## 6. 🗺️ Frontend Routes
@@ -298,8 +318,17 @@ Base URL: `http://localhost:5000/api`
   - Progress persistence (auto-save)
   - Seek preview on hover
 - **PDF Viewer**
-  - Zoom controls
-  - Mark as complete
+  - Page tracking with scroll-based progress (IntersectionObserver)
+  - Resume reading from last page
+  - Bookmarks with custom titles and colors
+  - Notes per page with edit/delete
+  - Reading time tracking
+  - Zoom controls (+/- buttons or keyboard)
+  - Dark mode toggle
+  - Fullscreen support
+  - Keyboard navigation (arrow keys, Home/End)
+  - Debounced backend sync (saves after scroll stops)
+  - sendBeacon for reliable unmount saves
 
 ### 7.5 Progress Map
 - **Activity Heatmap**
@@ -340,17 +369,19 @@ Base URL: `http://localhost:5000/api`
 | axios | 1.6.2 | HTTP client |
 | react-pdf | 7.7.0 | PDF rendering |
 | react-app-rewired | 2.2.1 | Build customization |
+| prettier | 3.2.4 | Code formatting |
 
 ### Backend Dependencies
 
 | Package | Version | Purpose |
 |---------|---------|---------|
 | express | 4.18.2 | Web framework |
-| pg | 8.11.3 | PostgreSQL client |
+| pg | 8.11.3 | PostgreSQL client (connection pool singleton) |
 | cors | 2.8.5 | CORS middleware |
 | dotenv | 16.3.1 | Environment variables |
 | uuid | 9.0.0 | Unique ID generation |
 | nodemon | 3.0.1 | Dev hot reload |
+| prettier | 3.2.4 | Code formatting |
 
 ---
 
@@ -368,6 +399,21 @@ Base URL: `http://localhost:5000/api`
 | `F` | Toggle fullscreen |
 | `M` | Toggle mute |
 | `0-9` | Seek to 0-90% |
+
+## 9.1 🎮 Keyboard Shortcuts (PDF Viewer)
+
+| Key | Action |
+|-----|--------|
+| `→` / `PageDown` | Next page |
+| `←` / `PageUp` | Previous page |
+| `Home` | Go to first page |
+| `End` | Go to last page |
+| `+` / `=` | Zoom in |
+| `-` | Zoom out |
+| `0` | Reset zoom |
+| `F` | Toggle fullscreen |
+| `B` | Toggle bookmark |
+| `D` | Toggle dark mode |
 
 ---
 
@@ -448,6 +494,19 @@ Base URL: `http://localhost:5000/api`
    # Initialize database
    npm run db:init
    ```
+
+   **Backend Environment Variables:**
+   
+   | Variable | Default | Description |
+   |----------|---------|-------------|
+   | `PORT` | 5000 | Server port |
+   | `DATABASE_URL` | - | PostgreSQL connection string |
+   | `DB_POOL_MAX` | 20 | Maximum connections in pool |
+   | `DB_POOL_MIN` | 2 | Minimum connections to maintain |
+   | `DB_IDLE_TIMEOUT` | 30000 | Close idle connections after (ms) |
+   | `DB_CONNECT_TIMEOUT` | 5000 | Connection timeout (ms) |
+   | `DB_STATEMENT_TIMEOUT` | 30000 | Query timeout (ms) |
+   | `DEBUG_SQL` | false | Log all SQL queries (dev only) |
 
 4. **Configure frontend**
    ```bash
