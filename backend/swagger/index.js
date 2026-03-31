@@ -44,24 +44,48 @@ const options = {
       title: "Learning Progress Tracker API",
       version: "1.0.0",
       description: `
-A full-featured REST API for tracking learning progress with videos and PDFs.
+## Overview
+A powerful REST API for tracking your learning journey with videos and PDFs. Built with Node.js, Express, and PostgreSQL.
 
-## Features
-- **Items Management** - CRUD operations for learning items (videos/PDFs)
-- **Collections** - Organize items into custom collections
-- **Progress Tracking** - Track learning progress automatically
-- **PDF Features** - Bookmarks, notes, page tracking, reading time
-- **Analytics** - Activity heatmaps, streaks, learning patterns
+## Key Features
 
-## Authentication
-Currently, this API does not require authentication. All endpoints are publicly accessible.
+- **📚 Items Management** — Create, read, update, and delete learning items
+- **📁 Collections** — Organize your content into custom collections
+- **📊 Progress Tracking** — Automatic progress tracking for all content types
+- **📖 PDF Features** — Bookmarks, notes, page tracking, and reading time analytics
+- **📈 Analytics** — Activity heatmaps, learning streaks, and performance insights
 
-## Base URL
-All endpoints are prefixed with \`/api\`
+## Quick Start
+
+1. Use the **Items** endpoints to add your learning materials
+2. Organize with **Collections** 
+3. Track progress automatically as you learn
+4. View insights via **Analytics** endpoints
+
+## Response Format
+
+All responses follow a consistent JSON format:
+\`\`\`json
+{
+  "data": { ... },
+  "message": "Success message"
+}
+\`\`\`
+
+Error responses include:
+\`\`\`json
+{
+  "error": "Error description"
+}
+\`\`\`
       `,
       contact: {
         name: "Learning Progress Tracker",
         url: "https://github.com/C-SHEKHAR-007/Learning-Progress-Tracker",
+      },
+      license: {
+        name: "MIT",
+        url: "https://opensource.org/licenses/MIT",
       },
     },
     servers: [

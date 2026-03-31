@@ -1,6 +1,8 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const fs = require("fs");
+const path = require("path");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./swagger");
 const itemRoutes = require("./routes/itemRoutes");
@@ -11,18 +13,33 @@ const { createTables } = require("./db/schema");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Load custom Swagger theme
+const swaggerThemeCss = fs.readFileSync(
+  path.join(__dirname, "swagger", "swagger-theme.css"),
+  "utf8",
+);
+
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// Swagger API Documentation
+// Swagger API Documentation with custom theme
 app.use(
   "/api-docs",
   swaggerUi.serve,
   swaggerUi.setup(swaggerSpec, {
-    customCss: ".swagger-ui .topbar { display: none }",
+    customCss: swaggerThemeCss,
     customSiteTitle: "Learning Progress Tracker API",
+    customfavIcon: "https://raw.githubusercontent.com/swagger-api/swagger-ui/master/dist/favicon-32x32.png",
+    swaggerOptions: {
+      docExpansion: "list",
+      filter: true,
+      showRequestDuration: true,
+      tryItOutEnabled: true,
+      persistAuthorization: true,
+      displayRequestDuration: true,
+    },
   }),
 );
 
