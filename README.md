@@ -28,9 +28,20 @@ A stunning, full-featured multi-page application to track your learning journey 
 
 ### 🎬 Player
 - **Stunning Video Player** - Custom-built with keyboard shortcuts
-- **PDF Viewer** - Clean viewing with zoom controls
+- **PDF Viewer** - Feature-rich viewer with react-pdf
 - **Progress Persistence** - Auto-saves as you learn
 - **Fullscreen Support** - Immersive learning experience
+
+### 📄 PDF Viewer
+- **Page Tracking** - Automatically tracks current page and total pages
+- **Resume Reading** - Opens to the last page you were reading
+- **Bookmarks** - Save pages for quick access with custom titles
+- **Notes** - Add notes to specific pages while reading
+- **Reading Time** - Tracks total time spent reading each PDF
+- **Scroll-Based Progress** - Progress updates as you scroll (debounced for performance)
+- **Dark Mode** - Toggle dark theme for comfortable reading
+- **Zoom Controls** - Adjust zoom level with keyboard or buttons
+- **Keyboard Shortcuts** - Navigate with arrow keys, zoom with +/-, and more
 
 ### 🗺️ Progress Map
 - **Activity Heatmap** - GitHub-style visualization of your learning activity over the past year
@@ -127,6 +138,18 @@ A stunning, full-featured multi-page application to track your learning journey 
    npm run dev
    ```
 
+   **Environment Variables (Backend):**
+   | Variable | Default | Description |
+   |----------|---------|-------------|
+   | `PORT` | 5000 | Server port |
+   | `DATABASE_URL` | - | PostgreSQL connection string |
+   | `DB_POOL_MAX` | 20 | Maximum connections in pool |
+   | `DB_POOL_MIN` | 2 | Minimum connections to maintain |
+   | `DB_IDLE_TIMEOUT` | 30000 | Close idle connections after (ms) |
+   | `DB_CONNECT_TIMEOUT` | 5000 | Connection timeout (ms) |
+   | `DB_STATEMENT_TIMEOUT` | 30000 | Query timeout (ms) |
+   | `DEBUG_SQL` | false | Log all SQL queries |
+
 4. **Set up the frontend**
    ```bash
    cd frontend
@@ -180,6 +203,21 @@ Run the entire stack with Docker Compose:
 | `F` | Toggle fullscreen |
 | `M` | Toggle mute |
 | `0-9` | Seek to 0-90% |
+
+## 🎮 Keyboard Shortcuts (PDF Viewer)
+
+| Key | Action |
+|-----|--------|
+| `→` / `PageDown` | Next page |
+| `←` / `PageUp` | Previous page |
+| `Home` | Go to first page |
+| `End` | Go to last page |
+| `+` / `=` | Zoom in |
+| `-` | Zoom out |
+| `0` | Reset zoom |
+| `F` | Toggle fullscreen |
+| `B` | Toggle bookmark |
+| `D` | Toggle dark mode |
 
 ## 📁 Project Structure
 
@@ -267,6 +305,15 @@ Progress-app/
 | `GET` | `/api/analytics/streak` | Current & longest streak |
 | `GET` | `/api/analytics/today` | Today's learning stats |
 | `GET` | `/api/analytics/weekly` | Weekly summary |
+| `GET` | `/api/pdf/:id/state` | Get PDF reading state |
+| `PATCH` | `/api/pdf/:id/page` | Update page progress |
+| `GET` | `/api/pdf/:id/bookmarks` | Get PDF bookmarks |
+| `POST` | `/api/pdf/:id/bookmarks` | Add bookmark |
+| `DELETE` | `/api/pdf/:id/bookmarks/:bookmarkId` | Remove bookmark |
+| `GET` | `/api/pdf/:id/notes` | Get PDF notes |
+| `POST` | `/api/pdf/:id/notes` | Add note |
+| `PATCH` | `/api/pdf/:id/notes/:noteId` | Update note |
+| `DELETE` | `/api/pdf/:id/notes/:noteId` | Remove note |
 
 ## 🎨 Tech Stack
 
@@ -275,15 +322,18 @@ Progress-app/
 - React Router 6 (multi-page routing)
 - Framer Motion (animations)
 - @hello-pangea/dnd (drag & drop)
+- react-pdf (PDF rendering)
 - Lucide React (icons)
 - React Toastify (notifications)
 - Axios (HTTP client)
+- Prettier (code formatting)
 
 ### Backend
 - Node.js + Express
-- PostgreSQL
+- PostgreSQL (with connection pool singleton)
 - pg (PostgreSQL client)
 - UUID (unique identifiers)
+- Prettier (code formatting)
 
 ## 🌟 Design Highlights
 
