@@ -1,0 +1,317 @@
+components:
+  schemas:
+    # ==================== ITEM SCHEMAS ====================
+    Item:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier
+          example: 1
+        name:
+          type: string
+          description: Item name
+          example: "React Tutorial.mp4"
+        type:
+          type: string
+          enum: [video, pdf]
+          description: Item type
+          example: video
+        file_id:
+          type: string
+          description: Unique file identifier
+          example: "abc123-def456"
+        file_path:
+          type: string
+          description: Local file path
+          example: "/path/to/file.mp4"
+        collection_id:
+          type: integer
+          nullable: true
+          description: Collection ID (null if uncategorized)
+          example: 1
+        order_index:
+          type: integer
+          description: Display order
+          example: 0
+        progress:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Progress percentage
+          example: 45.5
+        is_completed:
+          type: boolean
+          description: Whether item is completed
+          example: false
+        last_position:
+          type: number
+          format: float
+          description: Last playback position (seconds for video, page for PDF)
+          example: 120.5
+        duration:
+          type: number
+          format: float
+          description: Video duration in seconds
+          example: 3600
+        current_page:
+          type: integer
+          description: Current PDF page
+          example: 15
+        total_pages:
+          type: integer
+          description: Total PDF pages
+          example: 100
+        bookmarks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Bookmark"
+          description: PDF bookmarks
+        notes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Note"
+          description: PDF notes
+        reading_time:
+          type: integer
+          description: Total reading time in seconds
+          example: 1800
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+
+    CreateItemRequest:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+              - type
+              - file_id
+            properties:
+              name:
+                type: string
+                example: "JavaScript Basics.mp4"
+              type:
+                type: string
+                enum: [video, pdf]
+                example: video
+              file_id:
+                type: string
+                example: "unique-file-id-123"
+              file_path:
+                type: string
+                example: "/path/to/file.mp4"
+              duration:
+                type: number
+                example: 3600
+        collectionId:
+          type: integer
+          nullable: true
+          description: Collection to add items to
+          example: 1
+
+    # ==================== COLLECTION SCHEMAS ====================
+    Collection:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "JavaScript Course"
+        color:
+          type: string
+          description: Hex color code
+          example: "#6366f1"
+        icon:
+          type: string
+          example: folder
+        order_index:
+          type: integer
+          example: 0
+        created_at:
+          type: string
+          format: date-time
+
+    CreateCollectionRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: "React Course"
+        color:
+          type: string
+          example: "#8b5cf6"
+        icon:
+          type: string
+          example: book
+
+    # ==================== PDF SCHEMAS ====================
+    Bookmark:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Bookmark ID (timestamp-based)
+          example: 1711929600000
+        page:
+          type: integer
+          description: Page number
+          example: 42
+        title:
+          type: string
+          description: Bookmark title
+          example: "Important Section"
+        color:
+          type: string
+          description: Hex color
+          example: "#fbbf24"
+        created_at:
+          type: string
+          format: date-time
+
+    Note:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Note ID (timestamp-based)
+          example: 1711929600000
+        page:
+          type: integer
+          description: Page number
+          example: 15
+        content:
+          type: string
+          description: Note content
+          example: "Remember to review this concept"
+        highlight:
+          type: string
+          description: Highlighted text (optional)
+          example: ""
+        created_at:
+          type: string
+          format: date-time
+
+    ReadingState:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        current_page:
+          type: integer
+          example: 42
+        total_pages:
+          type: integer
+          example: 150
+        progress:
+          type: number
+          example: 28
+        bookmarks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Bookmark"
+        notes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Note"
+        reading_time:
+          type: integer
+          example: 3600
+        is_completed:
+          type: boolean
+          example: false
+
+    # ==================== ANALYTICS SCHEMAS ====================
+    HeatmapData:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          example: "2026-04-01"
+        count:
+          type: integer
+          description: Number of learning sessions
+          example: 3
+        total_time:
+          type: integer
+          description: Total time in seconds
+          example: 5400
+
+    StreakData:
+      type: object
+      properties:
+        current_streak:
+          type: integer
+          description: Current consecutive learning days
+          example: 7
+        longest_streak:
+          type: integer
+          description: Longest streak ever
+          example: 30
+        last_activity_date:
+          type: string
+          format: date
+          example: "2026-04-01"
+
+    TodayStats:
+      type: object
+      properties:
+        sessions:
+          type: integer
+          example: 3
+        total_time:
+          type: integer
+          description: Time in seconds
+          example: 5400
+        items_studied:
+          type: integer
+          example: 2
+
+    WeeklySummary:
+      type: object
+      properties:
+        total_sessions:
+          type: integer
+          example: 15
+        total_time:
+          type: integer
+          example: 36000
+        daily_average:
+          type: number
+          example: 5142.86
+        items_completed:
+          type: integer
+          example: 3
+
+    # ==================== ERROR SCHEMAS ====================
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Something went wrong"
+
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Field is required"

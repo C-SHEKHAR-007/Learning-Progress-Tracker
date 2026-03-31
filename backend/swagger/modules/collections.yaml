@@ -1,0 +1,114 @@
+paths:
+  /items/collections:
+    get:
+      summary: Get all collections
+      tags:
+        - Collections
+      responses:
+        "200":
+          description: List of all collections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Collection"
+    post:
+      summary: Create a new collection
+      tags:
+        - Collections
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCollectionRequest"
+      responses:
+        "201":
+          description: Collection created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Collection"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+
+  /items/collections/{id}:
+    patch:
+      summary: Update a collection
+      tags:
+        - Collections
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Collection ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                color:
+                  type: string
+                icon:
+                  type: string
+      responses:
+        "200":
+          description: Collection updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Collection"
+        "404":
+          description: Collection not found
+    delete:
+      summary: Delete a collection
+      tags:
+        - Collections
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Collection ID
+      responses:
+        "200":
+          description: Collection deleted successfully
+        "404":
+          description: Collection not found
+
+  /items/collections/reorder:
+    patch:
+      summary: Reorder collections
+      tags:
+        - Collections
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collections:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      order_index:
+                        type: integer
+      responses:
+        "200":
+          description: Collections reordered successfully

@@ -1,0 +1,21 @@
+paths:
+  /health:
+    get:
+      summary: API health check
+      description: Check if the API is running and responsive
+      tags:
+        - Health
+      responses:
+        "200":
+          description: API is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  message:
+                    type: string
+                    example: Learning Progress Tracker API is running

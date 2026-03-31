@@ -1,0 +1,276 @@
+paths:
+  /items:
+    post:
+      summary: Create new items
+      tags:
+        - Items
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateItemRequest"
+      responses:
+        "201":
+          description: Items created successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Item"
+    get:
+      summary: Get all items
+      tags:
+        - Items
+      responses:
+        "200":
+          description: List of all items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Item"
+    delete:
+      summary: Delete all items
+      tags:
+        - Items
+      responses:
+        "200":
+          description: All items deleted successfully
+
+  /items/{id}:
+    get:
+      summary: Get a single item
+      tags:
+        - Items
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Item ID
+      responses:
+        "200":
+          description: Item details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+        "404":
+          description: Item not found
+    patch:
+      summary: Update item metadata
+      tags:
+        - Items
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Item ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                collection_id:
+                  type: integer
+                  nullable: true
+      responses:
+        "200":
+          description: Item updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+    delete:
+      summary: Delete an item
+      tags:
+        - Items
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Item ID
+      responses:
+        "200":
+          description: Item deleted successfully
+        "404":
+          description: Item not found
+
+  /items/{id}/progress:
+    patch:
+      summary: Update item progress
+      tags:
+        - Items
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Item ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - progress
+              properties:
+                progress:
+                  type: number
+                  minimum: 0
+                  maximum: 100
+                  example: 45.5
+                last_position:
+                  type: number
+                  description: Last playback position in seconds
+                  example: 120.5
+      responses:
+        "200":
+          description: Progress updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+
+  /items/{id}/complete:
+    patch:
+      summary: Mark item as completed/incomplete
+      tags:
+        - Items
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Item ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - is_completed
+              properties:
+                is_completed:
+                  type: boolean
+                  example: true
+      responses:
+        "200":
+          description: Completion status updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+
+  /items/{id}/collection:
+    patch:
+      summary: Move item to a different collection
+      tags:
+        - Items
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Item ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collectionId:
+                  type: integer
+                  nullable: true
+                  description: Target collection ID (null for uncategorized)
+      responses:
+        "200":
+          description: Item moved successfully
+
+  /items/reorder:
+    patch:
+      summary: Reorder items
+      tags:
+        - Items
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      order_index:
+                        type: integer
+      responses:
+        "200":
+          description: Items reordered successfully
+
+  /items/{id}/file:
+    get:
+      summary: Serve item file
+      tags:
+        - Items
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Item ID
+      responses:
+        "200":
+          description: File stream
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Item or file not found
+
+  /items/by-collection/{collectionId}:
+    get:
+      summary: Get items by collection
+      tags:
+        - Items
+      parameters:
+        - in: path
+          name: collectionId
+          required: true
+          schema:
+            type: string
+          description: Collection ID or 'null' for uncategorized items
+      responses:
+        "200":
+          description: List of items in the collection
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Item"

@@ -1,0 +1,247 @@
+paths:
+  /analytics/dashboard:
+    get:
+      summary: Get combined dashboard analytics
+      description: Returns all dashboard data in a single request (heatmap, streak, today's stats, weekly summary)
+      tags:
+        - Analytics
+      responses:
+        "200":
+          description: Dashboard analytics data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  heatmap:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/HeatmapData"
+                  streak:
+                    $ref: "#/components/schemas/StreakData"
+                  today:
+                    $ref: "#/components/schemas/TodayStats"
+                  weekly:
+                    $ref: "#/components/schemas/WeeklySummary"
+
+  /analytics/heatmap:
+    get:
+      summary: Get activity heatmap data
+      description: Returns learning activity for the last N days (default 365)
+      tags:
+        - Analytics
+      parameters:
+        - in: query
+          name: days
+          schema:
+            type: integer
+            default: 365
+          description: Number of days to retrieve
+      responses:
+        "200":
+          description: Heatmap data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HeatmapData"
+
+  /analytics/streak:
+    get:
+      summary: Get learning streak
+      description: Returns current consecutive learning days and longest streak
+      tags:
+        - Analytics
+      responses:
+        "200":
+          description: Streak data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StreakData"
+
+  /analytics/today:
+    get:
+      summary: Get today's learning stats
+      description: Returns number of sessions, total time, and items studied today
+      tags:
+        - Analytics
+      responses:
+        "200":
+          description: Today's stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TodayStats"
+
+  /analytics/daily:
+    get:
+      summary: Get daily stats for date range
+      tags:
+        - Analytics
+      parameters:
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date
+          description: Start date (YYYY-MM-DD)
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date
+          description: End date (YYYY-MM-DD)
+      responses:
+        "200":
+          description: Daily statistics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    date:
+                      type: string
+                      format: date
+                    sessions:
+                      type: integer
+                    total_time:
+                      type: integer
+
+  /analytics/weekly:
+    get:
+      summary: Get weekly summary
+      description: Returns total sessions, time, and daily averages for the past week
+      tags:
+        - Analytics
+      responses:
+        "200":
+          description: Weekly summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeeklySummary"
+
+  /analytics/monthly:
+    get:
+      summary: Get monthly summary
+      description: Returns total sessions, time, and daily averages for the past month
+      tags:
+        - Analytics
+      responses:
+        "200":
+          description: Monthly summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_sessions:
+                    type: integer
+                  total_time:
+                    type: integer
+                  daily_average:
+                    type: number
+                  items_completed:
+                    type: integer
+
+  /analytics/completions:
+    get:
+      summary: Get recent completions
+      description: Returns list of recently completed items
+      tags:
+        - Analytics
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Number of completions to return
+      responses:
+        "200":
+          description: Recent completions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    type:
+                      type: string
+                    completed_at:
+                      type: string
+                      format: date-time
+
+  /analytics/weekday-pattern:
+    get:
+      summary: Get learning pattern by weekday
+      description: Returns average learning time for each day of the week
+      tags:
+        - Analytics
+      responses:
+        "200":
+          description: Weekday pattern data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    day:
+                      type: string
+                      enum:
+                        - Sunday
+                        - Monday
+                        - Tuesday
+                        - Wednesday
+                        - Thursday
+                        - Friday
+                        - Saturday
+                    average_time:
+                      type: number
+                    session_count:
+                      type: integer
+
+  /analytics/log:
+    post:
+      summary: Manually log progress
+      description: Log a learning session manually
+      tags:
+        - Analytics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - item_id
+                - progress
+              properties:
+                item_id:
+                  type: integer
+                  description: Item ID
+                  example: 1
+                progress:
+                  type: number
+                  description: Progress percentage
+                  example: 50
+                time_spent:
+                  type: integer
+                  description: Time spent in seconds
+                  example: 1800
+      responses:
+        "201":
+          description: Progress logged successfully
+        "400":
+          description: Validation error

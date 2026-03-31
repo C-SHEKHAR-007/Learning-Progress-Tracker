@@ -1,0 +1,314 @@
+paths:
+  /pdf/{id}/state:
+    get:
+      summary: Get PDF reading state
+      description: Returns current page, bookmarks, notes, and reading progress for a PDF
+      tags:
+        - PDF
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Item ID
+      responses:
+        "200":
+          description: Reading state retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadingState"
+        "404":
+          description: Item not found
+
+  /pdf/{id}/page:
+    patch:
+      summary: Update PDF page progress
+      description: Updates current page, total pages, and reading time
+      tags:
+        - PDF
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Item ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - currentPage
+                - totalPages
+              properties:
+                currentPage:
+                  type: integer
+                  example: 42
+                totalPages:
+                  type: integer
+                  example: 150
+                readingTime:
+                  type: integer
+                  description: Reading time in seconds to add
+                  example: 60
+      responses:
+        "200":
+          description: Page progress updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  current_page:
+                    type: integer
+                  total_pages:
+                    type: integer
+                  progress:
+                    type: number
+                  is_completed:
+                    type: boolean
+        "400":
+          description: Validation error
+
+  /pdf/{id}/stats:
+    get:
+      summary: Get PDF statistics
+      tags:
+        - PDF
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Item ID
+      responses:
+        "200":
+          description: PDF statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_reading_time:
+                    type: integer
+                    description: Total reading time in seconds
+                  bookmark_count:
+                    type: integer
+                  note_count:
+                    type: integer
+                  progress:
+                    type: number
+
+  /pdf/{id}/bookmarks:
+    get:
+      summary: Get all bookmarks for a PDF
+      tags:
+        - PDF
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Item ID
+      responses:
+        "200":
+          description: List of bookmarks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Bookmark"
+    post:
+      summary: Add a bookmark
+      tags:
+        - PDF
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Item ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - page
+              properties:
+                page:
+                  type: integer
+                  example: 42
+                title:
+                  type: string
+                  example: "Important Section"
+                color:
+                  type: string
+                  example: "#fbbf24"
+      responses:
+        "200":
+          description: Bookmark added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bookmarks:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Bookmark"
+
+  /pdf/{id}/bookmarks/{bookmarkId}:
+    delete:
+      summary: Remove a bookmark
+      tags:
+        - PDF
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Item ID
+        - in: path
+          name: bookmarkId
+          required: true
+          schema:
+            type: integer
+          description: Bookmark ID
+      responses:
+        "200":
+          description: Bookmark removed successfully
+        "404":
+          description: Item or bookmark not found
+
+  /pdf/{id}/notes:
+    get:
+      summary: Get all notes for a PDF
+      tags:
+        - PDF
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Item ID
+      responses:
+        "200":
+          description: List of notes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Note"
+    post:
+      summary: Add a note
+      tags:
+        - PDF
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Item ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - page
+                - content
+              properties:
+                page:
+                  type: integer
+                  example: 15
+                content:
+                  type: string
+                  example: "Remember this concept"
+                highlight:
+                  type: string
+                  example: ""
+      responses:
+        "200":
+          description: Note added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Note"
+
+  /pdf/{id}/notes/{noteId}:
+    patch:
+      summary: Update a note
+      tags:
+        - PDF
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Item ID
+        - in: path
+          name: noteId
+          required: true
+          schema:
+            type: integer
+          description: Note ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: "Updated note content"
+      responses:
+        "200":
+          description: Note updated successfully
+        "404":
+          description: Item or note not found
+    delete:
+      summary: Remove a note
+      tags:
+        - PDF
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Item ID
+        - in: path
+          name: noteId
+          required: true
+          schema:
+            type: integer
+          description: Note ID
+      responses:
+        "200":
+          description: Note removed successfully
+        "404":
+          description: Item or note not found
