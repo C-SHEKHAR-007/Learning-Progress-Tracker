@@ -1,8 +1,8 @@
 /**
  * Analytics Service
- * Business logic for analytics and progress tracking
+ * Business logic for analytics and progress tracking using Prisma
  */
-const pool = require("../../core/database");
+const prisma = require("../../core/database/prisma");
 const { DEFAULT_HEATMAP_DAYS, DEFAULT_COMPLETIONS_LIMIT, WEEKDAY_PATTERN_DAYS } = require("../../config/constants");
 
 const analyticsService = {
@@ -10,59 +10,61 @@ const analyticsService = {
    * Log a progress update to history
    */
   async logProgress(itemId, progress, timeSpent = 0) {
-    const query = `
-      INSERT INTO progress_history (item_id, progress, time_spent, session_date)
-      VALUES ($1, $2, $3, CURRENT_DATE)
-      RETURNING *
-    `;
-    const result = await pool.query(query, [itemId, progress, timeSpent]);
-    return result.rows[0];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    return prisma.progressHistory.create({
+      data: {
+        itemId: parseInt(itemId),
+        progress,
+        timeSpent,
+        sessionDate: today,
+      },
+    });
   },
 
   /**
    * Get activity data for heatmap (last N days)
    */
   async getActivityHeatmap(days = DEFAULT_HEATMAP_DAYS) {
-    const query = `
+    const result = await prisma.$queryRaw`
       SELECT 
         session_date as date,
-        COUNT(*) as sessions,
-        SUM(time_spent) as total_time,
-        COUNT(DISTINCT item_id) as items_worked
+        COUNT(*)::int as sessions,
+        COALESCE(SUM(time_spent), 0)::int as total_time,
+        COUNT(DISTINCT item_id)::int as items_worked
       FROM progress_history
-      WHERE session_date >= CURRENT_DATE - INTERVAL '${days} days'
+      WHERE session_date >= CURRENT_DATE - ${days}::int
       GROUP BY session_date
       ORDER BY session_date ASC
     `;
-    const result = await pool.query(query);
-    return result.rows;
+    return result;
   },
 
   /**
    * Get daily stats for a specific date range
    */
   async getDailyStats(days = 30) {
-    const query = `
+    const result = await prisma.$queryRaw`
       SELECT 
         session_date as date,
-        SUM(time_spent) as total_time,
-        COUNT(*) as sessions,
-        COUNT(DISTINCT item_id) as unique_items,
-        MAX(progress) as max_progress_gained
+        COALESCE(SUM(time_spent), 0)::int as total_time,
+        COUNT(*)::int as sessions,
+        COUNT(DISTINCT item_id)::int as unique_items,
+        MAX(progress)::int as max_progress_gained
       FROM progress_history
-      WHERE session_date >= CURRENT_DATE - INTERVAL '${days} days'
+      WHERE session_date >= CURRENT_DATE - ${days}::int
       GROUP BY session_date
       ORDER BY session_date DESC
     `;
-    const result = await pool.query(query);
-    return result.rows;
+    return result;
   },
 
   /**
    * Get current streak (consecutive days with activity)
    */
   async getStreak() {
-    const query = `
+    const result = await prisma.$queryRaw`
       WITH dates AS (
         SELECT DISTINCT session_date as date
         FROM progress_history
@@ -75,15 +77,14 @@ const analyticsService = {
         FROM dates
       )
       SELECT 
-        COUNT(*) as streak_days,
+        COUNT(*)::int as streak_days,
         MIN(date) as streak_start,
         MAX(date) as streak_end
       FROM streak
       WHERE grp = (SELECT grp FROM streak WHERE date = CURRENT_DATE OR date = CURRENT_DATE - 1 LIMIT 1)
     `;
-    const result = await pool.query(query);
 
-    const streak = result.rows[0];
+    const streak = result[0];
     if (streak && streak.streak_end) {
       const endDate = new Date(streak.streak_end);
       const today = new Date();
@@ -108,96 +109,104 @@ const analyticsService = {
    * Get weekly summary
    */
   async getWeeklySummary() {
-    const query = `
+    const result = await prisma.$queryRaw`
       SELECT 
-        SUM(time_spent) as total_time,
-        COUNT(*) as total_sessions,
-        COUNT(DISTINCT item_id) as items_worked,
-        COUNT(DISTINCT session_date) as active_days,
-        ROUND(AVG(time_spent)::numeric, 0) as avg_session_time
+        COALESCE(SUM(time_spent), 0)::int as total_time,
+        COUNT(*)::int as total_sessions,
+        COUNT(DISTINCT item_id)::int as items_worked,
+        COUNT(DISTINCT session_date)::int as active_days,
+        ROUND(AVG(time_spent)::numeric, 0)::int as avg_session_time
       FROM progress_history
-      WHERE session_date >= CURRENT_DATE - INTERVAL '7 days'
+      WHERE session_date >= CURRENT_DATE - 7
     `;
-    const result = await pool.query(query);
-    return result.rows[0];
+    return result[0];
   },
 
   /**
    * Get monthly summary
    */
   async getMonthlySummary() {
-    const query = `
+    const result = await prisma.$queryRaw`
       SELECT 
-        SUM(time_spent) as total_time,
-        COUNT(*) as total_sessions,
-        COUNT(DISTINCT item_id) as items_worked,
-        COUNT(DISTINCT session_date) as active_days,
-        ROUND(AVG(time_spent)::numeric, 0) as avg_session_time
+        COALESCE(SUM(time_spent), 0)::int as total_time,
+        COUNT(*)::int as total_sessions,
+        COUNT(DISTINCT item_id)::int as items_worked,
+        COUNT(DISTINCT session_date)::int as active_days,
+        ROUND(AVG(time_spent)::numeric, 0)::int as avg_session_time
       FROM progress_history
-      WHERE session_date >= CURRENT_DATE - INTERVAL '30 days'
+      WHERE session_date >= CURRENT_DATE - 30
     `;
-    const result = await pool.query(query);
-    return result.rows[0];
+    return result[0];
   },
 
   /**
    * Get recent completions with completion date
    */
   async getRecentCompletions(limit = DEFAULT_COMPLETIONS_LIMIT) {
-    const query = `
-      SELECT 
-        li.id,
-        li.name,
-        li.type,
-        li.progress,
-        li.is_completed,
-        li.updated_at as completed_at,
-        c.name as collection_name,
-        c.color as collection_color
-      FROM learning_items li
-      LEFT JOIN collections c ON li.collection_id = c.id
-      WHERE li.is_completed = true
-      ORDER BY li.updated_at DESC
-      LIMIT $1
-    `;
-    const result = await pool.query(query, [limit]);
-    return result.rows;
+    const items = await prisma.learningItem.findMany({
+      where: { isCompleted: true },
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        progress: true,
+        isCompleted: true,
+        updatedAt: true,
+        collection: {
+          select: {
+            name: true,
+            color: true,
+          },
+        },
+      },
+      orderBy: { updatedAt: "desc" },
+      take: limit,
+    });
+
+    return items.map((item) => ({
+      id: item.id,
+      name: item.name,
+      type: item.type,
+      progress: item.progress,
+      is_completed: item.isCompleted,
+      completed_at: item.updatedAt,
+      collection_name: item.collection?.name || null,
+      collection_color: item.collection?.color || null,
+    }));
   },
 
   /**
    * Get today's stats
    */
   async getTodayStats() {
-    const query = `
+    const result = await prisma.$queryRaw`
       SELECT 
-        COALESCE(SUM(time_spent), 0) as total_time,
-        COUNT(*) as sessions,
-        COUNT(DISTINCT item_id) as items_worked
+        COALESCE(SUM(time_spent), 0)::int as total_time,
+        COUNT(*)::int as sessions,
+        COUNT(DISTINCT item_id)::int as items_worked
       FROM progress_history
       WHERE session_date = CURRENT_DATE
     `;
-    const result = await pool.query(query);
-    return result.rows[0];
+    return result[0];
   },
 
   /**
    * Get progress by day of week (for pattern analysis)
    */
   async getWeekdayPattern() {
-    const query = `
+    const result = await prisma.$queryRaw`
       SELECT 
-        EXTRACT(DOW FROM session_date) as day_of_week,
-        TO_CHAR(session_date, 'Day') as day_name,
-        COUNT(*) as sessions,
-        COALESCE(SUM(time_spent), 0) as total_time,
-        ROUND(AVG(time_spent)::numeric, 0) as avg_time
+        EXTRACT(DOW FROM session_date)::int as day_of_week,
+        TRIM(TO_CHAR(session_date, 'Day')) as day_name,
+        COUNT(*)::int as sessions,
+        COALESCE(SUM(time_spent), 0)::int as total_time,
+        ROUND(AVG(time_spent)::numeric, 0)::int as avg_time
       FROM progress_history
-      WHERE session_date >= CURRENT_DATE - INTERVAL '${WEEKDAY_PATTERN_DAYS} days'
-      GROUP BY EXTRACT(DOW FROM session_date), TO_CHAR(session_date, 'Day')
+      WHERE session_date >= CURRENT_DATE - ${WEEKDAY_PATTERN_DAYS}::int
+      GROUP BY EXTRACT(DOW FROM session_date), TRIM(TO_CHAR(session_date, 'Day'))
       ORDER BY day_of_week
     `;
-    const result = await pool.query(query);
-    return result.rows;
+    return result;
   },
 
   /**

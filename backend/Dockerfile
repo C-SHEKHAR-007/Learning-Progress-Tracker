@@ -1,13 +1,20 @@
 # Backend Dockerfile
 FROM node:20-alpine
 
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
-# Copy package files
+# Copy package files and prisma schema
 COPY package*.json ./
+COPY prisma ./prisma/
 
-# Install dependencies
-RUN npm install --only=production
+# Install all dependencies (need prisma devDep for generate)
+RUN npm install
+
+# Generate Prisma client for Alpine Linux
+RUN npx prisma generate
 
 # Copy source code
 COPY . .

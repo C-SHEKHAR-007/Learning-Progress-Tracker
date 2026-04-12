@@ -4,7 +4,7 @@
  */
 const express = require("express");
 const router = express.Router();
-const pool = require("../../core/database");
+const prisma = require("../../core/database/prisma");
 
 // GET /health - Basic health check
 router.get("/", (req, res) => {
@@ -17,8 +17,15 @@ router.get("/", (req, res) => {
 
 // GET /health/detailed - Detailed health check with database status
 router.get("/detailed", async (req, res) => {
-  const dbHealthy = await pool.ping();
-  const dbStats = pool.getStats();
+  let dbHealthy = false;
+  let dbError = null;
+
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    dbHealthy = true;
+  } catch (error) {
+    dbError = error.message;
+  }
 
   const status = dbHealthy ? "healthy" : "degraded";
 
@@ -29,7 +36,7 @@ router.get("/detailed", async (req, res) => {
     checks: {
       database: {
         status: dbHealthy ? "ok" : "error",
-        ...dbStats,
+        error: dbError,
       },
       memory: {
         heapUsed: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + " MB",

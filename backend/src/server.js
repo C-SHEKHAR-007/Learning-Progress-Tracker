@@ -6,7 +6,7 @@ require("dotenv").config();
 
 const app = require("./app");
 const config = require("./config");
-const { createTables } = require("./core/database/schema");
+const prisma = require("./core/database/prisma");
 const logger = require("./core/utils/logger");
 
 const PORT = config.port;
@@ -16,9 +16,9 @@ const PORT = config.port;
  */
 const startServer = async () => {
   try {
-    // Initialize database tables
-    await createTables();
-    logger.info("Database initialized");
+    // Test database connection
+    await prisma.$queryRaw`SELECT 1`;
+    logger.info("Database connected via Prisma");
 
     // Start HTTP server
     app.listen(PORT, () => {
