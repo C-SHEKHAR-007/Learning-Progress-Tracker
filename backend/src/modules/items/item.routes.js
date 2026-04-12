@@ -7,11 +7,11 @@ const router = express.Router();
 const controller = require("./item.controller");
 const { validateBody } = require("../../core/middleware");
 const {
-  createItemsSchema,
-  updateItemSchema,
-  updateProgressSchema,
-  markCompletedSchema,
-  reorderItemsSchema,
+    createItemsSchema,
+    updateItemSchema,
+    updateProgressSchema,
+    markCompletedSchema,
+    reorderItemsSchema,
 } = require("./item.validation");
 
 // POST /api/items - Create new items

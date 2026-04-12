@@ -7,9 +7,9 @@ const router = express.Router();
 const controller = require("./collection.controller");
 const { validateBody } = require("../../core/middleware");
 const {
-  createCollectionSchema,
-  updateCollectionSchema,
-  reorderCollectionsSchema,
+    createCollectionSchema,
+    updateCollectionSchema,
+    reorderCollectionsSchema,
 } = require("./collection.validation");
 
 // GET /api/collections - Get all collections

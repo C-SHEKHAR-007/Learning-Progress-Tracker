@@ -9,9 +9,9 @@ const DatabaseError = require("./DatabaseError");
 const ConflictError = require("./ConflictError");
 
 module.exports = {
-  AppError,
-  ValidationError,
-  NotFoundError,
-  DatabaseError,
-  ConflictError,
+    AppError,
+    ValidationError,
+    NotFoundError,
+    DatabaseError,
+    ConflictError,
 };

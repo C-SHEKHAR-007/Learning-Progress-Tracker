@@ -6,297 +6,294 @@ const prisma = require("../../core/database/prisma");
 const { v4: uuidv4 } = require("uuid");
 
 const itemService = {
-  /**
-   * Create multiple items
-   */
-  async createBatch(items, collectionId = null) {
-    const parsedCollectionId = collectionId ? parseInt(collectionId) : null;
+    /**
+     * Create multiple items
+     */
+    async createBatch(items, collectionId = null) {
+        const parsedCollectionId = collectionId ? parseInt(collectionId) : null;
 
-    // Get max order_index for this collection
-    const maxOrder = await prisma.learningItem.aggregate({
-      where: { collectionId: parsedCollectionId },
-      _max: { orderIndex: true },
-    });
-    let orderIndex = (maxOrder._max.orderIndex ?? -1) + 1;
+        // Get max order_index for this collection
+        const maxOrder = await prisma.learningItem.aggregate({
+            where: { collectionId: parsedCollectionId },
+            _max: { orderIndex: true },
+        });
+        let orderIndex = (maxOrder._max.orderIndex ?? -1) + 1;
 
-    const createdItems = [];
+        const createdItems = [];
 
-    for (const item of items) {
-      const fileId = item.file_id || uuidv4();
+        for (const item of items) {
+            const fileId = item.file_id || uuidv4();
 
-      // Check if item already exists
-      const existing = await prisma.learningItem.findUnique({
-        where: { fileId },
-      });
+            // Check if item already exists
+            const existing = await prisma.learningItem.findUnique({
+                where: { fileId },
+            });
 
-      if (existing) {
-        createdItems.push(existing);
-        continue;
-      }
+            if (existing) {
+                createdItems.push(existing);
+                continue;
+            }
 
-      const created = await prisma.learningItem.create({
-        data: {
-          name: item.name,
-          type: item.type,
-          fileId,
-          filePath: item.file_path || null,
-          collectionId: parsedCollectionId,
-          orderIndex: orderIndex++,
-          duration: item.duration || 0,
-          fileSize: BigInt(item.file_size || 0),
-          thumbnail: item.thumbnail || null,
-        },
-      });
-      createdItems.push(created);
-    }
+            const created = await prisma.learningItem.create({
+                data: {
+                    name: item.name,
+                    type: item.type,
+                    fileId,
+                    filePath: item.file_path || null,
+                    collectionId: parsedCollectionId,
+                    orderIndex: orderIndex++,
+                    duration: item.duration || 0,
+                    fileSize: BigInt(item.file_size || 0),
+                    thumbnail: item.thumbnail || null,
+                },
+            });
+            createdItems.push(created);
+        }
 
-    return createdItems;
-  },
+        return createdItems;
+    },
 
-  /**
-   * Get all items sorted by collection and order_index
-   */
-  async getAll() {
-    const items = await prisma.learningItem.findMany({
-      include: {
-        collection: {
-          select: {
-            name: true,
-            color: true,
-            icon: true,
-            orderIndex: true,
-          },
-        },
-      },
-      orderBy: [
-        { collection: { orderIndex: "asc" } },
-        { orderIndex: "asc" },
-      ],
-    });
+    /**
+     * Get all items sorted by collection and order_index
+     */
+    async getAll() {
+        const items = await prisma.learningItem.findMany({
+            include: {
+                collection: {
+                    select: {
+                        name: true,
+                        color: true,
+                        icon: true,
+                        orderIndex: true,
+                    },
+                },
+            },
+            orderBy: [{ collection: { orderIndex: "asc" } }, { orderIndex: "asc" }],
+        });
 
-    // Transform to match expected format
-    return items.map((item) => ({
-      ...item,
-      file_id: item.fileId,
-      file_path: item.filePath,
-      collection_id: item.collectionId,
-      order_index: item.orderIndex,
-      is_completed: item.isCompleted,
-      last_position: item.lastPosition,
-      file_size: item.fileSize.toString(),
-      current_page: item.currentPage,
-      total_pages: item.totalPages,
-      reading_time: item.readingTime,
-      created_at: item.createdAt,
-      updated_at: item.updatedAt,
-      collection_name: item.collection?.name || null,
-      collection_color: item.collection?.color || null,
-      collection_icon: item.collection?.icon || null,
-    }));
-  },
+        // Transform to match expected format
+        return items.map((item) => ({
+            ...item,
+            file_id: item.fileId,
+            file_path: item.filePath,
+            collection_id: item.collectionId,
+            order_index: item.orderIndex,
+            is_completed: item.isCompleted,
+            last_position: item.lastPosition,
+            file_size: item.fileSize.toString(),
+            current_page: item.currentPage,
+            total_pages: item.totalPages,
+            reading_time: item.readingTime,
+            created_at: item.createdAt,
+            updated_at: item.updatedAt,
+            collection_name: item.collection?.name || null,
+            collection_color: item.collection?.color || null,
+            collection_icon: item.collection?.icon || null,
+        }));
+    },
 
-  /**
-   * Get items by collection
-   */
-  async getByCollection(collectionId) {
-    const parsedId = collectionId === null ? null : parseInt(collectionId);
-    
-    const items = await prisma.learningItem.findMany({
-      where: { collectionId: parsedId },
-      orderBy: { orderIndex: "asc" },
-    });
+    /**
+     * Get items by collection
+     */
+    async getByCollection(collectionId) {
+        const parsedId = collectionId === null ? null : parseInt(collectionId);
 
-    return items.map((item) => ({
-      ...item,
-      file_id: item.fileId,
-      file_path: item.filePath,
-      collection_id: item.collectionId,
-      order_index: item.orderIndex,
-      is_completed: item.isCompleted,
-      last_position: item.lastPosition,
-      file_size: item.fileSize.toString(),
-      current_page: item.currentPage,
-      total_pages: item.totalPages,
-      reading_time: item.readingTime,
-      created_at: item.createdAt,
-      updated_at: item.updatedAt,
-    }));
-  },
+        const items = await prisma.learningItem.findMany({
+            where: { collectionId: parsedId },
+            orderBy: { orderIndex: "asc" },
+        });
 
-  /**
-   * Get item by ID
-   */
-  async getById(id) {
-    const item = await prisma.learningItem.findUnique({
-      where: { id: parseInt(id) },
-      include: {
-        collection: {
-          select: {
-            name: true,
-            color: true,
-          },
-        },
-      },
-    });
+        return items.map((item) => ({
+            ...item,
+            file_id: item.fileId,
+            file_path: item.filePath,
+            collection_id: item.collectionId,
+            order_index: item.orderIndex,
+            is_completed: item.isCompleted,
+            last_position: item.lastPosition,
+            file_size: item.fileSize.toString(),
+            current_page: item.currentPage,
+            total_pages: item.totalPages,
+            reading_time: item.readingTime,
+            created_at: item.createdAt,
+            updated_at: item.updatedAt,
+        }));
+    },
 
-    if (!item) return null;
+    /**
+     * Get item by ID
+     */
+    async getById(id) {
+        const item = await prisma.learningItem.findUnique({
+            where: { id: parseInt(id) },
+            include: {
+                collection: {
+                    select: {
+                        name: true,
+                        color: true,
+                    },
+                },
+            },
+        });
 
-    return {
-      ...item,
-      file_id: item.fileId,
-      file_path: item.filePath,
-      collection_id: item.collectionId,
-      order_index: item.orderIndex,
-      is_completed: item.isCompleted,
-      last_position: item.lastPosition,
-      file_size: item.fileSize.toString(),
-      current_page: item.currentPage,
-      total_pages: item.totalPages,
-      reading_time: item.readingTime,
-      created_at: item.createdAt,
-      updated_at: item.updatedAt,
-      collection_name: item.collection?.name || null,
-      collection_color: item.collection?.color || null,
-    };
-  },
+        if (!item) return null;
 
-  /**
-   * Update item's collection
-   */
-  async updateCollection(itemId, collectionId) {
-    const item = await prisma.learningItem.update({
-      where: { id: parseInt(itemId) },
-      data: { collectionId: collectionId ? parseInt(collectionId) : null },
-    });
-    return item;
-  },
+        return {
+            ...item,
+            file_id: item.fileId,
+            file_path: item.filePath,
+            collection_id: item.collectionId,
+            order_index: item.orderIndex,
+            is_completed: item.isCompleted,
+            last_position: item.lastPosition,
+            file_size: item.fileSize.toString(),
+            current_page: item.currentPage,
+            total_pages: item.totalPages,
+            reading_time: item.readingTime,
+            created_at: item.createdAt,
+            updated_at: item.updatedAt,
+            collection_name: item.collection?.name || null,
+            collection_color: item.collection?.color || null,
+        };
+    },
 
-  /**
-   * Update progress
-   */
-  async updateProgress(id, progress, lastPosition, timeSpent = 0) {
-    const item = await prisma.learningItem.update({
-      where: { id: parseInt(id) },
-      data: {
-        progress,
-        lastPosition,
-      },
-    });
+    /**
+     * Update item's collection
+     */
+    async updateCollection(itemId, collectionId) {
+        const item = await prisma.learningItem.update({
+            where: { id: parseInt(itemId) },
+            data: { collectionId: collectionId ? parseInt(collectionId) : null },
+        });
+        return item;
+    },
 
-    // Log to analytics
-    if (item) {
-      try {
-        const analyticsService = require("../analytics/analytics.service");
-        await analyticsService.logProgress(parseInt(id), progress, timeSpent);
-      } catch (error) {
-        console.error("Error logging progress history:", error);
-      }
-    }
+    /**
+     * Update progress
+     */
+    async updateProgress(id, progress, lastPosition, timeSpent = 0) {
+        const item = await prisma.learningItem.update({
+            where: { id: parseInt(id) },
+            data: {
+                progress,
+                lastPosition,
+            },
+        });
 
-    return item;
-  },
+        // Log to analytics
+        if (item) {
+            try {
+                const analyticsService = require("../analytics/analytics.service");
+                await analyticsService.logProgress(parseInt(id), progress, timeSpent);
+            } catch (error) {
+                console.error("Error logging progress history:", error);
+            }
+        }
 
-  /**
-   * Mark as completed
-   */
-  async markCompleted(id, isCompleted) {
-    const progress = isCompleted ? 100 : 0;
-    const item = await prisma.learningItem.update({
-      where: { id: parseInt(id) },
-      data: {
-        isCompleted,
-        progress,
-      },
-    });
+        return item;
+    },
 
-    // Log to analytics
-    if (item) {
-      try {
-        const analyticsService = require("../analytics/analytics.service");
-        await analyticsService.logProgress(parseInt(id), progress, 0);
-      } catch (error) {
-        console.error("Error logging completion history:", error);
-      }
-    }
+    /**
+     * Mark as completed
+     */
+    async markCompleted(id, isCompleted) {
+        const progress = isCompleted ? 100 : 0;
+        const item = await prisma.learningItem.update({
+            where: { id: parseInt(id) },
+            data: {
+                isCompleted,
+                progress,
+            },
+        });
 
-    return item;
-  },
+        // Log to analytics
+        if (item) {
+            try {
+                const analyticsService = require("../analytics/analytics.service");
+                await analyticsService.logProgress(parseInt(id), progress, 0);
+            } catch (error) {
+                console.error("Error logging completion history:", error);
+            }
+        }
 
-  /**
-   * Reorder items
-   */
-  async reorder(items) {
-    const updates = items.map((item, index) =>
-      prisma.learningItem.update({
-        where: { id: item.id },
-        data: { orderIndex: index },
-      })
-    );
-    
-    return prisma.$transaction(updates);
-  },
+        return item;
+    },
 
-  /**
-   * Update item metadata
-   */
-  async update(id, updates) {
-    const { name, duration } = updates;
-    return prisma.learningItem.update({
-      where: { id: parseInt(id) },
-      data: {
-        ...(name && { name }),
-        ...(duration !== undefined && { duration }),
-      },
-    });
-  },
+    /**
+     * Reorder items
+     */
+    async reorder(items) {
+        const updates = items.map((item, index) =>
+            prisma.learningItem.update({
+                where: { id: item.id },
+                data: { orderIndex: index },
+            }),
+        );
 
-  /**
-   * Delete item
-   */
-  async delete(id) {
-    return prisma.learningItem.delete({
-      where: { id: parseInt(id) },
-    });
-  },
+        return prisma.$transaction(updates);
+    },
 
-  /**
-   * Delete all items
-   */
-  async deleteAll() {
-    return prisma.learningItem.deleteMany();
-  },
+    /**
+     * Update item metadata
+     */
+    async update(id, updates) {
+        const { name, duration } = updates;
+        return prisma.learningItem.update({
+            where: { id: parseInt(id) },
+            data: {
+                ...(name && { name }),
+                ...(duration !== undefined && { duration }),
+            },
+        });
+    },
 
-  /**
-   * Get file path by item ID
-   */
-  async getFilePath(id) {
-    const item = await prisma.learningItem.findUnique({
-      where: { id: parseInt(id) },
-      select: {
-        filePath: true,
-        type: true,
-        name: true,
-      },
-    });
+    /**
+     * Delete item
+     */
+    async delete(id) {
+        return prisma.learningItem.delete({
+            where: { id: parseInt(id) },
+        });
+    },
 
-    if (!item) return null;
+    /**
+     * Delete all items
+     */
+    async deleteAll() {
+        return prisma.learningItem.deleteMany();
+    },
 
-    return {
-      file_path: item.filePath,
-      type: item.type,
-      name: item.name,
-    };
-  },
+    /**
+     * Get file path by item ID
+     */
+    async getFilePath(id) {
+        const item = await prisma.learningItem.findUnique({
+            where: { id: parseInt(id) },
+            select: {
+                filePath: true,
+                type: true,
+                name: true,
+            },
+        });
 
-  /**
-   * Update file path
-   */
-  async updateFilePath(id, filePath) {
-    return prisma.learningItem.update({
-      where: { id: parseInt(id) },
-      data: { filePath },
-    });
-  },
+        if (!item) return null;
+
+        return {
+            file_path: item.filePath,
+            type: item.type,
+            name: item.name,
+        };
+    },
+
+    /**
+     * Update file path
+     */
+    async updateFilePath(id, filePath) {
+        return prisma.learningItem.update({
+            where: { id: parseInt(id) },
+            data: { filePath },
+        });
+    },
 };
 
 module.exports = itemService;

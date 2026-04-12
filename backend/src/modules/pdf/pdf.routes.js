@@ -7,10 +7,10 @@ const router = express.Router();
 const controller = require("./pdf.controller");
 const { validateBody } = require("../../core/middleware");
 const {
-  updatePageProgressSchema,
-  addBookmarkSchema,
-  addNoteSchema,
-  updateNoteSchema,
+    updatePageProgressSchema,
+    addBookmarkSchema,
+    addNoteSchema,
+    updateNoteSchema,
 } = require("./pdf.validation");
 
 // GET /api/pdf/:id/state - Get reading state

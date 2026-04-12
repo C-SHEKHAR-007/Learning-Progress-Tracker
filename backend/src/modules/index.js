@@ -9,9 +9,9 @@ const pdf = require("./pdf");
 const health = require("./health");
 
 module.exports = {
-  collections,
-  items,
-  analytics,
-  pdf,
-  health,
+    collections,
+    items,
+    analytics,
+    pdf,
+    health,
 };

@@ -6,16 +6,16 @@ const prisma = require("../../core/database/prisma");
 const { DEFAULT_BOOKMARK_COLOR } = require("../../config/constants");
 
 const pdfService = {
-  /**
-   * Update PDF page position and progress
-   */
-  async updatePageProgress(itemId, currentPage, totalPages, readingTime = 0) {
-    const progress = totalPages > 0 ? (currentPage / totalPages) * 100 : 0;
-    const isCompleted = currentPage >= totalPages;
-    const lastPosition = parseFloat(currentPage);
+    /**
+     * Update PDF page position and progress
+     */
+    async updatePageProgress(itemId, currentPage, totalPages, readingTime = 0) {
+        const progress = totalPages > 0 ? (currentPage / totalPages) * 100 : 0;
+        const isCompleted = currentPage >= totalPages;
+        const lastPosition = parseFloat(currentPage);
 
-    // Use raw query for incrementing reading_time
-    const result = await prisma.$queryRaw`
+        // Use raw query for incrementing reading_time
+        const result = await prisma.$queryRaw`
       UPDATE learning_items 
       SET current_page = ${currentPage}, 
           total_pages = ${totalPages}, 
@@ -27,69 +27,69 @@ const pdfService = {
       WHERE id = ${parseInt(itemId)}
       RETURNING id, current_page, total_pages, progress, is_completed
     `;
-    return result[0];
-  },
+        return result[0];
+    },
 
-  /**
-   * Get PDF reading state
-   */
-  async getReadingState(itemId) {
-    const item = await prisma.learningItem.findUnique({
-      where: { id: parseInt(itemId) },
-      select: {
-        id: true,
-        currentPage: true,
-        totalPages: true,
-        progress: true,
-        bookmarks: true,
-        notes: true,
-        readingTime: true,
-        isCompleted: true,
-      },
-    });
-    
-    if (!item) return null;
-    
-    return {
-      id: item.id,
-      current_page: item.currentPage,
-      total_pages: item.totalPages,
-      progress: item.progress,
-      bookmarks: item.bookmarks,
-      notes: item.notes,
-      reading_time: item.readingTime,
-      is_completed: item.isCompleted,
-    };
-  },
+    /**
+     * Get PDF reading state
+     */
+    async getReadingState(itemId) {
+        const item = await prisma.learningItem.findUnique({
+            where: { id: parseInt(itemId) },
+            select: {
+                id: true,
+                currentPage: true,
+                totalPages: true,
+                progress: true,
+                bookmarks: true,
+                notes: true,
+                readingTime: true,
+                isCompleted: true,
+            },
+        });
 
-  /**
-   * Add bookmark
-   */
-  async addBookmark(itemId, bookmark) {
-    const { page, title, color = DEFAULT_BOOKMARK_COLOR } = bookmark;
-    const newBookmark = {
-      id: Date.now(),
-      page,
-      title: title || `Page ${page}`,
-      color,
-      created_at: new Date().toISOString(),
-    };
+        if (!item) return null;
 
-    const result = await prisma.$queryRaw`
+        return {
+            id: item.id,
+            current_page: item.currentPage,
+            total_pages: item.totalPages,
+            progress: item.progress,
+            bookmarks: item.bookmarks,
+            notes: item.notes,
+            reading_time: item.readingTime,
+            is_completed: item.isCompleted,
+        };
+    },
+
+    /**
+     * Add bookmark
+     */
+    async addBookmark(itemId, bookmark) {
+        const { page, title, color = DEFAULT_BOOKMARK_COLOR } = bookmark;
+        const newBookmark = {
+            id: Date.now(),
+            page,
+            title: title || `Page ${page}`,
+            color,
+            created_at: new Date().toISOString(),
+        };
+
+        const result = await prisma.$queryRaw`
       UPDATE learning_items 
       SET bookmarks = bookmarks || ${JSON.stringify([newBookmark])}::jsonb,
           updated_at = CURRENT_TIMESTAMP
       WHERE id = ${parseInt(itemId)}
       RETURNING *
     `;
-    return result[0];
-  },
+        return result[0];
+    },
 
-  /**
-   * Remove bookmark
-   */
-  async removeBookmark(itemId, bookmarkId) {
-    const result = await prisma.$queryRaw`
+    /**
+     * Remove bookmark
+     */
+    async removeBookmark(itemId, bookmarkId) {
+        const result = await prisma.$queryRaw`
       UPDATE learning_items 
       SET bookmarks = (
         SELECT COALESCE(jsonb_agg(b), '[]'::jsonb)
@@ -100,48 +100,48 @@ const pdfService = {
       WHERE id = ${parseInt(itemId)}
       RETURNING *
     `;
-    return result[0];
-  },
+        return result[0];
+    },
 
-  /**
-   * Get all bookmarks for a PDF
-   */
-  async getBookmarks(itemId) {
-    const item = await prisma.learningItem.findUnique({
-      where: { id: parseInt(itemId) },
-      select: { bookmarks: true },
-    });
-    return item?.bookmarks || [];
-  },
+    /**
+     * Get all bookmarks for a PDF
+     */
+    async getBookmarks(itemId) {
+        const item = await prisma.learningItem.findUnique({
+            where: { id: parseInt(itemId) },
+            select: { bookmarks: true },
+        });
+        return item?.bookmarks || [];
+    },
 
-  /**
-   * Add note
-   */
-  async addNote(itemId, note) {
-    const { page, content, highlight = "" } = note;
-    const newNote = {
-      id: Date.now(),
-      page,
-      content,
-      highlight,
-      created_at: new Date().toISOString(),
-    };
+    /**
+     * Add note
+     */
+    async addNote(itemId, note) {
+        const { page, content, highlight = "" } = note;
+        const newNote = {
+            id: Date.now(),
+            page,
+            content,
+            highlight,
+            created_at: new Date().toISOString(),
+        };
 
-    const result = await prisma.$queryRaw`
+        const result = await prisma.$queryRaw`
       UPDATE learning_items 
       SET notes = notes || ${JSON.stringify([newNote])}::jsonb,
           updated_at = CURRENT_TIMESTAMP
       WHERE id = ${parseInt(itemId)}
       RETURNING *
     `;
-    return result[0];
-  },
+        return result[0];
+    },
 
-  /**
-   * Update note
-   */
-  async updateNote(itemId, noteId, updates) {
-    const result = await prisma.$queryRaw`
+    /**
+     * Update note
+     */
+    async updateNote(itemId, noteId, updates) {
+        const result = await prisma.$queryRaw`
       UPDATE learning_items 
       SET notes = (
         SELECT jsonb_agg(
@@ -157,14 +157,14 @@ const pdfService = {
       WHERE id = ${parseInt(itemId)}
       RETURNING *
     `;
-    return result[0];
-  },
+        return result[0];
+    },
 
-  /**
-   * Remove note
-   */
-  async removeNote(itemId, noteId) {
-    const result = await prisma.$queryRaw`
+    /**
+     * Remove note
+     */
+    async removeNote(itemId, noteId) {
+        const result = await prisma.$queryRaw`
       UPDATE learning_items 
       SET notes = (
         SELECT COALESCE(jsonb_agg(n), '[]'::jsonb)
@@ -175,25 +175,25 @@ const pdfService = {
       WHERE id = ${parseInt(itemId)}
       RETURNING *
     `;
-    return result[0];
-  },
+        return result[0];
+    },
 
-  /**
-   * Get all notes for a PDF
-   */
-  async getNotes(itemId) {
-    const item = await prisma.learningItem.findUnique({
-      where: { id: parseInt(itemId) },
-      select: { notes: true },
-    });
-    return item?.notes || [];
-  },
+    /**
+     * Get all notes for a PDF
+     */
+    async getNotes(itemId) {
+        const item = await prisma.learningItem.findUnique({
+            where: { id: parseInt(itemId) },
+            select: { notes: true },
+        });
+        return item?.notes || [];
+    },
 
-  /**
-   * Get PDF statistics
-   */
-  async getPdfStats(itemId) {
-    const result = await prisma.$queryRaw`
+    /**
+     * Get PDF statistics
+     */
+    async getPdfStats(itemId) {
+        const result = await prisma.$queryRaw`
       SELECT 
         current_page,
         total_pages,
@@ -206,8 +206,8 @@ const pdfService = {
         updated_at
       FROM learning_items WHERE id = ${parseInt(itemId)}
     `;
-    return result[0];
-  },
+        return result[0];
+    },
 };
 
 module.exports = pdfService;

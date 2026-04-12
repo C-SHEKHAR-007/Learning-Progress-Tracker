@@ -6,7 +6,7 @@ const service = require("./item.service");
 const controller = require("./item.controller");
 
 module.exports = {
-  routes,
-  service,
-  controller,
+    routes,
+    service,
+    controller,
 };

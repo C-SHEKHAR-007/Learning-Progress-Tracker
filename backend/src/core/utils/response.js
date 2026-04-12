@@ -10,7 +10,7 @@
  * @param {number} statusCode - HTTP status code (default: 200)
  */
 const success = (res, data, statusCode = 200) => {
-  res.status(statusCode).json(data);
+    res.status(statusCode).json(data);
 };
 
 /**
@@ -19,7 +19,7 @@ const success = (res, data, statusCode = 200) => {
  * @param {any} data - Created resource
  */
 const created = (res, data) => {
-  res.status(201).json(data);
+    res.status(201).json(data);
 };
 
 /**
@@ -27,7 +27,7 @@ const created = (res, data) => {
  * @param {Response} res - Express response object
  */
 const noContent = (res) => {
-  res.status(204).send();
+    res.status(204).send();
 };
 
 /**
@@ -36,21 +36,21 @@ const noContent = (res) => {
  * @param {Object} options - Pagination options
  */
 const paginated = (res, { data, page, pageSize, total }) => {
-  res.json({
-    data,
-    pagination: {
-      page,
-      pageSize,
-      total,
-      totalPages: Math.ceil(total / pageSize),
-      hasMore: page * pageSize < total,
-    },
-  });
+    res.json({
+        data,
+        pagination: {
+            page,
+            pageSize,
+            total,
+            totalPages: Math.ceil(total / pageSize),
+            hasMore: page * pageSize < total,
+        },
+    });
 };
 
 module.exports = {
-  success,
-  created,
-  noContent,
-  paginated,
+    success,
+    created,
+    noContent,
+    paginated,
 };

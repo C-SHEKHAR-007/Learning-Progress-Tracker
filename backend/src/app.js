@@ -29,7 +29,7 @@ const app = express();
 
 // Request logging (development)
 if (config.env === "development") {
-  app.use(requestLogger);
+    app.use(requestLogger);
 }
 
 // CORS
@@ -45,68 +45,68 @@ app.use(express.urlencoded({ extended: true, limit: MAX_FILE_SIZE }));
 
 // Load Swagger spec dynamically (supports both old and new locations)
 const loadSwaggerSpec = () => {
-  try {
-    // Try new location first
-    const newSwaggerPath = path.join(__dirname, "docs", "swagger.js");
-    if (fs.existsSync(newSwaggerPath)) {
-      return require(newSwaggerPath);
+    try {
+        // Try new location first
+        const newSwaggerPath = path.join(__dirname, "docs", "swagger.js");
+        if (fs.existsSync(newSwaggerPath)) {
+            return require(newSwaggerPath);
+        }
+
+        // Fall back to old location
+        const oldSwaggerPath = path.join(__dirname, "..", "swagger");
+        if (fs.existsSync(oldSwaggerPath)) {
+            return require(oldSwaggerPath);
+        }
+
+        logger.warn("Swagger spec not found, API docs will not be available");
+        return null;
+    } catch (error) {
+        logger.error("Failed to load Swagger spec", { error: error.message });
+        return null;
     }
-    
-    // Fall back to old location
-    const oldSwaggerPath = path.join(__dirname, "..", "swagger");
-    if (fs.existsSync(oldSwaggerPath)) {
-      return require(oldSwaggerPath);
-    }
-    
-    logger.warn("Swagger spec not found, API docs will not be available");
-    return null;
-  } catch (error) {
-    logger.error("Failed to load Swagger spec", { error: error.message });
-    return null;
-  }
 };
 
 const swaggerSpec = loadSwaggerSpec();
 
 if (swaggerSpec) {
-  // Load custom Swagger theme
-  let swaggerThemeCss = "";
-  const themePaths = [
-    path.join(__dirname, "docs", "swagger-theme.css"),
-    path.join(__dirname, "..", "swagger", "swagger-theme.css"),
-  ];
-  
-  for (const themePath of themePaths) {
-    if (fs.existsSync(themePath)) {
-      swaggerThemeCss = fs.readFileSync(themePath, "utf8");
-      break;
+    // Load custom Swagger theme
+    let swaggerThemeCss = "";
+    const themePaths = [
+        path.join(__dirname, "docs", "swagger-theme.css"),
+        path.join(__dirname, "..", "swagger", "swagger-theme.css"),
+    ];
+
+    for (const themePath of themePaths) {
+        if (fs.existsSync(themePath)) {
+            swaggerThemeCss = fs.readFileSync(themePath, "utf8");
+            break;
+        }
     }
-  }
 
-  app.use(
-    "/api-docs",
-    swaggerUi.serve,
-    swaggerUi.setup(swaggerSpec, {
-      customCss: swaggerThemeCss,
-      customSiteTitle: "Learning Progress Tracker API",
-      customfavIcon:
-        "https://raw.githubusercontent.com/swagger-api/swagger-ui/master/dist/favicon-32x32.png",
-      swaggerOptions: {
-        docExpansion: "list",
-        filter: true,
-        showRequestDuration: true,
-        tryItOutEnabled: true,
-        persistAuthorization: true,
-        displayRequestDuration: true,
-      },
-    })
-  );
+    app.use(
+        "/api-docs",
+        swaggerUi.serve,
+        swaggerUi.setup(swaggerSpec, {
+            customCss: swaggerThemeCss,
+            customSiteTitle: "Learning Progress Tracker API",
+            customfavIcon:
+                "https://raw.githubusercontent.com/swagger-api/swagger-ui/master/dist/favicon-32x32.png",
+            swaggerOptions: {
+                docExpansion: "list",
+                filter: true,
+                showRequestDuration: true,
+                tryItOutEnabled: true,
+                persistAuthorization: true,
+                displayRequestDuration: true,
+            },
+        }),
+    );
 
-  // Swagger JSON spec endpoint
-  app.get("/api-docs.json", (req, res) => {
-    res.setHeader("Content-Type", "application/json");
-    res.send(swaggerSpec);
-  });
+    // Swagger JSON spec endpoint
+    app.get("/api-docs.json", (req, res) => {
+        res.setHeader("Content-Type", "application/json");
+        res.send(swaggerSpec);
+    });
 }
 
 // ===========================================

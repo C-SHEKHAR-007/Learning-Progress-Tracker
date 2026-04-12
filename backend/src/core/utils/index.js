@@ -7,7 +7,7 @@ const response = require("./response");
 const pagination = require("./pagination");
 
 module.exports = {
-  logger,
-  ...response,
-  ...pagination,
+    logger,
+    ...response,
+    ...pagination,
 };

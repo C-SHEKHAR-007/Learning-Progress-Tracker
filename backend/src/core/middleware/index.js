@@ -8,12 +8,12 @@ const { validate, validateBody, validateQuery, validateParams } = require("./val
 const requestLogger = require("./requestLogger");
 
 module.exports = {
-  asyncHandler,
-  errorHandler,
-  notFoundHandler,
-  validate,
-  validateBody,
-  validateQuery,
-  validateParams,
-  requestLogger,
+    asyncHandler,
+    errorHandler,
+    notFoundHandler,
+    validate,
+    validateBody,
+    validateQuery,
+    validateParams,
+    requestLogger,
 };
