@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== COLLECTIONS ====================
+
+model Collection {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  color      String   @default("#6366f1")
+  icon       String   @default("folder")
+  orderIndex Int      @default(0) @map("order_index")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  items LearningItem[]
+
+  @@index([orderIndex])
+  @@map("collections")
+}
+
+// ==================== LEARNING ITEMS ====================
+
+enum ItemType {
+  video
+  pdf
+}
+
+model LearningItem {
+  id           Int       @id @default(autoincrement())
+  name         String
+  type         ItemType
+  fileId       String    @unique @map("file_id")
+  filePath     String?   @map("file_path")
+  collectionId Int?      @map("collection_id")
+  orderIndex   Int       @default(0) @map("order_index")
+  progress     Float     @default(0)
+  isCompleted  Boolean   @default(false) @map("is_completed")
+  lastPosition Float     @default(0) @map("last_position")
+  duration     Float     @default(0)
+  fileSize     BigInt    @default(0) @map("file_size")
+  thumbnail    String?
+
+  // PDF-specific fields
+  currentPage Int  @default(1) @map("current_page")
+  totalPages  Int  @default(0) @map("total_pages")
+  bookmarks   Json @default("[]")
+  notes       Json @default("[]")
+  readingTime Int  @default(0) @map("reading_time")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  collection      Collection?       @relation(fields: [collectionId], references: [id], onDelete: SetNull)
+  progressHistory ProgressHistory[]
+
+  @@index([orderIndex])
+  @@index([type])
+  @@index([collectionId])
+  @@map("learning_items")
+}
+
+// ==================== PROGRESS HISTORY ====================
+
+model ProgressHistory {
+  id         Int      @id @default(autoincrement())
+  itemId     Int      @map("item_id")
+  progress   Float
+  timeSpent  Int      @default(0) @map("time_spent")
+  sessionDate DateTime @default(now()) @map("session_date") @db.Date
+  recordedAt DateTime @default(now()) @map("recorded_at")
+
+  // Relations
+  item LearningItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@index([itemId])
+  @@index([sessionDate])
+  @@index([recordedAt])
+  @@map("progress_history")
+}

@@ -1,13 +1,20 @@
 # Backend Dockerfile
 FROM node:20-alpine
 
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
-# Copy package files
+# Copy package files and prisma schema
 COPY package*.json ./
+COPY prisma ./prisma/
 
-# Install dependencies
-RUN npm install --only=production
+# Install all dependencies (need prisma devDep for generate)
+RUN npm install
+
+# Generate Prisma client for Alpine Linux
+RUN npx prisma generate
 
 # Copy source code
 COPY . .
@@ -19,5 +26,5 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:5000/health || exit 1
 
-# Start the application
-CMD ["node", "server.js"]
+# Start the application with Prisma migration
+CMD ["sh", "-c", "npx prisma db push --skip-generate && node src/server.js"]
