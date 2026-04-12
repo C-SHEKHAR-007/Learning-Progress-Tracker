@@ -26,5 +26,5 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:5000/health || exit 1
 
-# Start the application (new entry point)
-CMD ["node", "src/server.js"]
+# Start the application with Prisma migration
+CMD ["sh", "-c", "npx prisma db push --skip-generate && node src/server.js"]
